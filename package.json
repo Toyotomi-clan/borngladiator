@@ -1,7 +1,7 @@
 {
   "name": "borngladiator",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "FKU",
   "scripts": {
     "start": "nx run-many --parallel --target=serve --projects=born,gladiator",
     "build": "nx build",
