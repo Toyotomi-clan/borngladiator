@@ -1,4 +1,138 @@
 {
   "version": 2,
-  "projects": {}
+  "projects": {
+    "born": {
+      "root": "apps/born",
+      "sourceRoot": "apps/born/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/web:webpack",
+          "outputs": ["{options.outputPath}"],
+          "defaultConfiguration": "production",
+          "options": {
+            "compiler": "swc",
+            "outputPath": "dist/apps/born",
+            "index": "apps/born/src/index.html",
+            "baseHref": "/",
+            "main": "apps/born/src/main.tsx",
+            "polyfills": "apps/born/src/polyfills.ts",
+            "tsConfig": "apps/born/tsconfig.app.json",
+            "assets": ["apps/born/src/favicon.ico", "apps/born/src/assets"],
+            "styles": [],
+            "scripts": [],
+            "webpackConfig": "@nrwl/react/plugins/webpack"
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "apps/born/src/environments/environment.ts",
+                  "with": "apps/born/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/web:dev-server",
+          "options": {
+            "buildTarget": "born:build",
+            "hmr": true
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "born:build:production",
+              "hmr": false
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["apps/born/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/born"],
+          "options": {
+            "jestConfig": "apps/born/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      },
+      "tags": []
+    },
+    "gladiator": {
+      "root": "apps/gladiator",
+      "projectType": "application",
+      "sourceRoot": "apps/gladiator",
+      "targets": {
+        "build": {
+          "executor": "@nx-dotnet/core:build",
+          "outputs": ["dist/apps/gladiator"],
+          "options": {
+            "configuration": "Debug",
+            "noDependencies": true
+          },
+          "configurations": {
+            "production": {
+              "configuration": "Release"
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nx-dotnet/core:serve",
+          "options": {
+            "configuration": "Debug"
+          },
+          "configurations": {
+            "production": {
+              "configuration": "Release"
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nx-dotnet/core:format"
+        }
+      },
+      "tags": ["gladiator", "nx-dotnet"]
+    },
+    "gladiator-test": {
+      "root": "apps/gladiator-test",
+      "projectType": "application",
+      "sourceRoot": "apps/gladiator-test",
+      "targets": {
+        "build": {
+          "executor": "@nx-dotnet/core:build",
+          "outputs": ["dist/apps/gladiator-test"],
+          "options": {
+            "configuration": "Debug",
+            "noDependencies": true
+          },
+          "configurations": {
+            "production": {
+              "configuration": "Release"
+            }
+          }
+        },
+        "test": {
+          "executor": "@nx-dotnet/core:test",
+          "options": {}
+        },
+        "lint": {
+          "executor": "@nx-dotnet/core:format"
+        }
+      },
+      "tags": ["gladiator", "nx-dotnet"]
+    }
+  }
 }
