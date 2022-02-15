@@ -5,7 +5,6 @@ import {
     FormLabel,
     Input,
     InputGroup,
-    HStack,
     InputRightElement,
     Stack,
     Button,
@@ -26,18 +25,14 @@ import {
         align={'center'}
         justify={'center'}
         bg={useColorModeValue('gray.50', 'gray.800')}>
-        <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
+        <Stack spacing={8} mx={'auto'} minW={'xl'} py={12} px={6}>
           <Stack align={'center'}>
             <Heading fontSize={'4xl'} textAlign={'center'}>
               Sign up
             </Heading>
-            <HStack> 
             <Text fontSize={'lg'} color={'gray.900'}>
                  come and take them
             </Text>
-            <Text color={'red.800'}>
-            </Text>
-                </HStack>
           </Stack>
           <Box
             rounded={'lg'}
@@ -45,20 +40,10 @@ import {
             boxShadow={'lg'}
             p={8}>
             <Stack spacing={4}>
-              <HStack>
-                <Box>
-                  <FormControl id="firstName" isRequired>
-                    <FormLabel>First Name</FormLabel>
+              <FormControl id="userName" isRequired>
+                    <FormLabel>User Name</FormLabel>
                     <Input type="text" />
-                  </FormControl>
-                </Box>
-                <Box>
-                  <FormControl id="lastName">
-                    <FormLabel>Last Name</FormLabel>
-                    <Input type="text" />
-                  </FormControl>
-                </Box>
-              </HStack>
+              </FormControl>
               <FormControl id="email" isRequired>
                 <FormLabel>Email address</FormLabel>
                 <Input type="email" />
