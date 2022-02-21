@@ -1,12 +1,16 @@
-import { ChakraProvider } from "@chakra-ui/react";
+import {ChakraProvider, Container, Flex, useColorModeValue} from "@chakra-ui/react";
 import SignupCard from "./signup";
+import Nav from "./navbar";
+import Login from "./login";
 
-export function App() {
+
+export function App({children}) {
   return (
     <>
-    <ChakraProvider> 
-      <SignupCard />
-    </ChakraProvider>
+      <Container minW={"100vw"} bg={useColorModeValue('gray.100', 'gray.900')}>
+        <Nav/>
+        {children}
+      </Container>
     </>
   );
 }

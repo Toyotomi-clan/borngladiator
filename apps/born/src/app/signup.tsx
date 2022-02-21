@@ -11,9 +11,8 @@ import {
   Heading,
   Text,
   useColorModeValue,
-  Link,
   Divider, useToast, toast,
-  FormErrorMessage,
+  FormErrorMessage, Link,
 } from '@chakra-ui/react';
   import { useEffect, useState } from 'react';
   import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
@@ -22,6 +21,7 @@ import {
 import oryRegisterFormErrorSetter from "./helper/oryHelper";
 import {registerFormModel, validateField} from "./models/registerFormModel";
 import {errorIsValid} from "./helper/EmptyObjectHelper";
+import {Link as ReactRouterLink} from "react-router-dom";
 
 
 export default function SignupCard() {
@@ -54,9 +54,10 @@ export default function SignupCard() {
       <Flex
         minH={'100vh'}
         align={'center'}
-        justify={'center'}
-        bg={useColorModeValue('gray.50', 'gray.800')}>
-        <form onSubmit={handleSubmit((form: registerFormModel ) => {
+        justify={'center'}>
+
+
+      <form onSubmit={handleSubmit((form: registerFormModel ) => {
 
           if(!data.ui){
             return;
@@ -114,6 +115,7 @@ export default function SignupCard() {
               }
             }
           )
+            //Todo: extract this to a method and pass in a type
             .catch(async x => {
               if(x.error?.code === 410){
                 setData(() => InitFlow);
@@ -187,18 +189,18 @@ export default function SignupCard() {
             <Heading fontSize={'4xl'} textAlign={'center'}>
               Sign up
             </Heading>
-            <Text fontSize={'lg'} color={'gray.900'}>
+            <Text>
               "Death may be the greatest of all human blessings" - Socrates
               {data?.id}
             </Text>
           </Stack>
 
-          <Divider color={"red.900"}/>
           <Box
             rounded={'lg'}
-            bg={useColorModeValue('white', 'gray.700')}
             boxShadow={'lg'}
-            p={8}>
+            p={8}
+            bg={useColorModeValue('white', 'gray.700')}
+          >
             <Stack spacing={4}>
               <FormControl id="userName" isRequired isInvalid={errorIsValid(errors,errors.traits?.username)}>
                     <FormLabel>User Name</FormLabel>
@@ -235,7 +237,6 @@ export default function SignupCard() {
                   loadingText="Submitting"
                   size="lg"
                   bg={'blue.400'}
-                  color={'white'}
                   _hover={{
                     bg: 'blue.500',
                   }}>
@@ -244,7 +245,7 @@ export default function SignupCard() {
               </Stack>
               <Stack pt={6}>
                 <Text align={'center'}>
-                  Already a user? <Link color={'blue.400'}>Login</Link>
+                  <ReactRouterLink to={"/login"}>Already a user? <Link color={'blue.400'}>Login</Link> </ReactRouterLink>
                 </Text>
               </Stack>
             </Stack>
