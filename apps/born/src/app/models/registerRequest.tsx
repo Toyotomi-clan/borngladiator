@@ -17,11 +17,19 @@ export interface Attributes {
         label: Label;
     }
 
+    interface OryMessage {
+      context: {
+        reason: string,
+      }
+      id: number,
+      text: string,
+      type: string
+    }
     export interface Node {
         type: string;
         group: string;
         attributes: Attributes;
-        messages: any[];
+        messages: OryMessage[];
         meta: Meta;
     }
 
@@ -29,6 +37,7 @@ export interface Attributes {
         action: string;
         method: string;
         nodes: Node[];
+        messages: OryMessage[]
     }
 
     export interface Flow {
@@ -51,7 +60,8 @@ export const InitFlow: Flow = {
    ui: {
      nodes: [],
      action: "",
-     method: ""
+     method: "",
+     messages: []
    },
    state: ""
 }

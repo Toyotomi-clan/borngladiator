@@ -13,16 +13,21 @@ import {
   useColorModeValue,
   Link,
   Divider, useToast, toast,
+  FormErrorMessage,
 } from '@chakra-ui/react';
   import { useEffect, useState } from 'react';
   import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-  import {Flow,InitFlow} from "./models/registerRequest"
+  import {Flow, InitFlow, Ui} from "./models/registerRequest"
   import {useForm} from "react-hook-form";
+import oryRegisterFormErrorSetter from "./helper/oryHelper";
+import {registerFormModel, validateField} from "./models/registerFormModel";
+import {errorIsValid} from "./helper/EmptyObjectHelper";
 
 
 export default function SignupCard() {
 
-    const {register, handleSubmit} = useForm<registerFormModel>();
+    const {register, handleSubmit,setError, formState} = useForm<registerFormModel>();
+    const {errors} = formState;
     const [showPassword, setShowPassword] = useState(false);
 
     const [data,setData] = useState<Flow>(InitFlow);
@@ -44,8 +49,6 @@ export default function SignupCard() {
 
       }).catch(x => console.log(x));
     },[data.id])
-
-  console.log(new Date(data?.expires_at))
 
     return (
       <Flex
@@ -76,15 +79,31 @@ export default function SignupCard() {
                 password: form.password,
                 [csrfToken.attributes.name]:csrfToken.attributes.value,
                 traits: {
-                  email: form.email,
-                  username: form.username,
+                  email: form.traits.email,
+                  username: form.traits.username,
                 }
               })
             }
-          ).then(x => x.json()).then(x =>
+          )
+            .then(response => {
+              if(!response.ok){
+                const error = {
+                  error:
+                    {
+                      response: response,
+                      code: response.status,
+                    }
+                }
+                throw error;
+              }
+              return response;
+            })
+            .then(response => response.json()).then(data =>
             {
-              console.log(x)
-              if(x.session.active){
+              if(data.error){
+                throw data;
+              }
+              if(data.session.active){
                 toast({
                   title: 'Account created.',
                   description: "Welcome to death clock",
@@ -95,7 +114,72 @@ export default function SignupCard() {
               }
             }
           )
-            .catch(x => console.log(x))
+            .catch(async x => {
+              if(x.error?.code === 410){
+                setData(() => InitFlow);
+              }
+              if(x.error?.code === 400) {
+                const response = await x.error.response.json();
+
+                if (response.error) {
+                  console.log({"errorBeforeJson": x.error, response: response})
+
+                  if(response.error.id === "session_already_available"){
+                    //redirect the user
+                    setError("oryValidationGeneral", {
+                      message: "You already logged in",
+                      type: "logged in"
+                    })
+                  }
+                  if(response.error.id === "security_csrf_violation"){
+                    //redirect the user
+                    setError("oryValidationGeneral", {
+                      message: "please try again later",
+                      type: "csrf violation"
+                    })
+                  }
+                  if(response.error.id === "security_identity_mismatch"){
+                    //let the user know the browser needs to be opened to loggin with 0Auth 3rd party i.e. google
+                  }
+                  if(response.error.id === "browser_location_change_required"){
+                    //redirect the user
+
+                  }
+                }
+                const oryResponse: Ui = response.ui;
+
+                if (oryResponse) {
+                  console.log({OryResponse: oryResponse})
+                  const attributes = oryRegisterFormErrorSetter(oryResponse);
+
+                  for (const attribute of attributes) {
+
+                    for (const message of attribute.messages) {
+                      const name: validateField = (attribute.attributes.name as validateField);
+
+                      setError(name,
+                        {
+                          type: "oryCloudValidationError",
+                          message: message.text
+                        });
+
+                    }
+                    console.log({validation: attribute, errors: errors})
+                  }
+
+                  if (!oryResponse.messages) {
+                    return;
+                  }
+                  for (const message of oryResponse.messages) {
+                    setError("oryValidationGeneral", {
+                      message: message.text,
+                      type: message.type,
+                    })
+                  }
+                }
+                console.log({"error thrown": x})
+              }
+            })
 
         })}>
         <Stack spacing={8} mx={'auto'} minW={'xl'} py={12} px={6}>
@@ -116,15 +200,17 @@ export default function SignupCard() {
             boxShadow={'lg'}
             p={8}>
             <Stack spacing={4}>
-              <FormControl id="userName" isRequired>
+              <FormControl id="userName" isRequired isInvalid={errorIsValid(errors,errors.traits?.username)}>
                     <FormLabel>User Name</FormLabel>
-                    <Input type="text" {...register("username")} />
+                    <Input type="text" {...register("traits.username")} />
+                    <FormErrorMessage>{errors.traits?.username?.message}</FormErrorMessage>
               </FormControl>
-              <FormControl id="email" isRequired>
+              <FormControl id="email" isRequired isInvalid={errorIsValid(errors,errors.traits?.email)}>
                 <FormLabel>Email address</FormLabel>
-                <Input type="email" {...register("email")}/>
+                <Input type="email" {...register("traits.email")}/>
+                <FormErrorMessage>{errors.traits?.email?.message}</FormErrorMessage>
               </FormControl>
-              <FormControl id="password" isRequired>
+              <FormControl id="password" isRequired isInvalid={errorIsValid(errors,errors.password)}>
                 <FormLabel>Password</FormLabel>
                 <InputGroup>
                   <Input type={showPassword ? 'text' : 'password'} {...register("password")}/>
@@ -138,6 +224,10 @@ export default function SignupCard() {
                     </Button>
                   </InputRightElement>
                 </InputGroup>
+                <FormErrorMessage>{errors["password"]?.message}</FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={errorIsValid(errors,errors.oryValidationGeneral)}>
+                <FormErrorMessage>{errors.oryValidationGeneral?.message}</FormErrorMessage>
               </FormControl>
               <Stack spacing={10} pt={2}>
                 <Button
