@@ -60,7 +60,7 @@ export default function Login() {
                 Sign in
               </Button>
               <Box>
-                <ReactRouterLink to={"/register"}> <Link color={'blue.400'}> New? Sign Up!</Link> </ReactRouterLink>
+                <ReactRouterLink to={"/register"}>  New? Sign Up!</ReactRouterLink>
               </Box>
             </Stack>
           </Stack>

@@ -49,6 +49,7 @@
     "@chakra-ui/react": "^1.8.3",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
+    "@ory/client": "^0.0.1-alpha.105",
     "core-js": "^3.6.5",
     "framer-motion": "^6.2.6",
     "react": "17.0.2",
@@ -56,6 +57,8 @@
     "react-hook-form": "^7.27.0",
     "react-router-dom": "^6.2.1",
     "regenerator-runtime": "0.13.7",
-    "tslib": "^2.0.0"
+    "swr": "^1.2.2",
+    "tslib": "^2.0.0",
+    "zustand": "^3.7.0"
   }
 }
