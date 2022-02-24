@@ -15,13 +15,43 @@ import {
 
 import {Link as ReactRouterLink} from "react-router-dom";
 
+import useStartLoginFlow, {postLoginForm, useMutateLogin} from "./Api/Api";
+import {useForm} from "react-hook-form";
+import {LoginFormModel} from "./models/registerFormModel";
+import {SubmitSelfServiceLoginFlowBody} from "@ory/client/dist/api";
+import {findCsrfToken} from "./helper/oryHelper";
+import {SelfServiceLoginFlow} from "@ory/client";
+
+
 export default function Login() {
+
+  const { status, data, error , isFetching } = useStartLoginFlow();
+  const {handleSubmit, setError,register}  = useForm<LoginFormModel>();
+  const mutation  = useMutateLogin();
+
+  console.log({status,data,error,isFetching})
+  console.log({mutation})
+
   return (
     <Flex
       minH={'100vh'}
       align={'center'}
       justify={'center'}>
-      <form>
+      <form onSubmit={handleSubmit((form) =>{
+          const csrfToken = findCsrfToken(data.data.ui);
+
+          const submitLogin : SubmitSelfServiceLoginFlowBody = {
+            password: form.password,
+            method: "password",
+            password_identifier:form.email,
+            csrf_token: csrfToken
+          }
+          mutation.mutate({
+          flow: data.data,
+          model:submitLogin
+        });
+
+      })}>
       <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
         <Stack align={'center'}>
           <Heading fontSize={'4xl'}>Sign in to your account</Heading>

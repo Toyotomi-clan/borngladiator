@@ -6,6 +6,11 @@ export interface registerFormModel {
   "password": string,
    oryValidationGeneral: boolean
 }
+export interface LoginFormModel {
+  email:string,
+  password: string,
+  oryValidationGeneral: boolean
+}
 export type validateField = "traits.username" | "traits.email" | "password";
 
 interface validateFieldAttribute{
