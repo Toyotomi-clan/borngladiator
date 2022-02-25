@@ -21,6 +21,7 @@ import {LoginFormModel} from "./models/registerFormModel";
 import {SubmitSelfServiceLoginFlowBody} from "@ory/client/dist/api";
 import {findCsrfToken} from "./helper/oryHelper";
 import {errorIsValid} from "./helper/EmptyObjectHelper";
+import useStore from "./store/createstore";
 
 
 export default function Login() {
@@ -28,9 +29,11 @@ export default function Login() {
   const { status, data, error , isFetching } = useStartLoginFlow();
   const {handleSubmit, setError,register, formState: {errors}}  = useForm<LoginFormModel>();
   const mutation  = useMutateLogin();
+  const store = useStore();
 
   console.log({status,data,error,isFetching})
-  console.log({mutation})
+  console.log({user: store.User})
+
 
   return (
     <Flex
