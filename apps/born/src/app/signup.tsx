@@ -222,22 +222,22 @@ export default function SignupCard() {
                 }
                 const oryResponse: Ui = response.ui;
 
-                if (oryResponse) {
-                  const attributes = oryRegisterFormErrorSetter(oryResponse);
-
-                  for (const attribute of attributes) {
-
-                    for (const message of attribute.messages) {
-                      const name: validateField = (attribute.attributes.name as validateField);
-
-                      setError(name,
-                        {
-                          type: "oryCloudValidationError",
-                          message: message.text
-                        });
-
-                    }
-                  }
+                // if (oryResponse) {
+                //   const attributes = oryRegisterFormErrorSetter(oryResponse);
+                //
+                //   for (const attribute of attributes) {
+                //
+                //     for (const message of attribute.messages) {
+                //       const name: validateField = (attribute.attributes.name as validateField);
+                //
+                //       setError(name,
+                //         {
+                //           type: "oryCloudValidationError",
+                //           message: message.text
+                //         });
+                //
+                //     }
+                //   }
 
                   if (!oryResponse.messages) {
                     return;
@@ -249,7 +249,7 @@ export default function SignupCard() {
                     })
                   }
                 }
-              }
+
             })
 
         },(errors,e) =>{

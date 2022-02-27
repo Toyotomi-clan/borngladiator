@@ -17,23 +17,24 @@ import {Link as ReactRouterLink} from "react-router-dom";
 
 import useStartLoginFlow, {useMutateLogin} from "./Api/Api";
 import {useForm} from "react-hook-form";
-import {LoginFormModel} from "./models/registerFormModel";
 import {SubmitSelfServiceLoginFlowBody} from "@ory/client/dist/api";
-import {findCsrfToken} from "./helper/oryHelper";
+import oryRegisterFormErrorSetter, {findCsrfToken} from "./helper/oryHelper";
 import {errorIsValid} from "./helper/EmptyObjectHelper";
 import useStore from "./store/createstore";
+import {AxiosError} from "axios";
+import {JsonError, SelfServiceLoginFlow} from "@ory/client";
+import {defaultLoginFieldValues, LoginFormModel} from "./models/loginModels";
 
 
 export default function Login() {
 
   const { status, data, error , isFetching } = useStartLoginFlow();
   const {handleSubmit, setError,register, formState: {errors}}  = useForm<LoginFormModel>();
-  const mutation  = useMutateLogin();
+  const mutation  = useMutateLogin(setError);
   const store = useStore();
 
   console.log({status,data,error,isFetching})
   console.log({user: store.User})
-
 
   return (
     <Flex
@@ -53,8 +54,7 @@ export default function Login() {
           flow: data.data,
           model:submitLogin
         });
-
-      })}>
+          })}>
       <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
         <Stack align={'center'}>
           <Heading fontSize={'4xl'}>Sign in to your account</Heading>
@@ -77,10 +77,10 @@ export default function Login() {
               <Input type="password" {...register("password")}/>
             </FormControl>
 
-            <FormControl isInvalid={errorIsValid(errors,errors.oryValidationGeneral)}>
-              <Text {...register("oryValidationGeneral",{required: false})}/>
+            <FormControl isInvalid={errorIsValid(errors,errors.general)}>
+              <Text {...register("general",{required: false})}/>
 
-              <FormErrorMessage>{errors.oryValidationGeneral?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.general?.message}</FormErrorMessage>
             </FormControl>
             <Stack spacing={10}>
               <Stack
