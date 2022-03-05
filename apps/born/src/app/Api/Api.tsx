@@ -1,96 +1,168 @@
 import {
   JsonError,
-  SelfServiceLoginFlow,
-  SelfServiceRecoveryFlowState,
-  SelfServiceSettingsFlowState,
+  SelfServiceLoginFlow, SelfServiceRegistrationFlow, SubmitSelfServiceRegistrationFlowBody,
+  SuccessfulSelfServiceLoginWithoutBrowser, SuccessfulSelfServiceRegistrationWithoutBrowser,
   V0alpha2ApiFactory
 } from "@ory/client"
 import {useMutation, useQuery} from "react-query";
 import {SubmitSelfServiceLoginFlowBody} from "@ory/client/dist/api";
-import {AxiosError} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import {UseFormSetError} from "react-hook-form/dist/types/form";
 import OryErrors from "../helper/oryHelper";
 import {defaultLoginFieldValues, LoginFormModel} from "../models/loginModels";
+import {
+  axiosErrorJsonSchema,
+  axiosErrorSelfServiceLoginFlowSchema, axiosErrorSelfServiceSignUpFlowSchema,
+  axiosSuccessSelfServiceLoginFlowSchema, axiosSuccessSelfServiceSignUpFlowSchema
+} from "../Schema/AxiosErrorSchema";
+import useStore, {defaultAuth} from "../store/createstore";
+import {ErrorOption, FieldPath} from "react-hook-form";
+import {defaultSignUpFieldValues, registerFormModel} from "../models/registerFormModel";
+import {oryFormFieldTypes, oryFormTypes} from "../models/OryFormTypes";
+import {QueryObserverOptions} from "react-query/types/core/types";
 
-
+const path = "/.ory";
+const client = V0alpha2ApiFactory(null,path);
 
 async  function  startLoginFlow(){
-  const path = "/.ory";
-  const client = V0alpha2ApiFactory(null,path);
 
   const response =  await client.initializeSelfServiceLoginFlowForBrowsers(false,"aal1","")
 
   return response;
 }
 
-async  function  postLoginForm(post: {flow: SelfServiceLoginFlow, model : SubmitSelfServiceLoginFlowBody}){
-  const path = "/.ory";
-  const client = V0alpha2ApiFactory(null,path);
+async  function  startSignUpFlow(){
 
-
-  const response =  await client.submitSelfServiceLoginFlow("lol",null,post.model)
+  const response =  await client.initializeSelfServiceRegistrationFlowForBrowsers("","aal1");
 
   return response;
 }
 
-//20M in milliseconds
-const staleTime = 1200000;
+async  function  getCurrentUser(){
 
-export default function useStartLoginFlow(){
-  return useQuery("get",startLoginFlow,{
-    staleTime: staleTime
+  const response =  await client.toSession();
+
+  return response;
+}
+
+async  function  postLoginForm(post: {flow: SelfServiceLoginFlow, model : SubmitSelfServiceLoginFlowBody}){
+
+  const response =  await client.submitSelfServiceLoginFlow(post.flow.id,null,post.model)
+
+  return response;
+}
+async  function  postSignUpForm(post: {flow: SelfServiceRegistrationFlow, model : SubmitSelfServiceRegistrationFlowBody}){
+
+  const response =  await client.submitSelfServiceRegistrationFlow(post.flow.id,post.model)
+
+  console.log({response: response})
+
+  return response;
+}
+
+
+export  function useStartLoginFlow(){
+  return useQuery("startLoginFlow",startLoginFlow,{
+    retry: false,
+    useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status >= 400
   });
 }
 
+export function useStartSignUpFlow(){
+  return useQuery("startSignUpFlow",startSignUpFlow, {
+    retry: false,
+    useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status >= 400
+  })
+}
+export function useCurrentUser(){
+  return useQuery("user",getCurrentUser,{
+    retry: false,
+    useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status > 400
+  });
+}
+
+function NonFormError(error: AxiosError<SelfServiceRegistrationFlow> | AxiosError<JsonError>, setFormError: (name: FieldPath<oryFormTypes>, error: ErrorOption, options?: { shouldFocus: boolean }) => void) {
+  const response = error.response.data as JsonError;
+
+  setFormError("general", {
+    message: response.error.message,
+    type: response.error.status
+  })
+}
+
+export function useMutationSignUp(setFormError: UseFormSetError<registerFormModel>){
+  const setSession = useStore(state => state.SetSession);
+
+  return useMutation((post: {flow: SelfServiceRegistrationFlow, model: SubmitSelfServiceRegistrationFlowBody}) =>{
+    return postSignUpForm(post);
+  },{
+    onSuccess: (data: AxiosResponse<SuccessfulSelfServiceRegistrationWithoutBrowser>) =>{
+      //Todo: change this to work with registration flow
+      if(axiosSuccessSelfServiceSignUpFlowSchema.isValid(data)){
+        setSession(data.data)
+      }
+    },
+    onError:(error:  AxiosError<SelfServiceRegistrationFlow> | AxiosError<JsonError>) =>{
+
+      if (axiosErrorSelfServiceSignUpFlowSchema.isValid(error.response)) {
+        OnErrorFormUserFeedback(error, setFormError,defaultSignUpFieldValues);
+      }
+      else if (axiosErrorJsonSchema.isValid(error.response)) {
+        NonFormError(error, setFormError);
+      }
+      else {
+        //Todo: report the un expected error that is neither 400 or 500 range
+      }
+    }
+  })
+}
+
+type uiResponse = SelfServiceLoginFlow | SelfServiceRegistrationFlow;
+
+function OnErrorFormUserFeedback(error: AxiosError<uiResponse> | AxiosError<JsonError>, setFormError: (name: FieldPath<oryFormTypes>, error: ErrorOption, options?: { shouldFocus: boolean }) => void,defaultFields : oryFormFieldTypes) {
+  const response = error.response.data as uiResponse;
+
+  const uiErrors = OryErrors(response.ui, defaultFields);
+
+  for (const uiError of uiErrors.fields) {
+
+    if (!uiError.error) {
+      continue;
+    }
+
+    for (const message of uiError.error) {
+      setFormError(uiError.form, {
+        type: message.type,
+        message: message.message,
+      });
+    }
+  }
+}
+
 export function  useMutateLogin(setFormError: UseFormSetError<LoginFormModel>){
+  const setSession = useStore(state => state.SetSession);
+
   return useMutation((post: {flow: SelfServiceLoginFlow, model : SubmitSelfServiceLoginFlowBody}) => {
     return postLoginForm(post);
   },{
-    onError:(error: AxiosError<SelfServiceLoginFlow> | AxiosError<JsonError>) => {
-      //bad request something wrong with our submitted form
-      let x: AxiosError<SelfServiceLoginFlow> = null;
-      x.
-      //use zod to varify instead
-      if (error.response.status === 400 && isA<SelfServiceLoginFlow>(error.response.data)){
-        const response = error.response.data as SelfServiceLoginFlow ;
-        const jsError = response
-
-        if(!response){
-          //invalid state ory returns response SelfServiceLoginFlow response on 400
-          //https://www.ory.sh/docs/reference/api#operation/submitSelfServiceLoginFlow
-          //Todo: log this and return error to the user
-        }
-        let fields = defaultLoginFieldValues;
-
-        const uiErrors =  OryErrors(response.ui,fields);
-
-        for(const uiError of uiErrors.fields){
-
-          if(!uiError.error){
-            continue;
-          }
-
-          for(const message of uiError.error){
-            setFormError(uiError.form,{
-              type: message.type,
-              message: message.message,
-            });
-          }
-        }
+    onSuccess: (data: AxiosResponse<SuccessfulSelfServiceLoginWithoutBrowser>) =>{
+      if(axiosSuccessSelfServiceLoginFlowSchema.isValid(data)){
+        setSession(data.data)
       }
-      if(error.response.status === 403 ||
-        error.response.status ===  500){
-        const response = error.response.data as JsonError;
-        if(!response){
-          //invalid state
-        }
-        setFormError("general",{
-          message:response.error.reason,
-          type: response.error.status
-        })
+    },
+    onError:  (error: AxiosError<SelfServiceLoginFlow> | AxiosError<JsonError>) => {
+
+      //400 error
+      if (axiosErrorSelfServiceLoginFlowSchema.isValid(error.response)) {
+        OnErrorFormUserFeedback(error, setFormError,defaultLoginFieldValues);
       }
-
-
+      //500 error and errors greater than 400
+      else if (axiosErrorJsonSchema.isValid(error.response)) {
+        NonFormError(error, setFormError);
+      }
+      else {
+        //Todo: report the un expected error that is neither 400 or 500 range
+      }
     }
   })
 }

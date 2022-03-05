@@ -1,17 +1,21 @@
-import {ChakraProvider, Container, Flex, useColorModeValue} from "@chakra-ui/react";
-import SignupCard from "./signup";
+import {Container, useColorModeValue} from "@chakra-ui/react";
 import Nav from "./navbar";
-import Login from "./login";
-
+import {ErrorBoundary} from "react-error-boundary";
+import {useQueryErrorResetBoundary} from "react-query";
+import {errorHandler} from "./errorHandler";
+import {GlobalErrorPageHandler} from "./GlobalErrorPageHandler";
 
 export function App({children}) {
+  const {reset} = useQueryErrorResetBoundary();
   return (
-    <>
-      <Container minW={"100vw"} bg={useColorModeValue('gray.100', 'gray.900')}>
-        <Nav/>
+    <Container minW={"100vw"} bg={useColorModeValue('gray.100', 'gray.900')}>
+      <Nav/>
+
+    <ErrorBoundary onError={errorHandler} fallbackRender={GlobalErrorPageHandler} onReset={reset}>
         {children}
-      </Container>
-    </>
+    </ErrorBoundary>
+    </Container>
+
   );
 }
 

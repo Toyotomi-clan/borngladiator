@@ -17,7 +17,7 @@ import {
   Center, HStack,
 } from '@chakra-ui/react';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
-
+import {Link as ReactLink} from "react-router-dom"
 const NavLink = ({ children }: { children: ReactNode }) => (
   <Link
     px={2}
@@ -85,7 +85,7 @@ export default function Nav() {
                   <MenuDivider />
                   <MenuItem>Your Servers</MenuItem>
                   <MenuItem>Account Settings</MenuItem>
-                  <MenuItem>Logout</MenuItem>
+                  <MenuItem> <ReactLink to={"/login"}>Logout</ReactLink></MenuItem>
                 </MenuList>
               </Menu>
             </Stack>

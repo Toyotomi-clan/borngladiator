@@ -13,28 +13,31 @@ import {
   useColorModeValue, FormErrorMessage,
 } from '@chakra-ui/react';
 
-import {Link as ReactRouterLink} from "react-router-dom";
+import {Link as ReactRouterLink, useNavigate} from "react-router-dom";
 
-import useStartLoginFlow, {useMutateLogin} from "./Api/Api";
+import {useStartLoginFlow, useMutateLogin, useCurrentUser} from "./Api/Api";
 import {useForm} from "react-hook-form";
 import {SubmitSelfServiceLoginFlowBody} from "@ory/client/dist/api";
-import oryRegisterFormErrorSetter, {findCsrfToken} from "./helper/oryHelper";
+import {findCsrfToken} from "./helper/oryHelper";
 import {errorIsValid} from "./helper/EmptyObjectHelper";
-import useStore from "./store/createstore";
-import {AxiosError} from "axios";
-import {JsonError, SelfServiceLoginFlow} from "@ory/client";
-import {defaultLoginFieldValues, LoginFormModel} from "./models/loginModels";
+import {LoginFormModel} from "./models/loginModels";
+import useStore, {defaultAuth} from "./store/createstore";
 
 
 export default function Login() {
 
-  const { status, data, error , isFetching } = useStartLoginFlow();
   const {handleSubmit, setError,register, formState: {errors}}  = useForm<LoginFormModel>();
+
+  //Todo: if data is empty / error redirect user to error boundary
+  const { status, data, error , isFetching } = useStartLoginFlow();
+
   const mutation  = useMutateLogin(setError);
+  const navigate = useNavigate();
   const store = useStore();
 
-  console.log({status,data,error,isFetching})
-  console.log({user: store.User})
+  if(store.User !== defaultAuth){
+    navigate("/");
+  }
 
   return (
     <Flex
@@ -42,6 +45,7 @@ export default function Login() {
       align={'center'}
       justify={'center'}>
       <form onSubmit={handleSubmit((form) =>{
+          //Todo handle error on empty data that can happen
           const csrfToken = findCsrfToken(data.data.ui);
 
           const submitLogin : SubmitSelfServiceLoginFlowBody = {
@@ -53,7 +57,11 @@ export default function Login() {
           mutation.mutate({
           flow: data.data,
           model:submitLogin
-        });
+        },{
+            onSuccess:() =>{
+              navigate("/")
+            }
+          });
           })}>
       <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
         <Stack align={'center'}>

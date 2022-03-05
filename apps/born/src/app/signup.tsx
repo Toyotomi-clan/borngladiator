@@ -11,94 +11,32 @@ import {
   Heading,
   Text,
   useColorModeValue,
-  Divider, useToast, toast,
-  FormErrorMessage, Link,
+  useToast, FormErrorMessage,
 } from '@chakra-ui/react';
-  import { useEffect, useState } from 'react';
+  import { useState } from 'react';
   import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-  import {Flow, InitFlow, Ui} from "./models/registerRequest"
-  import {useForm} from "react-hook-form";
-import oryRegisterFormErrorSetter from "./helper/oryHelper";
-import {registerFormModel, validateField} from "./models/registerFormModel";
+import {useForm} from "react-hook-form";
+import {findCsrfToken} from "./helper/oryHelper";
+import {registerFormModel} from "./models/registerFormModel";
 import {errorIsValid} from "./helper/EmptyObjectHelper";
 import {Link as ReactRouterLink, useNavigate} from "react-router-dom";
-import {Session} from "@ory/client";
-import useStore from "../app/store/createstore"
-import {SuccessfulSelfServiceRegistrationWithoutBrowser} from "@ory/client/api";
+import {useMutationSignUp, useStartLoginFlow, useStartSignUpFlow} from "./Api/Api";
+import {SubmitSelfServiceRegistrationFlowBody} from "@ory/client";
 
 
 export default function SignupCard() {
-
     const {register, handleSubmit,setError, formState} = useForm<registerFormModel>();
+
+  //Todo: if data is empty / error redirect user to error boundary
+  const { status, data, error , isFetching } = useStartSignUpFlow();
+
+    const mutation = useMutationSignUp(setError);
     const {errors} = formState;
     const [showPassword, setShowPassword] = useState(false);
 
-    const [data,setData] = useState<Flow>(InitFlow);
+    const toast = useToast();
 
-    const [apiErrorRetry,setApiErrorRetry] = useState(false);
-    const [apiErrorRetryCount,setApiRetryCount] = useState(0);
     const navigate = useNavigate();
-    const setAuth = useStore(state => state.SetSession);
-
-
-  const toast = useToast();
-
-    useEffect(() => {
-      fetch("/.ory/self-service/registration/browser",{
-        headers:{
-          accept: "application/json"
-        }
-      }).then(response => {
-        //Network error
-        if(!response.ok){
-          const error = {
-                response: response,
-                code: response.status,
-          }
-          throw error;
-        }
-        return response;
-      })
-        .then(response => response.json()).then(response => {
-
-        const flow = response as Flow;
-
-        if(flow === null){
-          throw new Error("response unable to parse");
-        }
-
-        const csrfToken = flow.ui.nodes.find(x => x.attributes.name === "csrf_token");
-
-        if(!csrfToken.attributes.value || !csrfToken.attributes.name){
-          throw new Error("csrfToken not specified");
-        }
-
-        if(data.id == "" && flow !== null){
-          setData(() => flow)
-        }
-
-      }).catch( async exception => {
-        //Todo: maybe gradual retry
-        //log error to some log store
-        const {code,response} = exception;
-        if(code === 400){
-          const {error} = await response.json();
-
-          if(error.id && error.id === "session_already_available"){
-            //Todo Redirect user to the main page
-
-          }
-        }
-        if(apiErrorRetryCount < 3) {
-          setApiRetryCount(x => x + 1);
-          setApiErrorRetry(singleRetry => !singleRetry);
-        }
-        else if(apiErrorRetryCount >= 3 && !data.id){
-            navigate("/error")
-        }
-      });
-    },[apiErrorRetry,data.id])
-
     return (
       <Flex
         minH={'100vh'}
@@ -107,155 +45,38 @@ export default function SignupCard() {
 
 
       <form onSubmit={handleSubmit((form: registerFormModel ) => {
+        //Todo handle error on empty data that can happen
+        const csrfToken = findCsrfToken(data.data.ui);
 
-          if(!data.ui){
-            //retry data should not be in this state
-            setError("oryValidationGeneral",{
-              message: "Sorry, try to resubmit, if this error persist try again later",
-              type: "state error",
+        const submitRegistration : SubmitSelfServiceRegistrationFlowBody = {
+          password: form.password,
+          method: "password",
+          traits: {
+            username: form.traits.username,
+            email: form.traits.email
+          },
+          csrf_token: csrfToken
+        }
+        mutation.mutate({
+          flow: data.data,
+          model: submitRegistration
+        },{
+          onSuccess:() =>{
+            navigate("/")
+            toast({
+              title: "Welcome to death watch",
+              description: "Every day matters"
             })
-            setApiErrorRetry(x => !x);
+          },
+          onError: () =>{
+            toast({
+              title: "Error with sign up :(",
+              description: "please check the validation errors",
+              status: "error"
+            });
           }
+        });
 
-          const csrfToken = data.ui.nodes.find(x => x.attributes.name === "csrf_token");
-
-          if(!csrfToken.attributes.value || !csrfToken.attributes.name){
-            //retry data should not be in this state
-            setError("oryValidationGeneral",{
-              message: "Sorry, try to resubmit, if this error persist try again later",
-              type: "state error",
-            })
-            setApiErrorRetry(x => !x);
-          }
-
-          fetch(data.ui.action,{
-              method: "POST",
-              headers:{
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                method: "password",
-                password: form.password,
-                [csrfToken.attributes.name]:csrfToken.attributes.value,
-                traits: {
-                  email: form.traits.email,
-                  username: form.traits.username,
-                }
-              })
-            }
-          )
-            .then(response => {
-              if(!response.ok){
-                const error = {
-                  error:
-                    {
-                      response: response,
-                      code: response.status,
-                    }
-                }
-                throw error;
-              }
-              return response;
-            })
-            .then(response => response.json()).then(data  =>
-            {
-              if(data.error){
-                throw data;
-              }
-              const user = data as SuccessfulSelfServiceRegistrationWithoutBrowser;
-              if(!user){
-                return;
-              }
-              setAuth(user);
-
-              if(user.session.active){
-                toast({
-                  title: 'Account created.',
-                  description: "Welcome to death clock",
-                  status: 'success',
-                  duration: 9000,
-                  isClosable: true,
-                })
-              }
-            }
-          )
-            //Todo: extract this to a method and pass in a type
-            .catch(async x => {
-              //410 -> resource no longer available
-              if(x.error?.code === 410){
-                setError("oryValidationGeneral",{
-                  message: "You waited too long,please try again",
-                  type: "user error",
-                })
-                setData(() => InitFlow);
-              }
-              //Bad request what could it be?
-              if(x.error?.code === 400) {
-                const response = await x.error.response.json();
-
-                if (response.error) {
-                  if(response.error.id === "session_already_available"){
-                    //redirect the user
-                    setError("oryValidationGeneral", {
-                      message: "You already logged in",
-                      type: "logged in"
-                    })
-                    //Todo: Redirect user to the main area
-                  }
-                  if(response.error.id === "security_csrf_violation"){
-                    //redirect the user
-                    setError("oryValidationGeneral", {
-                      message: "please try again later",
-                      type: "csrf violation"
-                    })
-                    //Todo gradual retry is needed here
-                    setData(() => InitFlow);
-                  }
-                  if(response.error.id === "security_identity_mismatch"){
-                    //let the user know the browser needs to be opened to loggin with 0Auth 3rd party i.e. google
-                  }
-                  if(response.error.id === "browser_location_change_required"){
-                    //redirect the user
-
-                  }
-                }
-                const oryResponse: Ui = response.ui;
-
-                // if (oryResponse) {
-                //   const attributes = oryRegisterFormErrorSetter(oryResponse);
-                //
-                //   for (const attribute of attributes) {
-                //
-                //     for (const message of attribute.messages) {
-                //       const name: validateField = (attribute.attributes.name as validateField);
-                //
-                //       setError(name,
-                //         {
-                //           type: "oryCloudValidationError",
-                //           message: message.text
-                //         });
-                //
-                //     }
-                //   }
-
-                  if (!oryResponse.messages) {
-                    return;
-                  }
-                  for (const message of oryResponse.messages) {
-                    setError("oryValidationGeneral", {
-                      message: message.text,
-                      type: message.type,
-                    })
-                  }
-                }
-
-            })
-
-        },(errors,e) =>{
-        console.log({
-          errors,e
-        })
       })}>
         <Stack spacing={8} mx={'auto'} minW={'xl'} py={12} px={6}>
           <Stack align={'center'}>
@@ -303,10 +124,10 @@ export default function SignupCard() {
                 <FormErrorMessage>{errors["password"]?.message}</FormErrorMessage>
               </FormControl>
               //Todo:
-              <FormControl isInvalid={errorIsValid(errors,errors.oryValidationGeneral)}>
-                <Text {...register("oryValidationGeneral",{required: false})}/>
+              <FormControl isInvalid={errorIsValid(errors,errors.general)}>
+                <Text {...register("general",{required: false})}/>
 
-                <FormErrorMessage>{errors.oryValidationGeneral?.message}</FormErrorMessage>
+                <FormErrorMessage>{errors.general?.message}</FormErrorMessage>
               </FormControl>
               <Stack spacing={10} pt={2}>
                 <Button

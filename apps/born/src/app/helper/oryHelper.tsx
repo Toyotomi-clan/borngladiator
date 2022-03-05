@@ -5,17 +5,16 @@ import {FormValidate, IOryError, validateFields} from "../interfaces/validateFie
 export default function OryErrors<Form extends string,Ory extends  string>
 (oryResponse:UiContainer, formFields: validateFields<FormValidate<Form,Ory>>)
 {
-  let validateOryResponse = Object.assign({},formFields);
-
-  //Todo: Make sure to include top level message :  'messages'?: Array<UiText>;
-  const topLevelContainerMessage: IOryError[] = oryResponse?.messages.map(x => ({
+  const validateOryResponse = Object.assign({},formFields);
+  
+  const topLevelContainerMessage: IOryError[] = oryResponse?.messages?.map(x => ({
       name: "general",
       message: x.text,
       id: x.id,
       type: x.type
   })) || [];
 
-  let generalField = validateOryResponse.fields.find(x => x.form === "general");
+  const generalField = validateOryResponse.fields.find(x => x.form === "general");
 
   if(!generalField){
     throw "Expected a general ory validation error field"
