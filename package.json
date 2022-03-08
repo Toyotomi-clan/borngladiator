@@ -4,7 +4,7 @@
   "license": "FKU",
   "scripts": {
     "start": "nx run-many --parallel --target=serve --projects=born,gladiator",
-    "start-production": "nx run-many --parallel --target=serve --configuration=production --projects=born,gladiator",
+    "start-prod": "nx run-many --parallel --target=serve --configuration=production --projects=born,gladiator",
     "build": "nx build",
     "test": "nx test",
     "prepare": "nx g @nx-dotnet/core:restore"

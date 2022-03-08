@@ -63,15 +63,17 @@ async  function  postSignUpForm(post: {flow: SelfServiceRegistrationFlow, model 
 
 export  function useStartLoginFlow(){
   return useQuery("startLoginFlow",startLoginFlow,{
+    staleTime: 30,
     retry: false,
-    useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status >= 400
+    useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status !== 200
   });
 }
 
 export function useStartSignUpFlow(){
   return useQuery("startSignUpFlow",startSignUpFlow, {
+    staleTime: 30,
     retry: false,
-    useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status >= 400
+    useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status !== 200
   })
 }
 export function useCurrentUser(){
@@ -96,6 +98,7 @@ export function useMutationSignUp(setFormError: UseFormSetError<registerFormMode
   return useMutation((post: {flow: SelfServiceRegistrationFlow, model: SubmitSelfServiceRegistrationFlowBody}) =>{
     return postSignUpForm(post);
   },{
+    useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status > 400,
     onSuccess: (data: AxiosResponse<SuccessfulSelfServiceRegistrationWithoutBrowser>) =>{
       //Todo: change this to work with registration flow
       if(axiosSuccessSelfServiceSignUpFlowSchema.isValid(data)){
@@ -117,6 +120,7 @@ export function useMutationSignUp(setFormError: UseFormSetError<registerFormMode
   })
 }
 
+//Todo move all this stuff into their own logical container
 type uiResponse = SelfServiceLoginFlow | SelfServiceRegistrationFlow;
 
 function OnErrorFormUserFeedback(error: AxiosError<uiResponse> | AxiosError<JsonError>, setFormError: (name: FieldPath<oryFormTypes>, error: ErrorOption, options?: { shouldFocus: boolean }) => void,defaultFields : oryFormFieldTypes) {
@@ -130,11 +134,13 @@ function OnErrorFormUserFeedback(error: AxiosError<uiResponse> | AxiosError<Json
       continue;
     }
 
-    for (const message of uiError.error) {
-      setFormError(uiError.form, {
-        type: message.type,
-        message: message.message,
-      });
+    for (const error of uiError.error) {
+      if(error?.message) {
+        setFormError(uiError.form, {
+          type: error.type,
+          message: error.message,
+        });
+      }
     }
   }
 }

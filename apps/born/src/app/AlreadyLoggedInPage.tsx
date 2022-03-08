@@ -1,8 +1,18 @@
 import {Box,Button, Center, Flex, Image, Text, VStack} from "@chakra-ui/react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {ArrowForwardIcon} from "@chakra-ui/icons";
+import {useEffect, useState} from "react";
 
 export function AlreadyLoggedInPage(props: {message: string, resetErrorBoundary: () => void }) {
+  const [move,setNavigate] = useState(false);
+  const navigator = useNavigate();
+
+  useEffect(()=>{
+    if(move){
+      props.resetErrorBoundary();
+      navigator("/");
+    }
+  },[move])
 
   return (
     <Flex
@@ -17,11 +27,9 @@ export function AlreadyLoggedInPage(props: {message: string, resetErrorBoundary:
           <VStack>
 
             <Text>{props.message}</Text>
-            <Link to={"/"}>
             <Button rightIcon={<ArrowForwardIcon />} colorScheme='teal' variant='link' onClick={() =>{
-              props.resetErrorBoundary();
+              setNavigate(x => !x);
             }}>Home</Button>
-            </Link>
           </VStack>
         </Center>
       </Box>

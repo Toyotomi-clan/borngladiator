@@ -6,7 +6,7 @@ export default function OryErrors<Form extends string,Ory extends  string>
 (oryResponse:UiContainer, formFields: validateFields<FormValidate<Form,Ory>>)
 {
   const validateOryResponse = Object.assign({},formFields);
-  
+
   const topLevelContainerMessage: IOryError[] = oryResponse?.messages?.map(x => ({
       name: "general",
       message: x.text,
@@ -41,15 +41,23 @@ export default function OryErrors<Form extends string,Ory extends  string>
       continue;
     }
 
-    if(!node.messages || node.messages.length === 0 ){
-      continue;
-    }
     let errors: IOryError[] = [];
-    for(const message of node.messages){
+
+    if(node.messages && node.messages.length  > 0 ) {
+      for (const message of node.messages) {
+        errors.push({
+          message: message.text,
+          type: message.type,
+          id: message.id,
+          name: input.name
+        })
+      }
+    }
+    else{
       errors.push({
-        message: message.text,
-        type: message.type,
-        id: message.id,
+        message: "",
+        type: "",
+        id: 0,
         name: input.name
       })
     }

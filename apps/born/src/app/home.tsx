@@ -10,11 +10,9 @@ import {Query} from "react-query";
 
 
 export default function Home(){
-  const { status, data,error, isFetching } = useCurrentUser();
+  const {data,error, isFetching } = useCurrentUser();
   const navigator = useNavigate();
   const toast = useToast()
-
-  console.log({data,status,error,isFetching})
 
   if(data === null || data === undefined){
     navigator("/login");

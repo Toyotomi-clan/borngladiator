@@ -1,9 +1,18 @@
 import {Box,Button, Center, Flex, Image, Text, VStack} from "@chakra-ui/react";
 import {useNavigate} from "react-router-dom";
 import {ArrowForwardIcon} from "@chakra-ui/icons";
+import {useEffect, useState} from "react";
 
 export function NotAuthorized(props: {message: string, resetErrorBoundary: () => void }) {
+    const [move,setNavigate] = useState(false);
     const navigator = useNavigate();
+
+    useEffect(()=>{
+      if(move){
+        props.resetErrorBoundary();
+        navigator("/login");
+      }
+    },[move])
 
         return (
             <Flex
@@ -19,9 +28,7 @@ export function NotAuthorized(props: {message: string, resetErrorBoundary: () =>
 
                           <Text>{props.message}</Text>
                             <Button rightIcon={<ArrowForwardIcon />} colorScheme='teal' variant='link' onClick={() =>{
-                              props.resetErrorBoundary();
-                              navigator("/login")
-
+                              setNavigate(x => !x);
                             }}>Login</Button>
                         </VStack>
                     </Center>
