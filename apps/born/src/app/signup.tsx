@@ -58,7 +58,6 @@ export default function SignupCard() {
               username: form.traits.username,
               email: form.traits.email
             },
-            csrf_token: csrfToken
           }
           mutation.mutate({
             flow: data.data,

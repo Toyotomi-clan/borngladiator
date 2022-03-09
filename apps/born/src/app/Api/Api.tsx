@@ -98,7 +98,7 @@ export function useMutationSignUp(setFormError: UseFormSetError<registerFormMode
   return useMutation((post: {flow: SelfServiceRegistrationFlow, model: SubmitSelfServiceRegistrationFlowBody}) =>{
     return postSignUpForm(post);
   },{
-    useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status > 400,
+    useErrorBoundary:true,
     onSuccess: (data: AxiosResponse<SuccessfulSelfServiceRegistrationWithoutBrowser>) =>{
       //Todo: change this to work with registration flow
       if(axiosSuccessSelfServiceSignUpFlowSchema.isValid(data)){
