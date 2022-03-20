@@ -1,7 +1,6 @@
 import {
   JsonError,
   SelfServiceLoginFlow, SelfServiceRegistrationFlow, SubmitSelfServiceRegistrationFlowBody,
-  SuccessfulSelfServiceLoginWithoutBrowser, SuccessfulSelfServiceRegistrationWithoutBrowser,
   V0alpha2ApiFactory
 } from "@ory/client"
 import {useMutation, useQuery} from "react-query";
@@ -11,11 +10,8 @@ import {UseFormSetError} from "react-hook-form/dist/types/form";
 import OryErrors from "../helper/oryHelper";
 import {defaultLoginFieldValues, LoginFormModel} from "../models/loginModels";
 import {
-  axiosErrorJsonSchema,
-  axiosErrorSelfServiceLoginFlowSchema, axiosErrorSelfServiceSignUpFlowSchema,
-  axiosSuccessSelfServiceLoginFlowSchema, axiosSuccessSelfServiceSignUpFlowSchema
+  axiosErrorSelfServiceLoginFlowSchema, axiosErrorSelfServiceSignUpFlowSchema
 } from "../Schema/AxiosErrorSchema";
-import useStore, {defaultAuth} from "../store/createstore";
 import {ErrorOption, FieldPath} from "react-hook-form";
 import {defaultSignUpFieldValues, registerFormModel} from "../models/registerFormModel";
 import {oryFormFieldTypes, oryFormTypes} from "../models/OryFormTypes";
@@ -68,6 +64,18 @@ export function useStartLoginFlow() {
     retry: false,
     useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status !== 200
   });
+}
+export function useMutateLogin(setFormError: UseFormSetError<LoginFormModel>) {
+  return useMutation(async (post: { flow: SelfServiceLoginFlow, model: SubmitSelfServiceLoginFlowBody }) => {
+    return await postLoginForm(post);
+  }, {
+    useErrorBoundary: errorBoundaryBadError,
+    onError: (error: AxiosError<SelfServiceLoginFlow>) => {
+      if (axiosErrorSelfServiceLoginFlowSchema.isValidSync(error.response)) {
+        OnErrorFormUserFeedback(error, setFormError, defaultLoginFieldValues);
+      }
+    }
+  })
 }
 
 export function useStartSignUpFlow() {
@@ -139,29 +147,3 @@ function OnErrorFormUserFeedback(error: AxiosError<uiResponse> | AxiosError<Json
   }
 }
 
-export function useMutateLogin(setFormError: UseFormSetError<LoginFormModel>) {
-  const setSession = useStore(state => state.SetSession);
-
-  return useMutation((post: { flow: SelfServiceLoginFlow, model: SubmitSelfServiceLoginFlowBody }) => {
-    return postLoginForm(post);
-  }, {
-    onSuccess: (data: AxiosResponse<SuccessfulSelfServiceLoginWithoutBrowser>) => {
-      if (axiosSuccessSelfServiceLoginFlowSchema.isValid(data)) {
-        setSession(data.data)
-      }
-    },
-    onError: (error: AxiosError<SelfServiceLoginFlow> | AxiosError<JsonError>) => {
-
-      //400 error
-      if (axiosErrorSelfServiceLoginFlowSchema.isValid(error.response)) {
-        OnErrorFormUserFeedback(error, setFormError, defaultLoginFieldValues);
-      }
-      //500 error and errors greater than 400
-      else if (axiosErrorJsonSchema.isValid(error.response)) {
-        NonFormError(error, setFormError);
-      } else {
-        //Todo: report the un expected error that is neither 400 or 500 range
-      }
-    }
-  })
-}

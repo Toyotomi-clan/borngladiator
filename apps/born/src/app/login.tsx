@@ -10,34 +10,29 @@ import {
   Button,
   Heading,
   Text,
-  useColorModeValue, FormErrorMessage,
+  useColorModeValue, FormErrorMessage, toast, useToast,
 } from '@chakra-ui/react';
 
 import {Link as ReactRouterLink, useNavigate} from "react-router-dom";
 
-import {useStartLoginFlow, useMutateLogin, useCurrentUser} from "./Api/Api";
+import {useStartLoginFlow, useMutateLogin} from "./Api/Api";
 import {useForm} from "react-hook-form";
 import {SubmitSelfServiceLoginFlowBody} from "@ory/client/dist/api";
 import {findCsrfToken} from "./helper/oryHelper";
 import {errorIsValid} from "./helper/EmptyObjectHelper";
 import {LoginFormModel} from "./models/loginModels";
-import useStore, {defaultAuth} from "./store/createstore";
-
 
 export default function Login() {
 
   const {handleSubmit, setError,register, formState: {errors}}  = useForm<LoginFormModel>();
 
   //Todo: if data is empty / error redirect user to error boundary
-  const { status, data, error , isFetching } = useStartLoginFlow();
+  const {data} = useStartLoginFlow();
 
   const mutation  = useMutateLogin(setError);
   const navigate = useNavigate();
-  const store = useStore();
+  const toast = useToast();
 
-  if(store.User !== defaultAuth){
-    navigate("/");
-  }
 
   return (
     <Flex
@@ -58,8 +53,20 @@ export default function Login() {
           flow: data.data,
           model:submitLogin
         },{
-            onSuccess:() =>{
+            onSuccess: () => {
               navigate("/")
+              toast({
+                status: "success",
+                title: "Welcome back death clock",
+                description: "remember you will die."
+              })
+            },
+            onError: () => {
+              toast({
+                status: "error",
+                title: "double check please",
+                description: "there seems to be some validation errors"
+              })
             }
           });
           })}>

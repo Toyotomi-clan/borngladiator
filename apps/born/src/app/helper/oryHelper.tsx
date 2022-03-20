@@ -68,13 +68,14 @@ export default function OryErrors<Form extends string,Ory extends  string>
 
 export function findCsrfToken(oryResponse:UiContainer): string{
 
-  const node = oryResponse.nodes.find(x => x.group === 'default' && x.attributes as UiNodeInputAttributes);
+  //Todo: make this more bullet proof
+  const attributes = oryResponse.nodes.filter(x => x.group === 'default' && x.attributes as UiNodeInputAttributes).map(x => x.attributes as UiNodeInputAttributes);
 
-  if(!node){
+  if(!attributes || attributes.length === 0){
     return null;
   }
 
-  const csrfNode = node.attributes as UiNodeInputAttributes;
+  const csrfNode = attributes.find(x => x.name.includes("csrf"));
 
   return csrfNode?.value || null;
 }
