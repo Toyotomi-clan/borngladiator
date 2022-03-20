@@ -11,10 +11,10 @@ import {
   Heading,
   Text,
   useColorModeValue,
-  useToast, FormErrorMessage,
+  useToast, FormErrorMessage, Center,
 } from '@chakra-ui/react';
 import {useState} from 'react';
-import {ViewIcon, ViewOffIcon} from '@chakra-ui/icons';
+import {ArrowForwardIcon, ViewIcon, ViewOffIcon} from '@chakra-ui/icons';
 import {useForm} from "react-hook-form";
 import {findCsrfToken} from "./helper/oryHelper";
 import {registerFormModel} from "./models/registerFormModel";
@@ -159,9 +159,13 @@ export default function SignupCard() {
                 </Button>
               </Stack>
               <Stack pt={6}>
-                <Text align={'center'}>
-                  <ReactRouterLink to={"/login"}>Already a user? Login </ReactRouterLink>
-                </Text>
+                <Center>
+                  <Text>
+                    Already a user? <ArrowForwardIcon />
+                  </Text>
+                  <ReactRouterLink to={"/login"}><Button  colorScheme='teal' variant='link' >Login</Button> </ReactRouterLink>
+                </Center>
+
               </Stack>
             </Stack>
           </Box>
