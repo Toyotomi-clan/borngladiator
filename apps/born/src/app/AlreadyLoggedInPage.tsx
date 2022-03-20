@@ -1,5 +1,5 @@
 import {Box,Button, Center, Flex, Image, Text, VStack} from "@chakra-ui/react";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {ArrowForwardIcon} from "@chakra-ui/icons";
 import {useEffect, useState} from "react";
 
@@ -16,7 +16,6 @@ export function AlreadyLoggedInPage(props: {message: string, resetErrorBoundary:
 
   return (
     <Flex
-      minH={'100vh'}
       align={'center'}
       justify={'center'}>
 

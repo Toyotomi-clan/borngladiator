@@ -1,22 +1,41 @@
-import {Box, Center, Flex, Image, Text, VStack} from "@chakra-ui/react";
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box, Button,
+  Center, CloseButton,
+  Divider,
+  Flex, Heading, HStack,
+  Image, Stack,
+  Text,
+  VStack
+} from "@chakra-ui/react";
+import Nav from "./navbar";
 
-export function GenericError(props: {resetErrorBoundary: () => void}) {
+export function GenericError(props: {resetErrorBoundary: () => void, code: number}) {
 
   return (
-    <Flex
-      minH={'100vh'}
+      <Flex
       align={'center'}
-      justify={'center'}>
+      justify={'center'}
+      flexDirection={"column"}>
 
       <Box role={"alert"} boxSize='lg'>
         <Image src={"../assets/Images/server_down.svg"} alt='error'/>
+        <Center>
+          <HStack>
+            <Heading as='h2' size='xl'>
+              {props.code || "sorry"}
+            </Heading>
 
-        <Center mt={"20px"}>
-          <VStack>
-            <Text>This is a little embarrassing.. </Text>
-            <Text borderBottom={"green"}  onClick={props.resetErrorBoundary}>Try again</Text>
-          </VStack>
+          </HStack>
         </Center>
+        <Divider width={"lg"} border={"2px"}/>
+        <VStack>
+          <Text>This is a little bit embarrassing.. </Text>
+          <Button color={"green"} borderBottom={"green"}  onClick={props.resetErrorBoundary}>Try again</Button>
+        </VStack>
       </Box>
     </Flex>
   )

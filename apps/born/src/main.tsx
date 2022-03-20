@@ -3,12 +3,12 @@ import { BrowserRouter, Routes,Route } from 'react-router-dom';
 
 import App from './app/app';
 import SignupCard from "./app/signup";
-import {ChakraProvider, useToast} from "@chakra-ui/react";
+import {ChakraProvider} from "@chakra-ui/react";
 import Login from "./app/login";
 import Error500 from "./app/500Error";
-import {QueryCache, QueryClient, QueryClientProvider} from "react-query";
 import Home from "./app/home";
 import {queryClient} from "./app/QueryClient";
+import {QueryClientProvider} from "react-query";
 
 
 ReactDOM.render(

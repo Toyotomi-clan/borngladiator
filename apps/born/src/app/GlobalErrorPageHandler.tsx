@@ -4,6 +4,7 @@ import {axiosErrorJsonSchema} from "./Schema/AxiosErrorSchema";
 import {NotAuthorized} from "./NotAuthorizedPage";
 import {GenericError} from "./GenericError";
 import {AlreadyLoggedInPage} from "./AlreadyLoggedInPage";
+import {Layout} from "./app";
 
 export function GlobalErrorPageHandler({error, resetErrorBoundary}) {
 
@@ -17,7 +18,7 @@ export function GlobalErrorPageHandler({error, resetErrorBoundary}) {
     const notAuthorized = currentJsonResponseError && currentJsonResponseError.error.code === 401;
 
     if (notAuthorized) {
-      return <NotAuthorized message={currentJsonResponseError.error.message} resetErrorBoundary={resetErrorBoundary}/>
+      return <Layout children={<NotAuthorized message={currentJsonResponseError.error.message} resetErrorBoundary={resetErrorBoundary}/>}/>
     }
 
     const alreadyLoggedIn = currentJsonResponseError &&
@@ -25,9 +26,9 @@ export function GlobalErrorPageHandler({error, resetErrorBoundary}) {
       && currentJsonResponseError.error.id === "session_already_available"
 
     if (alreadyLoggedIn) {
-      return <AlreadyLoggedInPage message={currentJsonResponseError.error.message}
-                                  resetErrorBoundary={resetErrorBoundary}/>
+      return <Layout children={<AlreadyLoggedInPage message={currentJsonResponseError.error.message}
+                                  resetErrorBoundary={resetErrorBoundary}/>} />
     }
   }
-    return <GenericError resetErrorBoundary={resetErrorBoundary}/>
+    return <Layout children={<GenericError code={response?.data?.error?.code} resetErrorBoundary={resetErrorBoundary}/>}/>
 }
