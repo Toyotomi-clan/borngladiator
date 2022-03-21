@@ -11,7 +11,7 @@ import {
   Heading,
   Text,
   useColorModeValue,
-  useToast, FormErrorMessage, Center,
+  useToast, FormErrorMessage, Center, Divider,
 } from '@chakra-ui/react';
 import {useState} from 'react';
 import {ArrowForwardIcon, ViewIcon, ViewOffIcon} from '@chakra-ui/icons';
@@ -76,7 +76,7 @@ export default function SignupCard() {
         });
 
       })}>
-        <Stack spacing={8} mx={'auto'} minW={'xl'} py={12} px={6} maxW={"xl"}>
+        <Stack spacing={8} mx={'auto'} minW={'sm'} py={12} px={6} maxW={"lg"}>
           <Stack align={'center'}>
             <Heading fontSize={'4xl'} textAlign={'center'}>
               Sign up
@@ -95,7 +95,8 @@ export default function SignupCard() {
             bg={useColorModeValue('whiteAlpha.50', 'dark.900')}
           >
             <Stack spacing={4}>
-              <FormControl id="userName" isRequired isInvalid={errorIsValid(errors, errors.traits?.username)}>
+
+              <FormControl id="userUniqueName" isRequired isInvalid={errorIsValid(errors, errors.traits?.username)}>
                 <FormLabel>User Name</FormLabel>
                 <Input  {...register("traits.username", {
                   required: "username is required",
@@ -106,7 +107,8 @@ export default function SignupCard() {
                 })} />
                 <FormErrorMessage>{errors.traits?.username?.message}</FormErrorMessage>
               </FormControl>
-              <FormControl id="email" isRequired isInvalid={errorIsValid(errors, errors.traits?.email)}>
+
+              <FormControl id="userName" isRequired isInvalid={errorIsValid(errors, errors.traits?.email)}>
                 <FormLabel>Email address</FormLabel>
                 <Input placeholder={"Socrates@gmail.com"} {...register("traits.email",
                   {
@@ -118,10 +120,11 @@ export default function SignupCard() {
                   })}/>
                 <FormErrorMessage>{errors.traits?.email?.message}</FormErrorMessage>
               </FormControl>
+
               <FormControl id="password" isRequired isInvalid={errorIsValid(errors, errors.password)}>
                 <FormLabel>Password</FormLabel>
                 <InputGroup>
-                  <Input type={showPassword ? 'text' : 'password'} {...register("password", {
+                  <Input autoComplete={"password"} type={showPassword ? 'text' : 'password'} {...register("password", {
                     required: "password is required",
                     minLength: {
                       value: 8,
@@ -140,29 +143,23 @@ export default function SignupCard() {
                 </InputGroup>
                 <FormErrorMessage>{errors["password"]?.message}</FormErrorMessage>
               </FormControl>
-              //Todo:
+
               <FormControl isInvalid={errorIsValid(errors, errors.general)}>
                 <Text {...register("general", {required: false})}/>
 
                 <FormErrorMessage>{errors.general?.message}</FormErrorMessage>
               </FormControl>
-              <Stack spacing={10} pt={2}>
+              <Stack spacing={5} pt={2} align='center'>
                 <Button
                   type={"submit"}
-                  loadingText="Submitting"
-                  size="lg"
-                  bg={'blue.400'}
-                  _hover={{
-                    bg: 'blue.500',
-                  }}>
+                  colorScheme='gray' variant='ghost'>
                   Sign up
                 </Button>
               </Stack>
+              <Divider orientation={"horizontal"} h={"5px"}/>
+
               <Stack pt={6}>
                 <Center>
-                  <Text>
-                    Already a user? <ArrowForwardIcon />
-                  </Text>
                   <ReactRouterLink to={"/login"}><Button  colorScheme='teal' variant='link' >Login</Button> </ReactRouterLink>
                 </Center>
 

@@ -4,9 +4,6 @@ import {
 } from "@chakra-ui/react";
 import {useCurrentUser} from "./Api/Api";
 import {useNavigate} from "react-router-dom";
-import {queryCache, queryClient} from "./QueryClient";
-import {JsonError, Session} from "@ory/client";
-import {Query} from "react-query";
 
 
 export default function Home(){
@@ -20,7 +17,6 @@ export default function Home(){
 
   return (
     <Flex
-      minH={'100vh'}
       align={'center'}
       justify={'center'}>
       {isFetching &&   <Spinner size='xl' />}
