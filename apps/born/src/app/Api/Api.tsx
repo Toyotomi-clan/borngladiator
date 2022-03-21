@@ -1,6 +1,6 @@
 import {
   JsonError,
-  SelfServiceLoginFlow, SelfServiceRegistrationFlow, SubmitSelfServiceRegistrationFlowBody,
+  SelfServiceLoginFlow, SelfServiceLogoutUrl, SelfServiceRegistrationFlow, SubmitSelfServiceRegistrationFlowBody,
   V0alpha2ApiFactory
 } from "@ory/client"
 import {useMutation, useQuery} from "react-query";
@@ -21,6 +21,8 @@ const path = "/.ory";
 const axiosClient = axios.create({});
 
 const client = V0alpha2ApiFactory(null, path, axiosClient);
+
+const staleTime = 3600000;
 
 async function startLoginFlow() {
 
@@ -43,6 +45,13 @@ async function getCurrentUser() {
   return response;
 }
 
+async function getLogoutUser() {
+
+  const response = await client.createSelfServiceLogoutFlowUrlForBrowsers();
+
+  return response;
+}
+
 async function postLoginForm(post: { flow: SelfServiceLoginFlow, model: SubmitSelfServiceLoginFlowBody }) {
 
   const response = await client.submitSelfServiceLoginFlow(post.flow.id, null, post.model)
@@ -60,7 +69,7 @@ async function postSignUpForm(post: { flow: SelfServiceRegistrationFlow, model: 
 
 export function useStartLoginFlow() {
   return useQuery("startLoginFlow", startLoginFlow, {
-    staleTime: 30,
+    staleTime: staleTime,
     retry: false,
     useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status !== 200
   });
@@ -80,7 +89,7 @@ export function useMutateLogin(setFormError: UseFormSetError<LoginFormModel>) {
 
 export function useStartSignUpFlow() {
   return useQuery("startSignUpFlow", startSignUpFlow, {
-    staleTime: 30,
+    staleTime: staleTime,
     retry: false,
     useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status !== 200
   })
@@ -104,9 +113,17 @@ export function useMutationSignUp(setFormError: UseFormSetError<registerFormMode
 export function useCurrentUser() {
   return useQuery("user", getCurrentUser, {
     retry: false,
-    useErrorBoundary: true
   });
 }
+
+export function useLogout(userIsLoggedIn) {
+  return useQuery("logout", getLogoutUser, {
+    retry: false,
+    useErrorBoundary: true,
+    enabled: userIsLoggedIn
+  });
+}
+
 
 function NonFormError(error: AxiosError<SelfServiceRegistrationFlow> | AxiosError<JsonError>, setFormError: (name: FieldPath<oryFormTypes>, error: ErrorOption, options?: { shouldFocus: boolean }) => void) {
   const response = error.response.data as JsonError;

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import {ReactNode, useCallback, useEffect, useState} from 'react';
 import {
   Box,
   Flex,
@@ -16,9 +16,14 @@ import {
   useColorMode,
   Center, HStack,
 } from '@chakra-ui/react';
-import { MoonIcon, SunIcon } from '@chakra-ui/icons';
+import {MoonIcon, SunIcon} from '@chakra-ui/icons';
 import {Link as ReactLink} from "react-router-dom"
-const NavLink = ({ children }: { children: ReactNode }) => (
+import {queryCache, queryClient} from "./QueryClient";
+import {SelfServiceLogoutUrl, Session} from "@ory/client";
+import {AxiosResponse} from "axios";
+import {useCurrentUser, useLogout} from "./Api/Api";
+
+const NavLink = ({children}: { children: ReactNode }) => (
   <Link
     px={2}
     py={1}
@@ -33,8 +38,31 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 );
 
 export default function Nav() {
-  const { colorMode, toggleColorMode } = useColorMode();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {colorMode, toggleColorMode} = useColorMode();
+
+  const {data, error, isFetching} = useCurrentUser();
+
+  const isLoggedIn = data?.data?.active || false;
+
+  const logout = useLogout(isLoggedIn);
+
+  const [logoutUser, setLogoutUser] = useState(false);
+
+  const logoutCurrentUser = useCallback(async () => {
+
+    const logoutUrl = logout?.data?.data?.logout_url || "";
+    if (logoutUser && logoutUrl) {
+      await queryClient.invalidateQueries("user")
+      //Todo: maybe when ory supports logout by react router we can modify this
+      window.location.href = logoutUrl;
+    }
+  }, [logoutUser])
+
+  useEffect(() => {
+    logoutCurrentUser();
+  }, [logoutCurrentUser])
+
+
   return (
     <>
       <Box px={2}>
@@ -54,40 +82,40 @@ export default function Nav() {
           <Flex alignItems={'center'}>
             <Stack direction={'row'} spacing={7}>
               <Button onClick={toggleColorMode}>
-                {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+                {colorMode === 'light' ? <MoonIcon/> : <SunIcon/>}
               </Button>
 
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  rounded={'full'}
-                  variant={'link'}
-                  cursor={'pointer'}
-                  minW={0}>
-                  <Avatar
-                    size={'sm'}
-                    src={'https://avatars.dicebear.com/api/male/username.svg'}
-                  />
-                </MenuButton>
-                <MenuList alignItems={'center'}>
-                  <br />
-                  <Center>
+              {!error && data?.data?.active &&
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    rounded={'full'}
+                    variant={'link'}
+                    cursor={'pointer'}
+                    minW={0}>
                     <Avatar
-                      size={'2xl'}
+                      size={'sm'}
                       src={'https://avatars.dicebear.com/api/male/username.svg'}
                     />
-                  </Center>
-                  <br />
-                  <Center>
-                    <p>Username</p>
-                  </Center>
-                  <br />
-                  <MenuDivider />
-                  <MenuItem>Your Servers</MenuItem>
-                  <MenuItem>Account Settings</MenuItem>
-                  <MenuItem> <ReactLink to={"/login"}>Logout</ReactLink></MenuItem>
-                </MenuList>
-              </Menu>
+                  </MenuButton>
+                  <MenuList alignItems={'center'}>
+                    <br/>
+                    <Center>
+                      <Avatar
+                        size={'2xl'}
+                        src={'https://avatars.dicebear.com/api/male/username.svg'}
+                      />
+                    </Center>
+                    <br/>
+                    <Center>
+                      <p>{data.data.identity.traits.username}</p>
+                    </Center>
+                    <br/>
+                    <MenuDivider/>
+                    <MenuItem onClick={() => setLogoutUser(x => !x)}> Logout</MenuItem>
+                  </MenuList>
+                </Menu>
+              }
             </Stack>
           </Flex>
         </Flex>

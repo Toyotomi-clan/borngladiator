@@ -4,6 +4,7 @@ import {
 } from "@chakra-ui/react";
 import {useCurrentUser} from "./Api/Api";
 import {useNavigate} from "react-router-dom";
+import {useEffect} from "react";
 
 
 export default function Home(){
@@ -11,9 +12,12 @@ export default function Home(){
   const navigator = useNavigate();
   const toast = useToast()
 
-  if(data === null || data === undefined){
-    navigator("/login");
-  }
+  useEffect(() =>{
+    if(error && !isFetching){
+      navigator("/login");
+    }
+  },[error])
+
 
   return (
     <Flex

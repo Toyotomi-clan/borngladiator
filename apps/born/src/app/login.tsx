@@ -21,11 +21,12 @@ import {SubmitSelfServiceLoginFlowBody} from "@ory/client/dist/api";
 import {findCsrfToken} from "./helper/oryHelper";
 import {errorIsValid} from "./helper/EmptyObjectHelper";
 import {LoginFormModel} from "./models/loginModels";
-import {ArrowForwardIcon} from "@chakra-ui/icons";
+import {useEffect, useState} from "react";
 
 export default function Login() {
 
   const {handleSubmit, setError,register, formState: {errors}}  = useForm<LoginFormModel>();
+
 
   //Todo: if data is empty / error redirect user to error boundary
   const {data} = useStartLoginFlow();
@@ -34,6 +35,13 @@ export default function Login() {
   const navigate = useNavigate();
   const toast = useToast();
 
+  const [userIsLoggedIn,setUserLoggedIn] = useState(false);
+
+  useEffect(() =>{
+    if(userIsLoggedIn) {
+      navigate("/")
+    }
+  },[userIsLoggedIn])
 
   return (
     <Flex
@@ -53,12 +61,13 @@ export default function Login() {
           model:submitLogin
         },{
             onSuccess: () => {
-              navigate("/")
               toast({
                 status: "success",
                 title: "Welcome back death clock",
                 description: "remember you will die."
               })
+              setUserLoggedIn(x => !x)
+
             },
             onError: () => {
               toast({
