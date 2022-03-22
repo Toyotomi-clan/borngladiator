@@ -7,7 +7,7 @@ import {GlobalErrorPageHandler} from "./GlobalErrorPageHandler";
 
 export function Layout({children}) {
   return (
-    <Grid minH={"100vh"}  bg={useColorModeValue('whiteAlpha.50', 'gray.900')}>
+    <Grid bg={useColorModeValue('whiteAlpha.50', 'gray.900')}>
       <Nav/>
       {children}
   </Grid>
