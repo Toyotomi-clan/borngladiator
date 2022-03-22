@@ -112,7 +112,7 @@ export default function Nav() {
                     </Center>
                     <br/>
                     <MenuDivider/>
-                    <MenuItem onClick={() => setLogoutUser(x => !x)}> Logout</MenuItem>
+                    <MenuItem onClick={() => {setLogoutUser(x => !x)}}> Logout</MenuItem>
                   </MenuList>
                 </Menu>
               }

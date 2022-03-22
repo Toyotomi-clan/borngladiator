@@ -13,7 +13,7 @@ export default function Home(){
   const toast = useToast()
 
   useEffect(() =>{
-    if(error && !isFetching){
+    if(!data  && !isFetching){
       navigator("/login");
     }
   },[error])
@@ -24,15 +24,7 @@ export default function Home(){
       align={'center'}
       justify={'center'}>
       {isFetching &&   <Spinner size='xl' />}
-
-      {error &&  toast({
-        title: 'Login',
-        description: "Thank you for wanting to try death clock, do please sign in ",
-        status: 'error',
-        duration: 9000,
-        isClosable: false,
-      })}
-      {!isFetching && !error &&
+      {data && !isFetching &&
       <h1>Hello world</h1>}
     </Flex>
   )
