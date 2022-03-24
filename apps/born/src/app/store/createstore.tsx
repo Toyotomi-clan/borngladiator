@@ -1,35 +1,23 @@
 import create from "zustand";
-import {SelfServiceLoginFlow, Session, SuccessfulSelfServiceLoginWithoutBrowser, V0alpha2ApiFactory} from "@ory/client";
-import {SuccessfulSelfServiceRegistrationWithoutBrowser} from "@ory/client/api";
-import {useCurrentUser} from "../Api/Api";
+import { devtools } from 'zustand/middleware'
 
 type Store = {
-  User:SuccessfulSelfServiceRegistrationWithoutBrowser | SuccessfulSelfServiceLoginWithoutBrowser;
-  SetSession: (auth: SuccessfulSelfServiceRegistrationWithoutBrowser | SuccessfulSelfServiceLoginWithoutBrowser) => void;
-  RemoveSession: () => void;
-  SelfServiceLogin: SelfServiceLoginFlow
-  SetLoginSelfServiceFlow: (flow: SelfServiceLoginFlow) => void,
-  isUserAuthenticated: () => boolean,
+  logoutClicked: boolean
+  toggleLogoutFlow: () => void,
+
 }
-export const defaultAuth = {} as SuccessfulSelfServiceRegistrationWithoutBrowser;
-const defaultLoginFlow = {} as SelfServiceLoginFlow;
 
-const useStore = create<Store>((set,get ) => ({
-  User: defaultAuth,
-  isUserAuthenticated: () =>{
-
-    return get().User !== defaultAuth;
-  },
-  SelfServiceLogin: defaultLoginFlow,
-  SetSession: (auth) => set(state => ({
-    User: auth
-  })),
-  RemoveSession: () => set(state => ({
-    User: defaultAuth
-  })),
-  SetLoginSelfServiceFlow:(flow) => set(state => ({
-    SelfServiceLogin: flow
+const createStore = create<Store>((set,get ) => ({
+  logoutClicked: false,
+  toggleLogoutFlow: () => set(state => ({
+    logoutClicked: !state.logoutClicked
   }))
-}))
+}));
+
+//Todo: only enable devTools on dev
+//Todo: add devtool
+const useStore = createStore;
+
+
 
 export default useStore;

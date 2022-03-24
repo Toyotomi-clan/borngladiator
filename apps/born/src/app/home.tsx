@@ -9,12 +9,11 @@ import {useEffect} from "react";
 
 export default function Home(){
   const {data,error, isFetching } = useCurrentUser();
-  const navigator = useNavigate();
   const toast = useToast()
 
   useEffect(() =>{
     if(!data  && !isFetching){
-      navigator("/login");
+     throw  error;
     }
   },[error])
 
@@ -25,7 +24,7 @@ export default function Home(){
       justify={'center'}>
       {isFetching &&   <Spinner size='xl' />}
       {data && !isFetching &&
-      <h1>Hello world</h1>}
+      <h1>Hello world {new Date(data.data.expires_at).toString()}</h1>}
     </Flex>
   )
 }

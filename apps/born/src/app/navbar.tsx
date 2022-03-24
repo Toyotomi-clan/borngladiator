@@ -1,67 +1,42 @@
-import {ReactNode, useCallback, useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {
   Box,
   Flex,
   Avatar,
-  Link,
   Button,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
   MenuDivider,
-  useDisclosure,
-  useColorModeValue,
   Stack,
   useColorMode,
   Center, HStack,
 } from '@chakra-ui/react';
 import {MoonIcon, SunIcon} from '@chakra-ui/icons';
-import {Link as ReactLink} from "react-router-dom"
-import {queryCache, queryClient} from "./QueryClient";
-import {SelfServiceLogoutUrl, Session} from "@ory/client";
-import {AxiosResponse} from "axios";
-import {useCurrentUser, useLogout} from "./Api/Api";
-
-const NavLink = ({children}: { children: ReactNode }) => (
-  <Link
-    px={2}
-    py={1}
-    rounded={'md'}
-    _hover={{
-      textDecoration: 'none',
-      bg: useColorModeValue('gray.200', 'gray.700'),
-    }}
-    href={'#'}>
-    {children}
-  </Link>
-);
+import {useNavigate} from "react-router-dom"
+import {useCurrentUser, useLogoutFlow, useLogoutUser} from "./Api/Api";
+import useStore from "./store/createstore";
 
 export default function Nav() {
   const {colorMode, toggleColorMode} = useColorMode();
 
-  const {data, error, isFetching} = useCurrentUser();
+  const {data, error} = useCurrentUser();
 
   const isLoggedIn = data?.data?.active || false;
 
-  const logout = useLogout(isLoggedIn);
+  const logout = useLogoutFlow(isLoggedIn);
 
-  const [logoutUser, setLogoutUser] = useState(false);
+  const setLogoutFlow= useStore(state => state.toggleLogoutFlow)
+  const logoutClickedRef = useRef(useStore(state => state.logoutClicked))
 
-  const logoutCurrentUser = useCallback(async () => {
+  const navigator = useNavigate();
 
-    const logoutUrl = logout?.data?.data?.logout_url || "";
-    if (logoutUser && logoutUrl) {
-      await queryClient.invalidateQueries("user")
-      //Todo: maybe when ory supports logout by react router we can modify this
-      window.location.href = logoutUrl;
-    }
-  }, [logoutUser])
+  const {data: gotUserLoggedOut} = useLogoutUser(logoutClickedRef.current,logout?.data?.data?.logout_url || "", navigator);
 
-  useEffect(() => {
-    logoutCurrentUser();
-  }, [logoutCurrentUser])
-
+  useEffect(() => useStore.subscribe(
+    state => (logoutClickedRef.current = state.logoutClicked)
+  ))
 
   return (
     <>
@@ -112,7 +87,7 @@ export default function Nav() {
                     </Center>
                     <br/>
                     <MenuDivider/>
-                    <MenuItem onClick={() => {setLogoutUser(x => !x)}}> Logout</MenuItem>
+                    <MenuItem onClick={() => {setLogoutFlow()}}> Logout</MenuItem>
                   </MenuList>
                 </Menu>
               }

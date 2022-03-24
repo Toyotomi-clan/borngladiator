@@ -15,6 +15,10 @@ import {
 import {ErrorOption, FieldPath} from "react-hook-form";
 import {defaultSignUpFieldValues, registerFormModel} from "../models/registerFormModel";
 import {oryFormFieldTypes, oryFormTypes} from "../models/OryFormTypes";
+import {queryClient} from "../QueryClient";
+import {log} from "util";
+import {NavigateFunction} from "react-router";
+import useStore from "../store/createstore";
 
 const path = "/.ory";
 
@@ -45,7 +49,14 @@ async function getCurrentUser() {
   return response;
 }
 
-async function getLogoutUser() {
+async function getLogoutUser(logoutUrl) {
+
+  const response = await axiosClient.get(logoutUrl);
+
+  return response;
+}
+
+async function getLogoutUserFlow() {
 
   const response = await client.createSelfServiceLogoutFlowUrlForBrowsers();
 
@@ -113,11 +124,33 @@ export function useMutationSignUp(setFormError: UseFormSetError<registerFormMode
 export function useCurrentUser() {
   return useQuery("user", getCurrentUser, {
     retry: false,
+    useErrorBoundary: false,
+  });
+}
+export function useLogoutUser(userClickedLogout: boolean,logoutUrl: string, reactRouterRedirect: NavigateFunction) {
+  const toggleLogoutFlow = useStore(x => x.toggleLogoutFlow)
+
+
+  return useQuery("logoutUser",async () => {
+    return await getLogoutUser(logoutUrl)
+  }, {
+    retry: false,
+    useErrorBoundary: true,
+    enabled: !!logoutUrl && userClickedLogout ,
+    onSuccess: async (data) => {
+
+      await queryClient.invalidateQueries("user")
+      toggleLogoutFlow()
+      reactRouterRedirect("/login")
+      //Todo: we are doing this because the http-cookie still lives on after we asked the server to logout user
+      //Todo: implement a middleware that clears https-cookies (in node) on this request
+      window.location.reload();
+    }
   });
 }
 
-export function useLogout(userIsLoggedIn) {
-  return useQuery("logout", getLogoutUser, {
+export function useLogoutFlow(userIsLoggedIn) {
+  return useQuery("logoutFlow", getLogoutUserFlow, {
     retry: false,
     useErrorBoundary: true,
     enabled: userIsLoggedIn
