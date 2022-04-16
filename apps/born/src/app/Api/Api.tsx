@@ -1,11 +1,11 @@
 import {
   JsonError,
-  SelfServiceLoginFlow, SelfServiceLogoutUrl, SelfServiceRegistrationFlow, SubmitSelfServiceRegistrationFlowBody,
+  SelfServiceLoginFlow, SelfServiceRegistrationFlow, SubmitSelfServiceRegistrationFlowBody,
   V0alpha2ApiFactory
 } from "@ory/client"
 import {useMutation, useQuery} from "react-query";
 import {SubmitSelfServiceLoginFlowBody} from "@ory/client/dist/api";
-import axios, {AxiosError, AxiosResponse} from "axios";
+import axios, {AxiosError} from "axios";
 import {UseFormSetError} from "react-hook-form/dist/types/form";
 import OryErrors from "../helper/oryHelper";
 import {defaultLoginFieldValues, LoginFormModel} from "../models/loginModels";
@@ -16,7 +16,6 @@ import {ErrorOption, FieldPath} from "react-hook-form";
 import {defaultSignUpFieldValues, registerFormModel} from "../models/registerFormModel";
 import {oryFormFieldTypes, oryFormTypes} from "../models/OryFormTypes";
 import {queryClient} from "../QueryClient";
-import {log} from "util";
 import {NavigateFunction} from "react-router";
 import useStore from "../store/createstore";
 
