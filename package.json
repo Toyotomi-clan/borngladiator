@@ -7,7 +7,8 @@
     "start-prod": "nx run-many --parallel --target=serve --configuration=production --projects=born,gladiator",
     "build": "nx build",
     "test": "nx test",
-    "prepare": "nx g @nx-dotnet/core:restore"
+    "prepare": "nx g @nx-dotnet/core:restore",
+    "build-client": "openapi-generator-cli generate -g typescript-axios -i .\\dist\\swagger\\gladiator.yml -o .\\dist\\apps\\gladiator\\client"
   },
   "private": true,
   "devDependencies": {
@@ -20,6 +21,7 @@
     "@nrwl/web": "13.8.1",
     "@nrwl/workspace": "13.8.1",
     "@nx-dotnet/core": "^1.8.0",
+    "@openapitools/openapi-generator-cli": "^2.4.26",
     "@ory/cli": "^0.1.22",
     "@swc/core": "1.2.118",
     "@swc/jest": "0.2.15",

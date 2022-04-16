@@ -26,5 +26,6 @@
   <Target Name="OpenAPI" AfterTargets="Build">
     <MakeDir Directories="$(OutputPath)\..\..\..\swagger" />
     <Exec Command="dotnet swagger tofile --yaml --output $(OutputPath)\..\..\..\swagger\gladiator.yml $(OutputPath)\$(AssemblyName).dll v1" />
+    <Exec Command="npm run build-client"/>
   </Target>
 </Project>
