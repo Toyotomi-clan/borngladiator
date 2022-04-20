@@ -12,10 +12,18 @@
 
   <ItemGroup>
 
+    <PackageReference Include="dbup-postgresql" Version="4.5.0" />
+
+    <PackageReference Include="Npgsql" Version="7.0.0-preview.2" />
+
     <PackageReference Include="Ory.Client" Version="0.0.1-alpha.160" />
 
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
 
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DBScripts" />
   </ItemGroup>
 
   <Target Name="CheckNxModuleBoundaries" BeforeTargets="Build">
@@ -23,9 +31,11 @@
     <Exec Command="node ../../node_modules/@nx-dotnet/core/src/tasks/check-module-boundaries.js -p gladiator" />
 
   </Target>
-  <Target Name="OpenAPI" AfterTargets="Build">
+  
+  <!--Add another state that is not debug i.e. release-->
+  <Target Name="OpenAPI" AfterTargets="Build" Condition="'$(Configuration)' != 'Debug'">
     <MakeDir Directories="$(OutputPath)\..\..\..\swagger" />
     <Exec Command="dotnet swagger tofile --yaml --output $(OutputPath)\..\..\..\swagger\gladiator.yml $(OutputPath)\$(AssemblyName).dll v1" />
-    <Exec Command="npm run build-client"/>
+    <Exec Command="npm run build-client" />
   </Target>
 </Project>

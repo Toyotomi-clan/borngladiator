@@ -1,15 +1,11 @@
-using System.Net.Http.Headers;
-using System.Text.Encodings.Web;
 using Borngladiator.Gladiator;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Borngladiator.Gladiator.HostedServices;
+using DbUp;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHostedService<databaseMigrationHostedService>();
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -55,6 +51,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 
 //Todo: dev local cleanup
 //Todo: make react and back end utilise https
