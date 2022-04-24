@@ -12,7 +12,11 @@
 
   <ItemGroup>
 
+    <PackageReference Include="Dapper" Version="2.0.123" />
+
     <PackageReference Include="dbup-postgresql" Version="4.5.0" />
+
+    <PackageReference Include="FastEndpoints" Version="4.0.0" />
 
     <PackageReference Include="Npgsql" Version="7.0.0-preview.2" />
 
@@ -20,10 +24,6 @@
 
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
 
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DBScripts" />
   </ItemGroup>
 
   <Target Name="CheckNxModuleBoundaries" BeforeTargets="Build">

@@ -1,18 +1,24 @@
 using Borngladiator.Gladiator;
+using Borngladiator.Gladiator.Configuration;
 using Borngladiator.Gladiator.HostedServices;
 using DbUp;
+using FastEndpoints;
 using Microsoft.AspNetCore.Authorization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHostedService<databaseMigrationHostedService>();
 // Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddFastEndpoints();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection("database"));
+builder.Services.Configure<OryOptions>(builder.Configuration.GetSection("ory"));
 
 builder.Services.AddCors(options =>
 {
@@ -44,6 +50,7 @@ builder.Services.AddAuthorization(options =>
 
 
 var app = builder.Build();
+app.UseDefaultExceptionHandler(); //add this
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -61,5 +68,5 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowLocalHostCORS");
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
+app.UseFastEndpoints();
 app.Run();

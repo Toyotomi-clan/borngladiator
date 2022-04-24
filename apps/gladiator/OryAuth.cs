@@ -1,13 +1,9 @@
-﻿using System.ComponentModel;
-using System.Security.Claims;
-using System.Text;
+﻿using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using Ory.Client.Api;
@@ -60,27 +56,14 @@ public class OryAuthHandler : AuthenticationHandler<OryAuthOptions>
 
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
   {
-
     try
     {
+      var oryCookie = Helper.OryHelper.GetOryCookie(Options.Slug, Request);
 
-      var slugTrimmed = Options.Slug?.Replace("-", "").Trim();
-
-      if (slugTrimmed == null)
-      {
-        //Todo: log this
-        return AuthenticateResult.NoResult();
-      }
-      var orySession = $"ory_session_{slugTrimmed}";
-
-      var sessionCookie = Request.Cookies[orySession];
-
-      if (sessionCookie == null)
+      if (oryCookie == null)
       {
         return AuthenticateResult.NoResult();
       }
-
-      var oryCookie = $"{orySession}={sessionCookie}";
 
       if (_memoryCache.TryGetValue(oryCookie, out AuthenticationTicket alreadyAuthenticated) &&
           DateTime.Compare( alreadyAuthenticated.Properties.ExpiresUtc?.UtcDateTime ?? DateTime.UtcNow,DateTime.UtcNow) > 0 )
@@ -173,7 +156,7 @@ public static class OryAuthenticationExtensions
   public static AuthenticationBuilder AddOry(this AuthenticationBuilder builder, string authenticationScheme, Action<OryAuthOptions> configureOptions)
   {
     builder.Services.AddSingleton<IPostConfigureOptions<OryAuthOptions>, OryAuthOptionsConfiguration>();
-    builder.Services.AddSingleton(ory => new V0alpha2Api( new Configuration
+    builder.Services.AddSingleton(ory => new V0alpha2Api( new Ory.Client.Client.Configuration
     {
       BasePath =  new Uri("https://competent-benz-v5hxi6dzh2.projects.oryapis.com", UriKind.Absolute).ToString()
     }));
