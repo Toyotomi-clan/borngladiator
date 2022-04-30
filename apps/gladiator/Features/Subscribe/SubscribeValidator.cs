@@ -1,6 +1,12 @@
-﻿namespace Borngladiator.Gladiator.Features.Subscribe;
+﻿using FastEndpoints;
+using FluentValidation;
 
-public class SubscribeValidator
+namespace Borngladiator.Gladiator.Features.Subscribe;
+
+public class SubscribeValidator : Validator<SubscribeDto>
 {
-  
+  public SubscribeValidator()
+  {
+    RuleFor(x => x.Subscribe).NotNull().WithMessage("must be true or false");
+  }
 }

@@ -31,4 +31,15 @@ public static class DapperHelper
     }
     await transaction.CommitAsync(ct);
   }
+
+  public static async Task<IEnumerable<T>?> Query<T>(string sql, object paramsValue, string connectionString)
+  {
+    await using var connection = new NpgsqlConnection(connectionString);
+
+    await connection.OpenAsync();
+
+    var query = connection.Query<T>(sql,paramsValue);
+
+    return query;
+  }
 }

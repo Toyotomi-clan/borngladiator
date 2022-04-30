@@ -1,4 +1,6 @@
-﻿namespace Borngladiator.Gladiator.Helper;
+﻿using Microsoft.AspNetCore.Authentication;
+
+namespace Borngladiator.Gladiator.Helper;
 
 public static class OryHelper
 {
@@ -22,4 +24,5 @@ public static class OryHelper
 
     return  $"{orySession}={sessionCookie}";
   }
+
 }

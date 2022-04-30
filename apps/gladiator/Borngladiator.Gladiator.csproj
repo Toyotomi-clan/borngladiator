@@ -18,9 +18,23 @@
 
     <PackageReference Include="FastEndpoints" Version="4.0.0" />
 
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0-preview.3.22175.4" />
+
     <PackageReference Include="Npgsql" Version="7.0.0-preview.2" />
 
     <PackageReference Include="Ory.Client" Version="0.0.1-alpha.160" />
+
+    <PackageReference Include="Quartz.Extensions.Hosting" Version="3.4.0" />
+
+    <PackageReference Include="SendGrid" Version="9.27.0" />
+
+    <PackageReference Include="Serilog" Version="2.11.0" />
+
+    <PackageReference Include="Serilog.AspNetCore" Version="6.0.0-dev-00265" />
+
+    <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+
+    <PackageReference Include="Serilog.Sinks.Seq" Version="5.1.2-dev-00222" />
 
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
 

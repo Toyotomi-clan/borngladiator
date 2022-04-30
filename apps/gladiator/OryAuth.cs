@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using Ory.Client.Api;
-using Ory.Client.Client;
+using ILogger = Serilog.ILogger;
 
 namespace Borngladiator.Gladiator;
 
@@ -48,10 +48,12 @@ public class OryAuthHandler : AuthenticationHandler<OryAuthOptions>
 {
   private V0alpha2Api _alpha2;
   private IMemoryCache _memoryCache;
-  public OryAuthHandler(IOptionsMonitor<OryAuthOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, V0alpha2Api alpha2, IMemoryCache memoryCache) : base(options, logger, encoder, clock)
+  private ILogger _logger;
+  public OryAuthHandler(IOptionsMonitor<OryAuthOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, V0alpha2Api alpha2, IMemoryCache memoryCache, ILogger logger1) : base(options, logger, encoder, clock)
   {
     _alpha2 = alpha2;
     _memoryCache = memoryCache;
+    _logger = logger1;
   }
 
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync()

@@ -1,27 +1,30 @@
 ﻿using System.Security.Claims;
 using Borngladiator.Gladiator.Configuration;
+using Borngladiator.Gladiator.Features.Shared;
 using Borngladiator.Gladiator.Helper;
 using Dapper;
 using FastEndpoints;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Ory.Client.Model;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 namespace Borngladiator.Gladiator.Features.CreateUser;
 
 public class CreateUser : Endpoint<CreateUserDto>
 {
-  private IMemoryCache _memoryCache;
-  private readonly DatabaseOptions _databaseOptions;
-  private readonly OryOptions _oryOptions;
+  private User _user;
+  private readonly AppConfiguration _configuration;
 
-  public CreateUser(IMemoryCache memoryCache, IOptionsSnapshot<DatabaseOptions> databaseOption, IOptionsSnapshot<OryOptions> oryOptions)
+  public CreateUser( User user, IOptionsSnapshot<AppConfiguration> configuration)
   {
-    _memoryCache = memoryCache;
-    _oryOptions = oryOptions.Value;
-    _databaseOptions = databaseOption.Value;
+    _user = user;
+    _configuration = configuration.Value;
   }
   public override void Configure()
   {
@@ -31,53 +34,63 @@ public class CreateUser : Endpoint<CreateUserDto>
 
   public override async Task HandleAsync(CreateUserDto req, CancellationToken ct)
   {
-    var getOryCookie = OryHelper.GetOryCookie(_oryOptions.Slug, HttpContext.Request);
+    var userPrinciple = _user.GetUser(HttpContext.Request);
 
-    if (getOryCookie == null)
+    if (userPrinciple == null)
     {
       await SendErrorsAsync(cancellation: ct);
+
+      return;
     }
 
-    if (!_memoryCache.TryGetValue(getOryCookie, out AuthenticationTicket userPrinciple))
-    {
-      await SendErrorsAsync(cancellation: ct);
-    }
-    var inserts = CreateSqlDictionary(req, userPrinciple);
+    var inserts = SqlHelper.CreateSqlDictionary(req, userPrinciple);
 
-    await DapperHelper.ExecuteMultipleWrite(ct,inserts,_databaseOptions.Connection);
+    await DapperHelper.ExecuteMultipleWrite(ct,inserts,_configuration.Database.Connection);
 
     await SendOkAsync(ct);
   }
 
-  private static Dictionary<string, object> CreateSqlDictionary(CreateUserDto req, AuthenticationTicket userPrinciple)
+  public override async void OnAfterHandle(CreateUserDto req, object res)
   {
-    var createUserParams = new
+    if (HttpContext.Response.StatusCode != 200)
     {
-      user_id = new Guid(userPrinciple.Principal.GetUserId()),
-      username = userPrinciple.Principal.Identity?.Name,
-      email = userPrinciple.Principal.GetUserEmail(),
-      date_of_birth = req.DateOfBirth, subscribed = true,
-      gender = req.Gender
-    };
+      //Todo: log
+      return;
+    }
 
-    var createUserSql =
-      @"INSERT INTO users (user_id,username,email,date_of_birth,subscribed, gender)
-      Values (@user_id,@username,@email,@date_of_birth,@subscribed,(select id from gender where gender = @gender) );";
+    var sendgridKey = _configuration.SENDGRID_API_KEY;
 
-    var userLastCheckedInParams = new
+    var client = new SendGridClient(sendgridKey);
+
+    var from = new EmailAddress(_configuration.SendGrid.EmailFrom, "welcome to death clock");
+
+    var user = _user.GetUser(HttpContext.Request)?.Principal;
+
+    if (user?.Identity == null)
     {
-      user_id = new Guid(userPrinciple.Principal.GetUserId()),
-      last_logged_in = DateTime.UtcNow
-    };
+      //Todo: log
+      return;
+    }
 
-    var userLastCheckedInSql = "INSERT INTO last_checking (user_id,last_logged_in) Values (@user_id,@last_logged_in);";
+    //Todo: utilise the actual user email on real test
+    // var to = new EmailAddress(user.GetUserEmail(), user.Identity.Name);
+    var to = new EmailAddress("hazecode90@gmail.com", "hazecode");
 
-    var inserts = new Dictionary<string, object>
+    //Todo: allow sendgrid to enable user to unsubscribe
+    var msg = MailHelper.CreateSingleTemplateEmail(from,to,_configuration.SendGrid.WelcomeTemplateId,new
     {
-      {createUserSql, createUserParams},
-      {userLastCheckedInSql, userLastCheckedInParams}
-    };
-    return inserts;
+      days_left = "20000000000",
+      username = user.Identity.Name
+    });
+
+    var response = await client.SendEmailAsync(msg);
+
+    //check for response success or failure
+    if (!response.IsSuccessStatusCode)
+    {
+      //Todo: log it
+      //Todo: retry sending it later
+    }
   }
 
 }
