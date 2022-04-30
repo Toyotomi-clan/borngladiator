@@ -18,6 +18,8 @@
 
     <PackageReference Include="FastEndpoints" Version="4.0.0" />
 
+    <PackageReference Include="Hashids.net" Version="1.5.0" />
+
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0-preview.3.22175.4" />
 
     <PackageReference Include="Npgsql" Version="7.0.0-preview.2" />

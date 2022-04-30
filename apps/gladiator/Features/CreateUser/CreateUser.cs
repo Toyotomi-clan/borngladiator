@@ -5,6 +5,7 @@ using Borngladiator.Gladiator.Helper;
 using Dapper;
 using FastEndpoints;
 using FluentValidation.Results;
+using HashidsNet;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -13,6 +14,7 @@ using Npgsql;
 using Ory.Client.Model;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using ILogger = Serilog.ILogger;
 
 namespace Borngladiator.Gladiator.Features.CreateUser;
 
@@ -20,10 +22,12 @@ public class CreateUser : Endpoint<CreateUserDto>
 {
   private User _user;
   private readonly AppConfiguration _configuration;
+  private readonly ILogger _logger;
 
-  public CreateUser( User user, IOptionsSnapshot<AppConfiguration> configuration)
+  public CreateUser( User user, IOptionsSnapshot<AppConfiguration> configuration, ILogger logger)
   {
     _user = user;
+    _logger = logger;
     _configuration = configuration.Value;
   }
   public override void Configure()
@@ -38,8 +42,8 @@ public class CreateUser : Endpoint<CreateUserDto>
 
     if (userPrinciple == null)
     {
+      _logger.Error($"user requested endpoint without authentication");
       await SendErrorsAsync(cancellation: ct);
-
       return;
     }
 
@@ -54,13 +58,11 @@ public class CreateUser : Endpoint<CreateUserDto>
   {
     if (HttpContext.Response.StatusCode != 200)
     {
-      //Todo: log
+      _logger.Information("Unable to send {@welcomeEmail}",req);
       return;
     }
 
-    var sendgridKey = _configuration.SENDGRID_API_KEY;
-
-    var client = new SendGridClient(sendgridKey);
+    var client = new SendGridClient(_configuration.SENDGRID_API_KEY);
 
     var from = new EmailAddress(_configuration.SendGrid.EmailFrom, "welcome to death clock");
 
@@ -68,19 +70,28 @@ public class CreateUser : Endpoint<CreateUserDto>
 
     if (user?.Identity == null)
     {
-      //Todo: log
+      _logger.Error("Unable to send welcome email, user is not authenticated");
       return;
     }
 
-    //Todo: utilise the actual user email on real test
-    // var to = new EmailAddress(user.GetUserEmail(), user.Identity.Name);
-    var to = new EmailAddress("hazecode90@gmail.com", "hazecode");
+    var to = new EmailAddress(user.GetUserEmail(), user.Identity.Name);
+
+    var hashId = new Hashids(_configuration.HashIdsSalt);
+
+    var userHashedId = hashId.EncodeHex(user.GetUserId().ToString("N"));
+
+    if (string.IsNullOrWhiteSpace(userHashedId))
+    {
+      _logger.Error("Unable to create valid user hash for unsubscribe link");
+      return;
+    }
 
     //Todo: allow sendgrid to enable user to unsubscribe
     var msg = MailHelper.CreateSingleTemplateEmail(from,to,_configuration.SendGrid.WelcomeTemplateId,new
     {
       days_left = "20000000000",
-      username = user.Identity.Name
+      username = user.Identity.Name,
+      unsubscribeId = userHashedId
     });
 
     var response = await client.SendEmailAsync(msg);
@@ -88,8 +99,9 @@ public class CreateUser : Endpoint<CreateUserDto>
     //check for response success or failure
     if (!response.IsSuccessStatusCode)
     {
-      //Todo: log it
-      //Todo: retry sending it later
+      _logger.Error("Sendgrid failed to send {@welcomeEmail}",response);
+
+      //Todo: Send email at a later date.
     }
   }
 

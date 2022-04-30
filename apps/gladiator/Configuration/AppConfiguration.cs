@@ -11,4 +11,6 @@ public class AppConfiguration
   public SendGridOptions SendGrid { get; set; }
 
   public ScheduleOptions Schedule { get; set; }
+
+  public string HashIdsSalt { get; set; }
 }
