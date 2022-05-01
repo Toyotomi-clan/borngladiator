@@ -2,13 +2,21 @@
 
 public static class LifeExpectancyHelper
 {
-  public static int DaysLeft(int averageExpectancy, DateTime dateOfBirth)
+  public static int TotalDaysLivedAndLeft(int averageExpectancy, DateTime dateOfBirth)
   {
     var userLifeExpectancy = dateOfBirth.AddYears(averageExpectancy);
 
-    var difference = Convert.ToInt32(Math.Floor((userLifeExpectancy - dateOfBirth).TotalDays));
+    var difference = userLifeExpectancy.Subtract(dateOfBirth).TotalDays;
 
-    return difference;
+    return (int)difference;
+  }
+  public static int DaysLeft(int averageExpectancy, DateTime dateOfBirth)
+  {
+    var yearsLeft = dateOfBirth.AddYears(averageExpectancy);
+
+    var difference = yearsLeft.Subtract(DateTime.UtcNow).TotalDays;
+
+    return (int)difference;
   }
   public static int DaysLeft(int averageExpectancy, DateTime dateOfBirth,double after)
   {
