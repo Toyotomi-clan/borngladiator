@@ -12,7 +12,36 @@ using User = Borngladiator.Gladiator.Features.Shared.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHostedService<databaseMigrationHostedService>();
+//Todo: Ensure all configurations are populated on startup
+builder.Services.Configure<AppConfiguration>(builder.Configuration);
+
+//Todo: Hosted services interfers with creating open api client, figure out how to schedule them
+//Todo: enable msbuild to run hosted client then openapi or make open api a hosted service
+if (bool.Parse(builder.Configuration["RunHostedService"]))
+{
+  builder.Services.AddHostedService<databaseMigrationHostedService>();
+
+  builder.Services.AddQuartz(x =>
+  {
+    x.UseMicrosoftDependencyInjectionJobFactory();
+
+    var jobKeyName = "SendDailyEmail";
+    // Create a "key" for the job
+    var jobKey = new JobKey(jobKeyName);
+
+    // Register the job with the DI container
+    x.AddJob<SendDailyEmail>(opts => opts.WithIdentity(jobKey));
+
+    // Create a trigger for the job
+    x.AddTrigger(opts => opts
+      .ForJob(jobKey) // link to the HelloWorldJob
+      .WithIdentity($"{jobKeyName}-trigger") // give the trigger a unique name
+      .WithCronSchedule(builder.Configuration["Schedule:DailyEmailCronJob"])); // run every 5 seconds
+  });
+
+  builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+}
+
 
 // Add services to the container.
 
@@ -22,9 +51,6 @@ builder.Services.AddFastEndpoints();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 
-
-//Todo: Ensure all configurations are populated on startup
-builder.Services.Configure<AppConfiguration>(builder.Configuration);
 
 builder.Services.AddTransient<User>();
 
@@ -57,27 +83,9 @@ builder.Services.AddAuthorization(options =>
     .Build();
 });
 
-builder.Services.AddQuartz(x =>
-{
-  x.UseMicrosoftDependencyInjectionJobFactory();
-
-  var jobKeyName = "SendDailyEmail";
-  // Create a "key" for the job
-  var jobKey = new JobKey(jobKeyName);
-
-  // Register the job with the DI container
-  x.AddJob<SendDailyEmail>(opts => opts.WithIdentity(jobKey));
-
-  // Create a trigger for the job
-  x.AddTrigger(opts => opts
-    .ForJob(jobKey) // link to the HelloWorldJob
-    .WithIdentity($"{jobKeyName}-trigger") // give the trigger a unique name
-    .WithCronSchedule(builder.Configuration["Schedule:DailyEmailCronJob"])); // run every 5 seconds
-});
 
 builder.Services.AddSingleton(Log.Logger);
 
-builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 
 

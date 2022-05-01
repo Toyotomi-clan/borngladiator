@@ -15,4 +15,6 @@ public class AppConfiguration
   public string HashIdsSalt { get; set; }
 
   public LifeExpectancyOptions LifeExpectancy { get; set; }
+
+  public bool RunHostedService { get; set; }
 }
