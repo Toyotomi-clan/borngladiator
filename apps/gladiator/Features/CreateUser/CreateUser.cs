@@ -89,7 +89,6 @@ public class CreateUser : Endpoint<CreateUserDto>
     //Todo: allow sendgrid to enable user to unsubscribe
     var msg = MailHelper.CreateSingleTemplateEmail(from,to,_configuration.SendGrid.WelcomeTemplateId,new
     {
-      days_left = "20000000000",
       username = user.Identity.Name,
       unsubscribeId = userHashedId
     });

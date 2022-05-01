@@ -55,7 +55,7 @@ public class SendDailyEmail : IJob
 
     //Todo: allow sendgrid to enable user to unsubscribe
     var msg = MailHelper
-      .CreateMultipleTemplateEmailsToMultipleRecipients(from,users.Item1,_configuration.SendGrid.WelcomeTemplateId,users.Item2);
+      .CreateMultipleTemplateEmailsToMultipleRecipients(from,users.Item1,_configuration.SendGrid.DailyReminderTemplateId,users.Item2);
 
     var response = await client.SendEmailAsync(msg);
 
@@ -95,9 +95,18 @@ public class SendDailyEmail : IJob
       }
       var email = new EmailAddress(user.Email, user.Username);
 
+      var averageLifeExpectancy = user.Gender switch
+      {
+        "male" => _configuration.LifeExpectancy.Male,
+        "female" => _configuration.LifeExpectancy.Female,
+        _ => throw new InvalidOperationException("Must be either male or female")
+      };
+
       var userParams = new
       {
-        days_left = "2000",
+        days_left = LifeExpectancyHelper.DaysLeft(averageLifeExpectancy,user.DateOfBirth),
+        days_sleep = LifeExpectancyHelper.DaysLeft(averageLifeExpectancy,user.DateOfBirth, 0.3),
+        days_work = LifeExpectancyHelper.DaysLeft(averageLifeExpectancy,user.DateOfBirth, 0.6),
         username = user.Username
       };
 

@@ -6,6 +6,8 @@ public class SendGridOptions
 
   public string WelcomeTemplateId { get; set; }
 
+  public string DailyReminderTemplateId { get; set; }
+
   //Todo: add this to the json
   //public string SendGridApiKey { get; set; }
 }
