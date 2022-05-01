@@ -65,6 +65,7 @@ public class SendDailyEmail : IJob
       //Todo: log it
       //Todo: retry sending it later
     }
+    _logger.LogInformation("finished email cron job at {@time} sent to {@totalUsers} {@sendGridResponse}",DateTime.UtcNow,users.Item1.Count,response);
 
   }
 
@@ -72,8 +73,7 @@ public class SendDailyEmail : IJob
   {
     var dictionary = new Dictionary<EmailAddress, object>();
 
-    var getUserSql = @"select username,email,date_of_birth as DateOfBirth,subscribed from users";
-
+    var getUserSql = @"select username,email,date_of_birth as DateOfBirth,subscribed, (select gender from gender where id = users.gender )  from users";
 
     var users = await DapperHelper.Query<UserDto>(getUserSql, null, _configuration.Database.Connection);
 
