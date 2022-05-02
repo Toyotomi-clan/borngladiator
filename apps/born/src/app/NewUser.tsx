@@ -1,7 +1,7 @@
 import {
   Button,
-  Flex, FormControl, FormErrorMessage, FormLabel, Input, Select,
-  Spinner, Stack, useToast,
+  Flex, FormControl, FormErrorMessage, FormLabel, Heading, Input, Link, Select,
+  Spinner, Stack, Text, useToast, VStack,
 } from "@chakra-ui/react";
 import {useCurrentUser} from "./Api/Api";
 import {useEffect, useState} from "react";
@@ -32,11 +32,21 @@ export default function NewUser(){
       marginTop={"10%"}
       align={'center'}
       justify={'center'}
+      direction={"column"}
     >
       {isFetching &&   <Spinner size='xl' />}
       {data && !isFetching &&
         <>
-          <Stack spacing={4} direction={{ base: 'column', md: 'row' }} w={'full'}>
+          <Stack align={'center'} mb={"40px"}>
+            <Heading fontSize={'4xl'}>Just one more step left!</Heading>
+            <Text fontSize={'lg'} color={'gray.600'}>
+              ❤️
+            </Text>
+          </Stack>
+          <VStack  boxShadow={'lg'} bg={'gray.30'}
+                   rounded={'xl'}  paddingTop={12} spacing={0}  w={{ base: "full",lg: "2xl",md: "lg"}} h={"full"}>
+
+
             <form onSubmit={handleSubmit((form) =>{
 
               const [withoutTime] = form.dateOfBirth.toISOString().split("T");
@@ -46,70 +56,80 @@ export default function NewUser(){
                 gender: form.gender
               })
             })}>
-              <FormControl  isInvalid={errorIsValid(errors,errors.gender)}>
-                <Select {...register("gender", {
-                  required: "Please select a gender"
-                })} placeholder='Select Gender'>
-                  <option value='male'>Male</option>
-                  <option value='female'>Female</option>
-                </Select>
+              <VStack spacing={8} >
+                <FormControl isRequired isInvalid={errorIsValid(errors,errors.gender)}>
+                  <FormLabel htmlFor='gender'>Gender</FormLabel>
 
-                <FormErrorMessage>{errors["gender"]?.message}</FormErrorMessage>
-              </FormControl>
+                  <Select id={"gender"} {...register("gender", {
+                    required: "Please select a gender"
+                  })} placeholder='Select Gender'>
+                    <option label={"male"} value='male'>Male</option>
+                    <option label={"female"} value='female'>Female</option>
+                  </Select>
 
-              <FormControl isRequired  isInvalid={errorIsValid(errors,errors.dateOfBirth)}>
-                <Controller
-                  control={control}
-                  name='dateOfBirth'
-                  rules={{
-                    required: "Please enter valid birthday",
+                  <FormErrorMessage>{errors["gender"]?.message}</FormErrorMessage>
+                </FormControl>
 
-                    validate: {
-                      currentYear: x =>{
-                        const today = new Date();
-                        return  today.getFullYear() > x.getFullYear()  || "You are born in the future?" ;
+                <FormControl isRequired  isInvalid={errorIsValid(errors,errors.dateOfBirth)}>
+                  <FormLabel htmlFor='dateOfBirth'>Date of birth</FormLabel>
+
+                  <Controller
+
+                    control={control}
+                    name='dateOfBirth'
+                    rules={{
+                      required: "Please enter valid birthday",
+
+                      validate: {
+                        currentYear: x =>{
+                          const today = new Date();
+                          return  today.getFullYear() > x.getFullYear()  || "You are born in the future?" ;
+                        },
+                        min18: x =>{
+                          const today = new Date();
+                          const requiredAge = today.getFullYear() - 18
+                          return  requiredAge >= x.getFullYear() || "You must be 18 or above" ;
+                        },
+
+                        max70: x =>{
+                          const today = new Date();
+                          const maxAge = today.getFullYear() - 70
+                          return   x.getFullYear() > maxAge || "You are older than 70? Don't believe it" ;
+                        }
                       },
-                      min18: x =>{
-                        const today = new Date();
-                        const requiredAge = today.getFullYear() - 18
-                        return  requiredAge >= x.getFullYear() || "You must be 18 or above" ;
-                      },
 
-                      max70: x =>{
-                        const today = new Date();
-                        const maxAge = today.getFullYear() - 70
-                        return   x.getFullYear() > maxAge || "You are older than 70? Don't believe it" ;
-                      }
-                    },
+                    }}
+                    render={({ field }) => (
+                      <DatePicker
+                        id={"dateOfBirth"}
+                        placeholderText='Select date'
+                        onChange={(date) => field.onChange(date)}
+                        selected={field.value}
+                        peekNextMonth
+                        showMonthDropdown
+                        showYearDropdown
+                        dropdownMode="select"
 
-                  }}
-                  render={({ field }) => (
-                    <DatePicker
-                      placeholderText='Select date'
-                      onChange={(date) => field.onChange(date)}
-                      selected={field.value}
-                      peekNextMonth
-                      showMonthDropdown
-                      showYearDropdown
-                      dropdownMode="select"
+                      />
+                    )}
+                  />
 
-                    />
-                  )}
-                />
+                  <FormErrorMessage>{errors["dateOfBirth"]?.message}</FormErrorMessage>
+                </FormControl>
 
-                <FormErrorMessage>{errors["dateOfBirth"]?.message}</FormErrorMessage>
-              </FormControl>
+                <Button
+                  type={"submit"}
+                  colorScheme='gray' variant='ghost'
+                 width={"full"}
+                >
+                  Enter
+                </Button>
+              </VStack>
 
-              <Button
-                type={"submit"}
-                colorScheme='gray' variant='ghost'
-                size={"md"}
-              >
-                Enter
-              </Button>
+
             </form>
 
-          </Stack>
+          </VStack>
           </>}
 
     </Flex>
