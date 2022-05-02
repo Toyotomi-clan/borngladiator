@@ -17,7 +17,7 @@ export function Layout({children}) {
 export function App(props: {children}){
   const {reset} = useQueryErrorResetBoundary();
   return (
-    <Grid minH={"100vh"}>
+    <Grid>
       <ErrorBoundary onError={errorHandler} fallbackRender={GlobalErrorPageHandler} onReset={reset}>
         <Nav/>
         {props.children}

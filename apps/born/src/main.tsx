@@ -10,6 +10,7 @@ import Home from "./app/home";
 import {queryClient} from "./app/QueryClient";
 import {QueryClientProvider} from "react-query";
 import { ReactQueryDevtools } from 'react-query/devtools'
+import NewUser from "./app/NewUser";
 
 
 ReactDOM.render(
@@ -19,6 +20,8 @@ ReactDOM.render(
           <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<App children={<Home/>}/>}/>
+                  <Route path="/new" element={<App children={<NewUser/>}/>}/>
+
                   <Route path="/register" element={<App children={<SignupCard/>}/>}/>
                   <Route path="/login" element={<App children={<Login/>}/>}/>
                   <Route path="/error" element={<App children={<Error500/>}/>}/>
