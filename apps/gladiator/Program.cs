@@ -111,17 +111,6 @@ builder.Services.AddSingleton(Log.Logger);
 
 builder.Host.UseSerilog(((context, configuration) =>
 {
-  //Todo: Capture 500 error response
-  //Todo: for example if /api/user/create recieives a bad date it will throw 500 internal error
-  //Todo: However, the seq log won't show the response from fastEndpoint
-  //Todo: In Essence capture exceptions in serilog
-  //https://github.com/benaadams/Ben.Demystifier#problems-with-current-stack-traces
-  /*
-   * code: 500
-        note: "See application log for stack trace."
-        reason: "The JSON value could not be converted to System.DateTime. Path: $.dateOfBirth | LineNumber: 0 | BytePositionInLine: 72."
-        status: "Internal Server Error!"
-   */
   configuration.WriteTo.Seq("http://localhost:5341/")
     .Enrich.FromLogContext();
 }));
@@ -153,7 +142,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<EnrichLogWithUserDetailsMiddleware>();
 
-app.UseDefaultExceptionHandler();
+app.UseDefaultExceptionHandler(app.Services.GetService<ILogger<Exception>>());
 app.UseFastEndpoints();
 
 app.Run();
