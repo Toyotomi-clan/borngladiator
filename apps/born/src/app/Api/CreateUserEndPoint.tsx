@@ -14,17 +14,18 @@ const axiosClient = axios.create({
   baseURL: "http://localhost:5165",
   withCredentials: true
 })
-const client = api.BorngladiatorGladiatorVersion1000CultureneutralPublicKeyTokennullApiFactory(null,"",axiosClient);
+export const OurEndPointClient = api.BorngladiatorGladiatorVersion1000CultureneutralPublicKeyTokennullApiFactory(null,"",axiosClient);
 
 const staleTime = 3600000;
 
 
 async function CreateUser(user:CreateUserDto) {
 
-  const response = await client.borngladiatorGladiatorFeaturesCreateUserCreateUser(user)
+  const response = await OurEndPointClient.borngladiatorGladiatorFeaturesCreateUserCreateUser(user)
 
   return response;
 }
+
 
 export function useMutationNewUser(setFormError: UseFormSetError<NewUserModel>) {
 
