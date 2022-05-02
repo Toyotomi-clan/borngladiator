@@ -55,6 +55,20 @@ public class GetUser : EndpointWithoutRequest<GetUserDto>
 
       return;
     }
+    var averageLifeExpectancy = dto.Gender switch
+    {
+      "male" => _configuration.LifeExpectancy.Male,
+      "female" => _configuration.LifeExpectancy.Female,
+      _ => throw new InvalidOperationException("Must be either male or female")
+    };
+
+    dto.LifeExpectancy = averageLifeExpectancy;
+
+    dto.LifeLeft = LifeExpectancyHelper.LifeLeft(dto.LifeExpectancy,dto.DateOfBirth);
+
+    dto.Age = LifeExpectancyHelper.GetAge(dto.DateOfBirth);
+
+    dto.DaysSpent = LifeExpectancyHelper.DaysSpent(dto.DateOfBirth);
 
     await SendOkAsync(dto,ct);
 
