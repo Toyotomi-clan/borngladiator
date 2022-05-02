@@ -11,12 +11,15 @@ import "react-datepicker/dist/react-datepicker.css";
 import {useForm,Controller} from "react-hook-form";
 import {NewUserModel} from "./models/newUserModel";
 import {errorIsValid} from "./helper/EmptyObjectHelper";
+import {useNavigate} from "react-router-dom";
 
 
 export default function NewUser(){
   const {data,error, isFetching } = useCurrentUser();
   const {control,handleSubmit, setError,register, formState: {errors},setValue}  = useForm<NewUserModel>();
   const mutation = useMutationNewUser(setError);
+
+  const navigate = useNavigate();
 
   const toast = useToast()
 
@@ -54,6 +57,22 @@ export default function NewUser(){
               mutation.mutate({
                 dateOfBirth: withoutTime,
                 gender: form.gender
+              }, {
+                onSuccess: () => {
+                  navigate("/")
+                  toast({
+                    status: "success",
+                    title: "account creation complete",
+                    description: "we are happy you joined us"
+                  })
+                },
+                onError: () => {
+                  toast({
+                    status: "error",
+                    title: "double check please",
+                    description: "there seems to be some validation errors"
+                  })
+                }
               })
             })}>
               <VStack spacing={8} >
@@ -81,10 +100,6 @@ export default function NewUser(){
                       required: "Please enter valid birthday",
 
                       validate: {
-                        currentYear: x =>{
-                          const today = new Date();
-                          return  today.getFullYear() > x.getFullYear()  || "You are born in the future?" ;
-                        },
                         min18: x =>{
                           const today = new Date();
                           const requiredAge = today.getFullYear() - 18
