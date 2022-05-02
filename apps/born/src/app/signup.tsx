@@ -59,7 +59,7 @@ export default function SignupCard() {
           model: submitRegistration
         }, {
           onSuccess: () => {
-            navigate("/")
+            navigate("/new")
             toast({
               status: "success",
               title: "Welcome to death clock",
