@@ -1,16 +1,39 @@
+using System.Globalization;
+using System.Text.Json;
 using Borngladiator.Gladiator;
 using Borngladiator.Gladiator.Configuration;
 using Borngladiator.Gladiator.Cron;
 using Borngladiator.Gladiator.HostedServices;
 using Borngladiator.Gladiator.Middleware;
 using FastEndpoints;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Quartz;
+using RestSharp.Extensions;
 using Serilog;
 using ILogger = Serilog.ILogger;
 using User = Borngladiator.Gladiator.Features.Shared.User;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//Todo: Figure out how to do this in an interface / class part of the app / build process
+/*
+ Without this this response dateOfBirth would been DateOfBirth
+ * {
+  "statusCode": 400,
+  "message": "One or more errors occured!",
+  "errors": {
+    "dateOfBirth": [
+      "user must be older than 18"
+    ],
+    "gender": [
+      "please select right gender"
+    ]
+  }
+}
+ */
+ValidatorOptions.Global.PropertyNameResolver = (type, member, expr) => member.Name.ToCamelCase(CultureInfo.InvariantCulture);
+
 
 //Todo: Ensure all configurations are populated on startup
 builder.Services.Configure<AppConfiguration>(builder.Configuration);
@@ -86,11 +109,19 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddSingleton(Log.Logger);
 
-
-
-
 builder.Host.UseSerilog(((context, configuration) =>
 {
+  //Todo: Capture 500 error response
+  //Todo: for example if /api/user/create recieives a bad date it will throw 500 internal error
+  //Todo: However, the seq log won't show the response from fastEndpoint
+  //Todo: In Essence capture exceptions in serilog
+  //https://github.com/benaadams/Ben.Demystifier#problems-with-current-stack-traces
+  /*
+   * code: 500
+        note: "See application log for stack trace."
+        reason: "The JSON value could not be converted to System.DateTime. Path: $.dateOfBirth | LineNumber: 0 | BytePositionInLine: 72."
+        status: "Internal Server Error!"
+   */
   configuration.WriteTo.Seq("http://localhost:5341/")
     .Enrich.FromLogContext();
 }));
@@ -98,8 +129,6 @@ builder.Host.UseSerilog(((context, configuration) =>
 
 var app = builder.Build();
 
-
-app.UseDefaultExceptionHandler(); //add this
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -124,6 +153,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<EnrichLogWithUserDetailsMiddleware>();
 
+app.UseDefaultExceptionHandler();
 app.UseFastEndpoints();
 
 app.Run();
