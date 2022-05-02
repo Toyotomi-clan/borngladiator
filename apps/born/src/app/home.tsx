@@ -39,19 +39,19 @@ export default function Home(){
 
           <Heading>Age: {deathClockUser.data.age}</Heading>
 
-          <Text fontSize='xl'>Birthdays that will never come back</Text>
-
-          <HStack w={{base:"xs", lg: "2xl", md: "lg"}} flexWrap={"wrap"} justifyContent={"center"}>
-            {Array.from(Array(deathClockUser.data.age).keys()).map(x => <Box>☠️</Box>)}
-          </HStack>
-
           <Text fontSize='xl'>You have {deathClockUser.data.lifeExpectancy - deathClockUser.data.age} birthdays to look forward to</Text>
 
           <HStack w={{base:"xs", lg: "2xl", md: "lg"}} flexWrap={"wrap"} justifyContent={"center"}>
             {Array.from(Array(deathClockUser.data.lifeExpectancy - deathClockUser.data.age).keys()).map(x => <Box>🎂</Box>)}
           </HStack>
 
-          <Text fontWeight={"bold"}>You already spent <Text display={"inline"} color={"red"}> {deathClockUser.data.daysSpent} </Text> days of your life why waste another?</Text>
+          <Text fontSize='xl'>You have spent {deathClockUser.data.age} birthdays</Text>
+
+          <HStack w={{base:"xs", lg: "2xl", md: "lg"}} flexWrap={"wrap"} justifyContent={"center"}>
+            {Array.from(Array(deathClockUser.data.age).keys()).map(x => <Box>☠️</Box>)}
+          </HStack>
+
+          <Text fontWeight={"bold"}> <Text display={"inline"} color={"red"}> {deathClockUser.data.daysSpent} </Text> days of your life are gone forever</Text>
         </VStack>
       </>
       }
