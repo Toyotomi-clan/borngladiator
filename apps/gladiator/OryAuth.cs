@@ -93,7 +93,7 @@ public class OryAuthHandler : AuthenticationHandler<OryAuthOptions>
 
       var claims = new[]
       {
-        new Claim(ClaimTypes.Sid, user.Id),
+        new Claim(ClaimTypes.Sid, user.Identity.Id),
         new Claim(ClaimsIdentity.DefaultIssuer, "Ory_Cloud"),
         new Claim(ClaimTypes.Name, traits.UserName),
         new Claim(ClaimTypes.Email, traits.Email)
