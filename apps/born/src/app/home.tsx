@@ -30,8 +30,8 @@ export default function Home(){
     <Flex
       align={'center'}
       justify={'center'}>
-      {isFetching &&   <Spinner size='xl' />}
-      {data && !isFetching && !deathClockUserFetching && deathClockUser &&
+      {isFetching || deathClockUserFetching &&   <Spinner size='xl' />}
+      {data && !isFetching && !deathClockUserFetching && deathClockUser.data &&
 
       <>
         <VStack spacing={8} w={{base: "xs", lg: "full"}}>
