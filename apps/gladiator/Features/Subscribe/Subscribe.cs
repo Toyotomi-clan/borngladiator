@@ -32,21 +32,15 @@ public class Subscribe : Endpoint<SubscribeDto>
   public override async Task HandleAsync(SubscribeDto req, CancellationToken ct)
   {
 
+
     var hashId = new Hashids(_configuration.HashIdsSalt);
 
     var unsubscribeId = hashId.DecodeHex(req.UnsubscribeId);
 
-    if (unsubscribeId == null)
-    {
-      _logger.Error($"user requested endpoint without authentication");
-      await SendNoContentAsync(ct);
-      return;
-    }
-
     if (!Guid.TryParse(unsubscribeId, out var userId))
     {
       _logger.Information("Failed to Unsubscribe user, not a valid {@Guid}", userId);
-      await SendNoContentAsync(ct);
+      await SendErrorsAsync(cancellation: ct);
       return;
     }
 

@@ -61,7 +61,7 @@ async function getLogoutUserFlow() {
 
   return response;
 }
-
+//Todo: when user is already logged in redirect them to the home page
 async function postLoginForm(post: { flow: SelfServiceLoginFlow, model: SubmitSelfServiceLoginFlowBody }) {
 
   const response = await client.submitSelfServiceLoginFlow(post.flow.id, null, post.model)

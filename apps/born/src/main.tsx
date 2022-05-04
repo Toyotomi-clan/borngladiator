@@ -11,6 +11,7 @@ import {queryClient} from "./app/QueryClient";
 import {QueryClientProvider} from "react-query";
 import { ReactQueryDevtools } from 'react-query/devtools'
 import NewUser from "./app/NewUser";
+import {Subscribe} from "./app/Subscribe";
 
 
 ReactDOM.render(
@@ -21,6 +22,7 @@ ReactDOM.render(
                 <Routes>
                   <Route path="/" element={<App children={<Home/>}/>}/>
                   <Route path="/new" element={<App children={<NewUser/>}/>}/>
+                  <Route path="/subscribe" element={<App children={<Subscribe/>}/>}/>
 
                   <Route path="/register" element={<App children={<SignupCard/>}/>}/>
                   <Route path="/login" element={<App children={<Login/>}/>}/>

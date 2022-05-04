@@ -10,6 +10,5 @@ public class SubscribeValidator : Validator<SubscribeDto>
     RuleFor(x => x.Subscribe).NotNull().WithMessage("must be true or false");
 
     RuleFor(x => x.UnsubscribeId).NotEmpty().WithMessage("please provide a valid string");
-
   }
 }
