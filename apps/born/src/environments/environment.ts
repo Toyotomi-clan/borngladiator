@@ -3,4 +3,9 @@
 
 export const environment = {
   production: false,
+  Ory: "/.ory",
+  userSessionStaleTime: 300000, // 5m
+  defaultStaleTime: 60000, // 1 minute
+  deathClockServer: "http://localhost:5165",
+  defaultRetryRate: 3,
 };

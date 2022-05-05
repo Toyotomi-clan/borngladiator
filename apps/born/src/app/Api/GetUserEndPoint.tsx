@@ -11,7 +11,6 @@ export function useDeathClockUser(){
   return useQuery("deathClockUser",async () => {
     return await GetUser();
   },{
-    retry: 3,
     useErrorBoundary: true,
   })
 }

@@ -1,18 +1,15 @@
 import {useMutation} from "react-query";
-import {errorBoundaryBadError} from "./Api";
 import {AxiosError} from "axios";
 import {
-  axiosErrorCreateUserSchema,
   axiosErrorSubscribeSchema,
-  CreateUserEndPointError,
   SubscribeEndPointError
 } from "../Schema/OurEndPointSchema";
 import {ErrorOption, FieldPath} from "react-hook-form";
-import {OurEndPointFormTypes, SubscribeOurEndPointFormTypes} from "../models/OurEndPointFormTypes";
+import {SubscribeOurEndPointFormTypes} from "../models/OurEndPointFormTypes";
 import { SubscribeDto } from "dist/apps/gladiator/client";
 import {OurEndPointClient} from "./CreateUserEndPoint";
 import {UseFormSetError} from "react-hook-form/dist/types/form";
-import {NewUserModel, SubscribeModel} from "../models/newUserModel";
+import {SubscribeModel} from "../models/newUserModel";
 
 async function Subscribe(subscribe:SubscribeDto) {
 
@@ -26,11 +23,9 @@ export function useMutationNewUser(setFormError: UseFormSetError<SubscribeModel>
   return useMutation(async (subscribe : SubscribeDto) => {
     return await Subscribe(subscribe);
   }, {
-    retry: 1,
     useErrorBoundary: false,
     onError: (error: AxiosError<SubscribeEndPointError>) => {
       if (axiosErrorSubscribeSchema.isValidSync(error.response)) {
-
         //Todo: write custom error for api 400 response
         SubscribeError(error, setFormError);
       }

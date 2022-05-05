@@ -9,15 +9,13 @@ import {NewUserModel} from "../models/newUserModel";
 import {ErrorOption, FieldPath} from "react-hook-form";
 import {OurEndPointFormTypes} from "../models/OurEndPointFormTypes";
 import {axiosErrorCreateUserSchema, CreateUserEndPointError} from "../Schema/OurEndPointSchema";
+import {environment} from "../../environments/environment";
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:5165",
+  baseURL: environment.deathClockServer,
   withCredentials: true
 })
 export const OurEndPointClient = api.BorngladiatorGladiatorVersion1000CultureneutralPublicKeyTokennullApiFactory(null,"",axiosClient);
-
-const staleTime = 3600000;
-
 
 async function CreateUser(user:CreateUserDto) {
 
@@ -32,7 +30,6 @@ export function useMutationNewUser(setFormError: UseFormSetError<NewUserModel>) 
   return useMutation(async (user : CreateUserDto) => {
     return await CreateUser(user);
   }, {
-    retry: false,
     useErrorBoundary: errorBoundaryBadError,
     onError: (error: AxiosError<CreateUserEndPointError>) => {
       if (axiosErrorCreateUserSchema.isValidSync(error.response)) {

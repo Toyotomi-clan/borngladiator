@@ -18,14 +18,13 @@ import {oryFormFieldTypes, oryFormTypes} from "../models/OryFormTypes";
 import {queryClient} from "../QueryClient";
 import {NavigateFunction} from "react-router";
 import useStore from "../store/createstore";
+import {environment} from "../../environments/environment";
 
-const path = "/.ory";
+const path = environment.Ory;
 
 const axiosClient = axios.create({});
 
 const client = V0alpha2ApiFactory(null, path, axiosClient);
-
-const staleTime = 3600000;
 
 async function startLoginFlow() {
 
@@ -79,8 +78,6 @@ async function postSignUpForm(post: { flow: SelfServiceRegistrationFlow, model: 
 
 export function useStartLoginFlow() {
   return useQuery("startLoginFlow", startLoginFlow, {
-    staleTime: staleTime,
-    retry: false,
     useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status !== 200
   });
 }
@@ -99,8 +96,6 @@ export function useMutateLogin(setFormError: UseFormSetError<LoginFormModel>) {
 
 export function useStartSignUpFlow() {
   return useQuery("startSignUpFlow", startSignUpFlow, {
-    staleTime: staleTime,
-    retry: false,
     useErrorBoundary: (error: AxiosError<JsonError>) => error?.response?.status !== 200
   })
 }
@@ -110,7 +105,6 @@ export function useMutationSignUp(setFormError: UseFormSetError<registerFormMode
   return useMutation(async (post: { flow: SelfServiceRegistrationFlow, model: SubmitSelfServiceRegistrationFlowBody }) => {
     return await postSignUpForm(post);
   }, {
-    retry: false,
     useErrorBoundary: errorBoundaryBadError,
     onError: (error: AxiosError<SelfServiceRegistrationFlow>) => {
       if (axiosErrorSelfServiceSignUpFlowSchema.isValidSync(error.response)) {
@@ -122,6 +116,7 @@ export function useMutationSignUp(setFormError: UseFormSetError<registerFormMode
 
 export function useCurrentUser() {
   return useQuery("user", getCurrentUser, {
+    staleTime: environment.userSessionStaleTime,
     retry: false,
     useErrorBoundary: false,
   });
@@ -133,7 +128,6 @@ export function useLogoutUser(userClickedLogout: boolean,logoutUrl: string, reac
   return useQuery("logoutUser",async () => {
     return await getLogoutUser(logoutUrl)
   }, {
-    retry: false,
     useErrorBoundary: true,
     enabled: !!logoutUrl && userClickedLogout ,
     onSuccess: async (data) => {
@@ -150,26 +144,15 @@ export function useLogoutUser(userClickedLogout: boolean,logoutUrl: string, reac
 
 export function useLogoutFlow(userIsLoggedIn) {
   return useQuery("logoutFlow", getLogoutUserFlow, {
-    retry: false,
     useErrorBoundary: true,
     enabled: userIsLoggedIn
   });
 }
 
 
-function NonFormError(error: AxiosError<SelfServiceRegistrationFlow> | AxiosError<JsonError>, setFormError: (name: FieldPath<oryFormTypes>, error: ErrorOption, options?: { shouldFocus: boolean }) => void) {
-  const response = error.response.data as JsonError;
-
-  setFormError("general", {
-    message: response.error.message,
-    type: response.error.status
-  })
-}
-
 export function errorBoundaryBadError<T>(error: AxiosError<T>): boolean {
   return !error || !error?.response || error?.response?.status !== 400;
 }
-
 
 //Todo move all this stuff into their own logical container
 type uiResponse = SelfServiceLoginFlow | SelfServiceRegistrationFlow;
