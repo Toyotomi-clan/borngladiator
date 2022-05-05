@@ -32,7 +32,6 @@ public class EnrichLogWithUserDetailsMiddleware
     {
       var logContext = LogContext.PushProperty("angle", new
       {
-        email = angle.Principal.GetUserEmail(),
         id = angle.Principal.GetUserId()
       },true);
 

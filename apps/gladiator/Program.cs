@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using System.Text.Json;
 using Borngladiator.Gladiator;
 using Borngladiator.Gladiator.Configuration;
@@ -8,9 +9,11 @@ using Borngladiator.Gladiator.Middleware;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Quartz;
 using RestSharp.Extensions;
 using Serilog;
+using Serilog.Exceptions;
 using ILogger = Serilog.ILogger;
 using User = Borngladiator.Gladiator.Features.Shared.User;
 
@@ -109,15 +112,17 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddSingleton(Log.Logger);
 
+
 builder.Host.UseSerilog(((context, configuration) =>
 {
   configuration.WriteTo.Seq("http://localhost:5341/")
+    .Enrich.WithExceptionDetails()
     .Enrich.FromLogContext();
 }));
 
 
 var app = builder.Build();
-
+app.UseDefaultExceptionHandler(app.Services.GetService<Logger<Exception>>());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -125,7 +130,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 if (!app.Environment.IsDevelopment())
 {
   app.UseHttpsRedirection();
@@ -142,7 +146,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<EnrichLogWithUserDetailsMiddleware>();
 
-app.UseDefaultExceptionHandler(app.Services.GetService<ILogger<Exception>>());
 app.UseFastEndpoints();
 
 app.Run();
