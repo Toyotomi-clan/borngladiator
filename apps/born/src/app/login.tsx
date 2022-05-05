@@ -135,12 +135,6 @@ export default function Login() {
                   <ReactRouterLink to={"/register"}><Button  colorScheme='teal' variant='link' >Create account</Button> </ReactRouterLink>
                 </Center>
               </Stack>
-              <Stack>
-                <Center>
-                  {/*Todo: add recover logic*/}
-                  <ReactRouterLink to={"/forgot"}><Button  colorScheme='teal' variant='link' >Forgot account</Button> </ReactRouterLink>
-                </Center>
-              </Stack>
             </Stack>
           </Stack>
         </Box>
