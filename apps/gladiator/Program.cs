@@ -122,7 +122,7 @@ builder.Host.UseSerilog(((context, configuration) =>
 
 
 var app = builder.Build();
-app.UseDefaultExceptionHandler(app.Services.GetService<Logger<Exception>>());
+app.UseDefaultExceptionHandler(app.Services.GetService<Logger<Exception>>(),true);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -16,7 +16,7 @@
 
     <PackageReference Include="dbup-postgresql" Version="4.5.0" />
 
-    <PackageReference Include="FastEndpoints" Version="4.0.0" />
+    <PackageReference Include="FastEndpoints" Version="4.2.0-beta2" />
 
     <PackageReference Include="Hashids.net" Version="1.5.0" />
 
