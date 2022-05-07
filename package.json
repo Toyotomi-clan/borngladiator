@@ -1,11 +1,12 @@
 {
   "name": "borngladiator",
   "version": "0.0.0",
-  "license": "FKU",
+  "license": "MIT",
   "scripts": {
     "start": "nx run-many --parallel --target=serve --projects=born,gladiator",
     "start-prod": "nx run-many --parallel --target=serve --configuration=production --projects=born,gladiator",
     "build": "nx build",
+    "build-react": "nx build --projects=born",
     "test": "nx test",
     "prepare": "nx g @nx-dotnet/core:restore",
     "build-client": "openapi-generator-cli generate -g typescript-axios -i .\\dist\\swagger\\gladiator.yml -o .\\dist\\apps\\gladiator\\client"
