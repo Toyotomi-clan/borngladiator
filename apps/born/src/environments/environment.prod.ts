@@ -5,4 +5,7 @@ export const environment = {
   defaultStaleTime: 3600000, // 1h
   deathClockServer: "",
   defaultRetryRate: 2,
+  seqLogServer: "",
+  seqApiKey: ""
+
 };

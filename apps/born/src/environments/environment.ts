@@ -7,5 +7,7 @@ export const environment = {
   userSessionStaleTime: 300000, // 5m
   defaultStaleTime: 60000, // 1 minute
   deathClockServer: "http://localhost:5165",
-  defaultRetryRate: 3,
+  defaultRetryRate: 1,
+  seqLogServer: "http://localhost:5341",
+  seqApiKey: "VkD2wnKcHFCfsjzHuzsX"
 };

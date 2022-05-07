@@ -3,9 +3,6 @@ import {environment} from "../environments/environment";
 import FingerprintJS from "@fingerprintjs/fingerprintjs"
 
 export const errorHandler = async (error: Error, info: {componentStack: string}) => {
-  // Do something with the error
-  // E.g. log to an error logging client here
-
   //Get user fingerprint
   const fingerPrint =  await visitorFingerPrint();
   //https://docs.datalust.co/docs/built-in-properties-and-functions
@@ -24,7 +21,9 @@ export const errorHandler = async (error: Error, info: {componentStack: string})
       ...fingerPrint
     });
 
-  await axios.post(`${environment.seqLogServer}/api/events/raw?clef`,seqLogReport);
+  await axios.post(`${environment.seqLogServer}/api/events/raw?clef`,seqLogReport,{
+    headers: {"X-Seq-ApiKey": environment.seqApiKey}
+  });
 }
 
 async function visitorFingerPrint(){
