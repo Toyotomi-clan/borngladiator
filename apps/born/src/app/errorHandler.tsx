@@ -1,8 +1,7 @@
 import axios, {AxiosResponse} from "axios";
 import {environment} from "../environments/environment";
 import FingerprintJS from "@fingerprintjs/fingerprintjs"
-import {queryCache, queryClient} from "./QueryClient";
-import {QueryClient} from "react-query";
+import {queryClient} from "./QueryClient";
 import {Session} from "@ory/client/dist/api";
 
 export const errorHandler = async (error: Error, info: {componentStack: string}) => {
@@ -50,7 +49,7 @@ async function getAuthenticatedUser(){
       authenticated: false
     }
   }
-  
+
   return {
     authenticated: true,
     angle: session.id,
