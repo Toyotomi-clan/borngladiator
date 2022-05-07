@@ -1,0 +1,100 @@
+openapi: 3.0.1
+info:
+  title: 'Borngladiator.Gladiator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+  version: '1.0'
+paths:
+  /api/user/subscribe:
+    post:
+      tags:
+        - 'Borngladiator.Gladiator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+      operationId: BorngladiatorGladiatorFeaturesSubscribeSubscribe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscribeDto'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema: { }
+            application/json:
+              schema: { }
+  /api/user:
+    get:
+      tags:
+        - 'Borngladiator.Gladiator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+      operationId: BorngladiatorGladiatorFeaturesGetUserGetUser
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserDto'
+  /api/user/create:
+    post:
+      tags:
+        - 'Borngladiator.Gladiator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+      operationId: BorngladiatorGladiatorFeaturesCreateUserCreateUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDto'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema: { }
+            application/json:
+              schema: { }
+components:
+  schemas:
+    CreateUserDto:
+      type: object
+      properties:
+        dateOfBirth:
+          type: string
+          format: date-time
+        gender:
+          type: string
+          nullable: true
+      additionalProperties: false
+    GetUserDto:
+      type: object
+      properties:
+        dateOfBirth:
+          type: string
+          format: date-time
+        lifeExpectancy:
+          type: integer
+          format: int32
+        daysSpent:
+          type: integer
+          format: int32
+        age:
+          type: integer
+          format: int32
+        lifeLeft:
+          type: string
+          format: date-time
+        subscribed:
+          type: boolean
+        gender:
+          type: string
+          nullable: true
+      additionalProperties: false
+    SubscribeDto:
+      type: object
+      properties:
+        unsubscribeId:
+          type: string
+          nullable: true
+        subscribe:
+          type: boolean
+      additionalProperties: false
