@@ -57147,7 +57147,8 @@ var allowOrigins = environment.production ? environment.Ory : "*";
 var axiosClient = axios_default().create({
     baseURL: environment.Ory,
     headers: {
-        "Access-Control-Allow-Origin": allowOrigins
+        "Access-Control-Allow-Origin": allowOrigins,
+        "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
     }
 });
 var client = (0,dist.V0alpha2ApiFactory)(null, "", axiosClient);

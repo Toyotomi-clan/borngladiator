@@ -24,7 +24,8 @@ const allowOrigins = environment.production ? environment.Ory : "*";
 const axiosClient = axios.create({
   baseURL: environment.Ory,
   headers: {
-    "Access-Control-Allow-Origin": allowOrigins
+    "Access-Control-Allow-Origin": allowOrigins,
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
   }
 });
 
