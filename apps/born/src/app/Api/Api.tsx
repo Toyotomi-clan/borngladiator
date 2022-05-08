@@ -20,11 +20,11 @@ import {NavigateFunction} from "react-router";
 import useStore from "../store/createstore";
 import {environment} from "../../environments/environment";
 
-const path = environment.Ory;
+const axiosClient = axios.create({
+  baseURL: environment.Ory
+});
 
-const axiosClient = axios.create({});
-
-const client = V0alpha2ApiFactory(null, path, axiosClient);
+const client = V0alpha2ApiFactory(null, "", axiosClient);
 
 async function startLoginFlow() {
 
