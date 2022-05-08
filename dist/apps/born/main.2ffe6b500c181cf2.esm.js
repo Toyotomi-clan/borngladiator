@@ -56945,7 +56945,7 @@ var defaultSignUpFieldValues = {
 ;// CONCATENATED MODULE: ./src/environments/environment.prod.ts
 var environment = {
     production: true,
-    Ory: "/",
+    Ory: "https://auth.stoictemple.com",
     userSessionStaleTime: 259200000,
     defaultStaleTime: 3600000,
     deathClockServer: "",
@@ -57143,9 +57143,10 @@ function _asyncToGenerator(fn) {
 
 
 
-var path = environment.Ory;
-var axiosClient = axios_default().create({});
-var client = (0,dist.V0alpha2ApiFactory)(null, path, axiosClient);
+var axiosClient = axios_default().create({
+    baseURL: environment.Ory
+});
+var client = (0,dist.V0alpha2ApiFactory)(null, "", axiosClient);
 function startLoginFlow() {
     return _startLoginFlow.apply(this, arguments);
 }
