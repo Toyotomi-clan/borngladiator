@@ -1,4 +1,5 @@
 import {
+  Configuration,
   JsonError,
   SelfServiceLoginFlow, SelfServiceRegistrationFlow, SubmitSelfServiceRegistrationFlowBody,
   V0alpha2ApiFactory
@@ -25,9 +26,19 @@ const axiosClient = axios.create({
   headers: {
     "Access-Control-Allow-Origin": allowOrigins,
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
-  }
+  },
 });
 
+if(environment.production) {
+  //Todo: Ask ory team to stop hard coding the god dam kartos public endpoint
+  //And allow people to just pase a base if no base is provided use the public endpoint
+  axiosClient.interceptors.request.use((config) => {
+
+    config.url = config.url.replace("/api/kratos/public", "");
+
+    return config;
+  })
+};
 const client = V0alpha2ApiFactory(null, environment.Ory, axiosClient);
 
 async function startLoginFlow() {

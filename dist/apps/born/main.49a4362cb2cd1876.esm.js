@@ -57150,6 +57150,14 @@ var axiosClient = axios_default().create({
         "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
     }
 });
+if (environment.production) {
+    //Todo: Ask ory team to stop hard coding the god dam kartos public endpoint
+    //And allow people to just pase a base if no base is provided use the public endpoint
+    axiosClient.interceptors.request.use(function(config) {
+        config.url = config.url.replace("/api/kratos/public", "");
+        return config;
+    });
+}
 var client = (0,dist.V0alpha2ApiFactory)(null, environment.Ory, axiosClient);
 function startLoginFlow() {
     return _startLoginFlow.apply(this, arguments);
