@@ -57144,7 +57144,10 @@ function _asyncToGenerator(fn) {
 
 
 var axiosClient = axios_default().create({
-    baseURL: environment.Ory
+    baseURL: environment.Ory,
+    headers: {
+        "Access-Control-Allow-Origin": environment.production ? environment.Ory : "*"
+    }
 });
 var client = (0,dist.V0alpha2ApiFactory)(null, "", axiosClient);
 function startLoginFlow() {

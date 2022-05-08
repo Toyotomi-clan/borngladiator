@@ -21,7 +21,10 @@ import useStore from "../store/createstore";
 import {environment} from "../../environments/environment";
 
 const axiosClient = axios.create({
-  baseURL: environment.Ory
+  baseURL: environment.Ory,
+  headers: {
+    "Access-Control-Allow-Origin": environment.production ? environment.Ory : "*"
+  }
 });
 
 const client = V0alpha2ApiFactory(null, "", axiosClient);
