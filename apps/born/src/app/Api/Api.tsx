@@ -22,14 +22,13 @@ import {environment} from "../../environments/environment";
 
 const allowOrigins = environment.production ? environment.Ory : "*";
 const axiosClient = axios.create({
-  baseURL: environment.Ory,
   headers: {
     "Access-Control-Allow-Origin": allowOrigins,
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
   }
 });
 
-const client = V0alpha2ApiFactory(null, "", axiosClient);
+const client = V0alpha2ApiFactory(null, environment.Ory, axiosClient);
 
 async function startLoginFlow() {
 
