@@ -57145,8 +57145,9 @@ function _asyncToGenerator(fn) {
 
 var axiosClient = axios_default().create({
     headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+        "Access-Control-Allow-Origin": window.location.origin,
+        "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "application/json"
     }
 });
 if (environment.production) {
