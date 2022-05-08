@@ -525,7 +525,7 @@ THE SOFTWARE.
 
 
 borngladiator
-FKU
+MIT
 
 classnames
 MIT
