@@ -21,10 +21,9 @@ import {NavigateFunction} from "react-router";
 import useStore from "../store/createstore";
 import {environment} from "../../environments/environment";
 
-const allowOrigins = environment.production ? environment.Ory : "*";
 const axiosClient = axios.create({
   headers: {
-    "Access-Control-Allow-Origin": allowOrigins,
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
   },
 });

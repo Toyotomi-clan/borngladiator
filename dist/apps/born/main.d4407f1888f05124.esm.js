@@ -57143,10 +57143,9 @@ function _asyncToGenerator(fn) {
 
 
 
-var allowOrigins = environment.production ? environment.Ory : "*";
 var axiosClient = axios_default().create({
     headers: {
-        "Access-Control-Allow-Origin": allowOrigins,
+        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
     }
 });
