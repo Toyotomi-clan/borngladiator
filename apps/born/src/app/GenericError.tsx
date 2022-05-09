@@ -11,15 +11,9 @@ import {
   Text,
   VStack
 } from "@chakra-ui/react";
-import {useNavigate} from "react-router-dom";
 
 export function GenericError(props: {resetErrorBoundary: () => void, code: number}) {
 
-  const navigate = useNavigate();
-  const toLoginAndClearError = function(){
-    navigate("/login");
-    props.resetErrorBoundary();
-  }
   return (
       <Flex
       align={'center'}
@@ -40,11 +34,6 @@ export function GenericError(props: {resetErrorBoundary: () => void, code: numbe
         <VStack>
           <Text>This is a little bit embarrassing.. </Text>
           <Button color={"green"} borderBottom={"green"}  onClick={props.resetErrorBoundary}>Try again</Button>
-        </VStack>
-
-        <VStack>
-          <Text onClick={toLoginAndClearError}>Login</Text>
-
         </VStack>
       </Box>
     </Flex>
