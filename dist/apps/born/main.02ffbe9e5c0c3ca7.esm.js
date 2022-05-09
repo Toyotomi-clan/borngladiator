@@ -60435,13 +60435,7 @@ function NotAuthorized(props) {
 ;// CONCATENATED MODULE: ./src/app/GenericError.tsx
 
 
-
 function GenericError(props) {
-    var navigate = useNavigate();
-    var toLoginAndClearError = function toLoginAndClearError() {
-        navigate("/login");
-        props.resetErrorBoundary();
-    };
     return(/*#__PURE__*/ (0,jsx_runtime.jsx)(Flex, {
         align: 'center',
         justify: 'center',
@@ -60479,12 +60473,6 @@ function GenericError(props) {
                             children: "Try again"
                         })
                     ]
-                }),
-                /*#__PURE__*/ (0,jsx_runtime.jsx)(VStack, {
-                    children: /*#__PURE__*/ (0,jsx_runtime.jsx)(Text, {
-                        onClick: toLoginAndClearError,
-                        children: "Login"
-                    })
                 })
             ]
         })

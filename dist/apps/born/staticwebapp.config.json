@@ -2,7 +2,7 @@
   "globalHeaders": {
     "Access-Control-Allow-Origin": "*",
     "Origin": "https://www.stoictemple.com",
-    "Cross-Origin-Resource-Policy": "cross-origin", 
+    "Cross-Origin-Resource-Policy": "same-origin",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
   }
 }
