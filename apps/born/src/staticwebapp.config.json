@@ -1,0 +1,8 @@
+{
+  "globalHeaders": {
+    "Access-Control-Allow-Origin": "*",
+    "Origin": "https://www.stoictemple.com",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+  }
+}
+
