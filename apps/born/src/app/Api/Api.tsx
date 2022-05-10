@@ -23,7 +23,6 @@ import {environment} from "../../environments/environment";
 
 const axiosClient = axios.create({
   headers: {
-    "Access-Control-Request-Headers": "Content-Type",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
     "Access-Control-Allow-Headers": "application/json",
