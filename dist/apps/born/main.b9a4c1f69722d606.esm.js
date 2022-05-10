@@ -57145,11 +57145,9 @@ function _asyncToGenerator(fn) {
 
 var axiosClient = axios_default().create({
     headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "application/json",
-        "Cross-Origin-Resource-Policy": "cross-origin"
-    }
+        "Content-type": "application/json"
+    },
+    withCredentials: true
 });
 if (environment.production) {
     //Todo: Ask ory team to stop hard coding the god dam kartos public endpoint

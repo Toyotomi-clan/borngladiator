@@ -23,12 +23,9 @@ import {environment} from "../../environments/environment";
 
 const axiosClient = axios.create({
   headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-    "Access-Control-Allow-Headers": "application/json",
-    "Cross-Origin-Resource-Policy":  "cross-origin",
+    "Content-type": "application/json",
   },
-
+  withCredentials : true
 });
 
 if(environment.production) {
