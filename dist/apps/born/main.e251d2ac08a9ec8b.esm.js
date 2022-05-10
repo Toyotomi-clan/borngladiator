@@ -57149,7 +57149,8 @@ var axiosClient = axios_default().create({
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
         "Access-Control-Allow-Headers": "application/json",
-        "Cross-Origin-Resource-Policy": "cross-origin"
+        "Cross-Origin-Resource-Policy": "cross-origin",
+        "Origin": window.location.origin
     }
 });
 if (environment.production) {
