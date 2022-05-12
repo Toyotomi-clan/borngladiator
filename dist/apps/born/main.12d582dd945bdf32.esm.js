@@ -56945,7 +56945,7 @@ var defaultSignUpFieldValues = {
 ;// CONCATENATED MODULE: ./src/environments/environment.prod.ts
 var environment = {
     production: true,
-    Ory: "https://www.auth.stoictemple.com",
+    Ory: "https://auth.stoictemple.com",
     userSessionStaleTime: 259200000,
     defaultStaleTime: 3600000,
     deathClockServer: "",
