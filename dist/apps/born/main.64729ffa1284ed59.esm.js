@@ -56950,8 +56950,8 @@ var environment = {
     defaultStaleTime: 3600000,
     deathClockServer: "",
     defaultRetryRate: 2,
-    seqLogServer: "",
-    seqApiKey: ""
+    seqLogServer: "https://seq.stoictemple.com",
+    seqApiKey: "MkIBzYwFHO07jKXZ1rUK"
 };
 
 ;// CONCATENATED MODULE: ./src/app/QueryClient.tsx
