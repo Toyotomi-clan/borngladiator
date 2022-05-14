@@ -16,14 +16,11 @@ export function NotAuthorized(props: {message: string, resetErrorBoundary: () =>
 
         return (
             <Flex
-                minH={'100vh'}
                 align={'center'}
                 justify={'center'}>
 
-                <Box role={"alert"} boxSize='lg'>
+                <Box role={"alert"} boxSize='xs'>
                     <Image src={"../assets/Images/server_down.svg"} alt='error'/>
-
-                    <Center mt={"20px"}>
                         <VStack>
 
                           <Text>{props.message}</Text>
@@ -31,7 +28,6 @@ export function NotAuthorized(props: {message: string, resetErrorBoundary: () =>
                               setNavigate(x => !x);
                             }}>Login</Button>
                         </VStack>
-                    </Center>
                 </Box>
             </Flex>
         )

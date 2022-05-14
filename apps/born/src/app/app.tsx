@@ -19,7 +19,7 @@ export function Layout({children}) {
 export function App(props: {children}){
   const {reset} = useQueryErrorResetBoundary();
   return (
-    <Grid>
+    <Grid width={"100vw"} height={"100vh"}>
       <ErrorBoundary onError={errorHandler} fallbackRender={GlobalErrorPageHandler} onReset={reset}>
         <Nav/>
         {props.children}

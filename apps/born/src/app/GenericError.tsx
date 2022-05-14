@@ -16,26 +16,21 @@ export function GenericError(props: {resetErrorBoundary: () => void, code: numbe
 
   return (
       <Flex
-      align={'center'}
-      justify={'center'}
-      flexDirection={"column"}>
+        align={'center'}
+        justify={'center'}>
 
-      <Box role={"alert"} boxSize='lg'>
-        <Image src={"../assets/Images/server_down.svg"} alt='error'/>
-        <Center>
-          <HStack>
-            <Heading as='h2' size='xl'>
-              {props.code || "sorry"}
-            </Heading>
+        <Box role={"alert"} boxSize='xs'>
+          <Image src={"../assets/Images/server_down.svg"} alt='error'/>
 
-          </HStack>
-        </Center>
-        <Divider width={"lg"} border={"2px"}/>
-        <VStack>
-          <Text>This is a little bit embarrassing.. </Text>
-          <Button color={"green"} borderBottom={"green"}  onClick={props.resetErrorBoundary}>Try again</Button>
-        </VStack>
-      </Box>
+          <Center mt={"20px"}>
+            <VStack>
+              <Text>{props.code && "|"} This is a little bit embarrassing..</Text>
+              <Button colorScheme='teal' variant='link'  onClick={props.resetErrorBoundary}>Try again</Button>
+            </VStack>
+          </Center>
+        </Box>
     </Flex>
+
+
   )
 }

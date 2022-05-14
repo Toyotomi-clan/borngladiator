@@ -19,13 +19,13 @@ export function AlreadyLoggedInPage(props: {message: string, resetErrorBoundary:
       align={'center'}
       justify={'center'}>
 
-      <Box role={"alert"} boxSize='lg'>
+      <Box role={"alert"} boxSize='xs'>
         <Image src={"../assets/Images/server_down.svg"} alt='error'/>
 
         <Center mt={"20px"}>
           <VStack>
 
-            <Text>{props.message}</Text>
+            <Text>You are already logged in</Text>
             <Button rightIcon={<ArrowForwardIcon />} colorScheme='teal' variant='link' onClick={() =>{
               setNavigate(x => !x);
             }}>Home</Button>

@@ -17,6 +17,7 @@ import {MoonIcon, SunIcon} from '@chakra-ui/icons';
 import {useNavigate} from "react-router-dom"
 import {useCurrentUser, useLogoutFlow, useLogoutUser} from "./Api/Api";
 import useStore from "./store/createstore";
+import LogoComponent from "./logoComponent";
 
 export default function Nav() {
   const {colorMode, toggleColorMode} = useColorMode();
@@ -41,17 +42,9 @@ export default function Nav() {
   return (
     <>
       <Box px={2}>
-        <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
+        <Flex h={16} paddingRight={"50px"} paddingLeft={"50px"} alignItems={'center'} justifyContent={'space-between'}>
           <HStack>
-
-            <Box>
-              Death
-            </Box>
-            <Box>
-              <span className="material-icons">
-              watch_later
-            </span>
-            </Box>
+             <LogoComponent/>
           </HStack>
 
           <Flex alignItems={'center'}>
