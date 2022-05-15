@@ -17,6 +17,7 @@ import {useMutationNewUser} from "./Api/SubscribeEndpoint";
 import {errorIsValid} from "./helper/EmptyObjectHelper";
 import {Controller, useForm} from "react-hook-form";
 import {NewUserModel, SubscribeModel} from "./models/newUserModel";
+import {queryClient} from "./QueryClient";
 
 export  function Subscribe() {
   const [ searchParams, setSearchParams ] = useSearchParams();
@@ -26,6 +27,7 @@ export  function Subscribe() {
   const mutation = useMutationNewUser(setError)
   const toast = useToast();
   const navigate = useNavigate();
+  const [isError,setIsError] = useState(false);
 
   useEffect(() => {
 
@@ -49,7 +51,10 @@ export  function Subscribe() {
        unsubscribeId: subscribeId
      },
        {
-         onSuccess: () => {
+         onSuccess: async () => {
+           await queryClient.invalidateQueries('deathClockUser')
+
+           setIsError(false)
            toast({
              status: "success",
              title: `You have been ${title}`,
@@ -58,6 +63,7 @@ export  function Subscribe() {
            navigate("/")
          },
          onError: () => {
+           setIsError(true);
            toast({
              status: "error",
              title: "sorry about this",
@@ -85,18 +91,8 @@ export  function Subscribe() {
 
             <form>
               <VStack spacing={8} >
-                <FormControl isInvalid={errorIsValid(errors,errors.unsubscribeId)}>
-                  <FormErrorMessage>{errors["unsubscribeId"]?.message}</FormErrorMessage>
-                </FormControl>
-
-                <FormControl isInvalid={errorIsValid(errors,errors.subscribe)}>
-                  <FormErrorMessage>{errors["subscribe"]?.message}</FormErrorMessage>
-                </FormControl>
-
-
-                <FormControl isInvalid={errorIsValid(errors,errors.generalError)}>
-                  <FormErrorMessage>{errors["generalError"]?.message}</FormErrorMessage>
-                </FormControl>
+                {isError && <Text fontWeight={"bold"} color={"red.600"}>Invalid unsubscribe url</Text>}
+                {!isError && <Text fontWeight={"bold"}>Thank you, you are now unsubscribed</Text>}
               </VStack>
 
             </form>
