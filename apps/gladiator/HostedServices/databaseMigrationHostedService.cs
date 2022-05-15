@@ -53,8 +53,7 @@ public class databaseMigrationHostedService : IHostedService
 
       if (!result.Successful)
       {
-        //Todo: log
-        throw new InvalidOperationException("Unable to upgrade db");
+        throw result.Error;
       }
       //Todo: log successful upgrade
     }
