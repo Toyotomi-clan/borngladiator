@@ -1,7 +1,7 @@
 import {
   Button,
   Flex, FormControl, FormErrorMessage, FormLabel, Heading, Input, Link, Select,
-  Spinner, Stack, Text, useToast, VStack,
+  Spinner, Stack, Text, useColorModeValue, useToast, VStack,
 } from "@chakra-ui/react";
 import {useCurrentUser} from "./Api/Api";
 import {useEffect, useState} from "react";
@@ -18,6 +18,7 @@ export default function NewUser(){
   const {data,error, isFetching } = useCurrentUser();
   const {control,handleSubmit, setError,register, formState: {errors},setValue}  = useForm<NewUserModel>();
   const mutation = useMutationNewUser(setError);
+  const colorMode = useColorModeValue('white', 'gray.800')
 
   const navigate = useNavigate();
 
@@ -41,7 +42,7 @@ export default function NewUser(){
       {data && !isFetching &&
         <>
           <Stack align={'center'} mb={"40px"}>
-            <Heading fontSize={'4xl'}>Just one more step left!</Heading>
+            <Heading fontSize={{base: "sm",md: "lg",lg: "4xl"}}>Just one more step left!</Heading>
             <Text fontSize={'lg'} color={'gray.600'}>
               ❤️
             </Text>
@@ -124,7 +125,6 @@ export default function NewUser(){
                         showMonthDropdown
                         showYearDropdown
                         dropdownMode="select"
-
                       />
                     )}
                   />
@@ -150,3 +150,4 @@ export default function NewUser(){
     </Flex>
   )
 }
+

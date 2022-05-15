@@ -20,7 +20,6 @@ import useStore from "./store/createstore";
 import LogoComponent from "./logoComponent";
 
 export default function Nav() {
-  const {colorMode, toggleColorMode} = useColorMode();
 
   const {data, error} = useCurrentUser();
 
@@ -49,10 +48,6 @@ export default function Nav() {
 
           <Flex alignItems={'center'}>
             <Stack direction={'row'} spacing={7}>
-              <Button onClick={toggleColorMode}>
-                {colorMode === 'light' ? <MoonIcon/> : <SunIcon/>}
-              </Button>
-
               {!error && data?.data?.active &&
                 <Menu>
                   <MenuButton

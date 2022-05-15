@@ -1,6 +1,5 @@
 import * as ReactDOM from 'react-dom';
 import { BrowserRouter, Routes,Route } from 'react-router-dom';
-
 import App from './app/app';
 import SignupCard from "./app/signup";
 import {ChakraProvider} from "@chakra-ui/react";
@@ -12,6 +11,7 @@ import {QueryClientProvider} from "react-query";
 import { ReactQueryDevtools } from 'react-query/devtools'
 import NewUser from "./app/NewUser";
 import {Subscribe} from "./app/Subscribe";
+
 
 
 ReactDOM.render(
