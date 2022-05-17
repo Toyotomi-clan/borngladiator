@@ -16,15 +16,31 @@
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:7013;http://localhost:5165",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Seq__Url": "http://localhost:5341",
+        "Seq__ApiKey":"WQcoYhbULL6sEk5CrDly",
+        "RunHostedService" : "true"
       }
     },
-    "IIS Express": {
-      "commandName": "IISExpress",
+    "Production": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
       "launchBrowser": true,
-      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:7152;http://localhost:5105",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
+    },
+    "BuildApi": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:7152;http://localhost:5105",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "BuildApi",
+        "Seq__Url": "http://localhost:5341",
+        "Seq__ApiKey":"WQcoYhbULL6sEk5CrDly",
+        "RunHostedService" : "false"
       }
     }
   }
