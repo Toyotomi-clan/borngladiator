@@ -71130,6 +71130,35 @@ function signup_arrayLikeToArray(arr, len) {
 function signup_arrayWithHoles(arr) {
     if (Array.isArray(arr)) return arr;
 }
+function signup_asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+    try {
+        var info = gen[key](arg);
+        var value = info.value;
+    } catch (error) {
+        reject(error);
+        return;
+    }
+    if (info.done) {
+        resolve(value);
+    } else {
+        Promise.resolve(value).then(_next, _throw);
+    }
+}
+function signup_asyncToGenerator(fn) {
+    return function() {
+        var self = this, args = arguments;
+        return new Promise(function(resolve, reject) {
+            var gen = fn.apply(self, args);
+            function _next(value) {
+                signup_asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+            }
+            function _throw(err) {
+                signup_asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+            }
+            _next(undefined);
+        });
+    };
+}
 function signup_defineProperty(obj, key, value) {
     if (key in obj) {
         Object.defineProperty(obj, key, {
@@ -71205,6 +71234,8 @@ function signup_unsupportedIterableToArray(o, minLen) {
 
 
 
+
+
 function SignupCard() {
     var ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7;
     var ref8 = useForm(), register = ref8.register, handleSubmit = ref8.handleSubmit, setError = ref8.setError, formState = ref8.formState;
@@ -71233,14 +71264,25 @@ function SignupCard() {
                     flow: data.data,
                     model: submitRegistration
                 }, {
-                    onSuccess: function() {
-                        navigate("/new");
-                        toast({
-                            status: "success",
-                            title: "Welcome to death clock",
-                            description: "remember you will die."
-                        });
-                    },
+                    onSuccess: signup_asyncToGenerator(runtime_default().mark(function _callee() {
+                        return runtime_default().wrap(function _callee$(_ctx) {
+                            while(1)switch(_ctx.prev = _ctx.next){
+                                case 0:
+                                    navigate("/new");
+                                    _ctx.next = 3;
+                                    return queryClient.invalidateQueries("deathClockUser");
+                                case 3:
+                                    toast({
+                                        status: "success",
+                                        title: "Welcome to Stoictemple",
+                                        description: "remember you will die."
+                                    });
+                                case 4:
+                                case "end":
+                                    return _ctx.stop();
+                            }
+                        }, _callee);
+                    })),
                     onError: function() {
                         toast({
                             status: "error",
@@ -71884,6 +71926,35 @@ function login_arrayLikeToArray(arr, len) {
 function login_arrayWithHoles(arr) {
     if (Array.isArray(arr)) return arr;
 }
+function login_asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+    try {
+        var info = gen[key](arg);
+        var value = info.value;
+    } catch (error) {
+        reject(error);
+        return;
+    }
+    if (info.done) {
+        resolve(value);
+    } else {
+        Promise.resolve(value).then(_next, _throw);
+    }
+}
+function login_asyncToGenerator(fn) {
+    return function() {
+        var self = this, args = arguments;
+        return new Promise(function(resolve, reject) {
+            var gen = fn.apply(self, args);
+            function _next(value) {
+                login_asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+            }
+            function _throw(err) {
+                login_asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+            }
+            _next(undefined);
+        });
+    };
+}
 function login_defineProperty(obj, key, value) {
     if (key in obj) {
         Object.defineProperty(obj, key, {
@@ -71958,6 +72029,8 @@ function login_unsupportedIterableToArray(o, minLen) {
 
 
 
+
+
 function Login() {
     var ref, ref1, ref2;
     var ref3 = useForm(), handleSubmit = ref3.handleSubmit, setError = ref3.setError, register = ref3.register, errors = ref3.formState.errors;
@@ -71990,16 +72063,27 @@ function Login() {
                     flow: data.data,
                     model: submitLogin
                 }, {
-                    onSuccess: function() {
-                        toast({
-                            status: "success",
-                            title: "Welcome back death clock",
-                            description: "remember you will die."
-                        });
-                        setUserLoggedIn(function(x) {
-                            return !x;
-                        });
-                    },
+                    onSuccess: login_asyncToGenerator(runtime_default().mark(function _callee() {
+                        return runtime_default().wrap(function _callee$(_ctx) {
+                            while(1)switch(_ctx.prev = _ctx.next){
+                                case 0:
+                                    toast({
+                                        status: "success",
+                                        title: "Welcome back Stoictemple",
+                                        description: "remember you will die."
+                                    });
+                                    _ctx.next = 3;
+                                    return queryClient.invalidateQueries("deathClockUser");
+                                case 3:
+                                    setUserLoggedIn(function(x) {
+                                        return !x;
+                                    });
+                                case 4:
+                                case "end":
+                                    return _ctx.stop();
+                            }
+                        }, _callee);
+                    })),
                     onError: function() {
                         toast({
                             status: "error",
