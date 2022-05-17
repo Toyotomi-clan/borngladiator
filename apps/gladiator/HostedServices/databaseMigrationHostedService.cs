@@ -2,24 +2,27 @@
 
 using DbUp;
 
-public class databaseMigrationHostedService : IHostedService
+public class DatabaseMigrationHostedService : IHostedService
 {
-  private IConfiguration _configuration;
-  public databaseMigrationHostedService(IConfiguration configuration)
+  private readonly IConfiguration _configuration;
+  private ILogger<DatabaseMigrationHostedService> _logger;
+  public DatabaseMigrationHostedService(IConfiguration configuration, ILogger<DatabaseMigrationHostedService> logger)
   {
     _configuration = configuration;
+    _logger = logger;
   }
   public Task StartAsync(CancellationToken cancellationToken)
   {
-    //Todo: move this in a better location
-    var connectionString = _configuration.GetSection("database:connection");
+    _logger.LogInformation("Starting database check");
+
+    var connectionString = _configuration.GetSection("Database:Connection");
 
     if (connectionString == null || connectionString.Value == null)
     {
       throw new InvalidOperationException("require connection string");
     }
 
-    var databaseScriptFolder = _configuration.GetSection("database:databaseScriptFolder");
+    var databaseScriptFolder = _configuration.GetSection("Database:DatabaseScriptFolder");
 
     if (databaseScriptFolder == null || databaseScriptFolder.Value == null)
     {
@@ -29,34 +32,62 @@ public class databaseMigrationHostedService : IHostedService
     var currentDirectory = Directory.GetCurrentDirectory();
     var dbScriptsFolder = Directory.GetDirectories(currentDirectory,databaseScriptFolder.Value);
 
-    var upgrader =
-      DeployChanges.To
-        .PostgresqlDatabase(connectionString.Value)
-        .WithTransactionPerScript()
-        .WithScriptsFromFileSystem(dbScriptsFolder[0])
-        .LogToConsole()
-        .Build();
-
-    var isConnectSuccessful = upgrader.TryConnect(out var errorMessage);
-
-    if (!isConnectSuccessful && !string.IsNullOrWhiteSpace(errorMessage))
+    try
     {
-      throw new InvalidOperationException("Unable to connect to db");
-    }
+      var upgrader =
+        DeployChanges.To
+          .PostgresqlDatabase(connectionString.Value)
+          .WithTransactionPerScript()
+          .WithScriptsFromFileSystem(dbScriptsFolder[0])
+          .LogToConsole()
+          .Build();
 
-    var isUpgradeNeeded = upgrader.IsUpgradeRequired();
+      var isConnectSuccessful = upgrader.TryConnect(out var errorMessage);
 
-    if (isUpgradeNeeded)
-    {
-      //perform upgrade
-      var result = upgrader.PerformUpgrade();
-
-      if (!result.Successful)
+      if (!isConnectSuccessful && !string.IsNullOrWhiteSpace(errorMessage))
       {
-        throw result.Error;
+        _logger.LogError("Unable to connect to the database {@errorMessage}",errorMessage);
+        throw new InvalidOperationException("Unable to connect to db");
       }
-      //Todo: log successful upgrade
+
+
+      var isUpgradeNeeded = upgrader.IsUpgradeRequired();
+
+      _logger.LogInformation("upgrade is {@required}",isUpgradeNeeded);
+
+      if (isUpgradeNeeded)
+      {
+        _logger.LogInformation("starting is upgrade");
+
+        var scriptsToExecute = upgrader.GetScriptsToExecute().Select(x => x.Name);
+
+        var result = upgrader.PerformUpgrade();
+
+        if (!result.Successful)
+        {
+          _logger.LogError(result.Error, "Total scripts " +
+                                         "{@totalScripts}" +
+                                         " {@scriptsToExecute} " +
+                                         "{@errorScripts}", result.Scripts.Count(), scriptsToExecute,
+            result.ErrorScript);
+          throw result.Error;
+        }
+
+        _logger.LogInformation("Successfully ran database upgrade {@scriptsApplied}", scriptsToExecute);
+      }
+
+      if (!isUpgradeNeeded)
+      {
+        _logger.LogInformation("No Database Upgrade required");
+      }
     }
+
+    catch (Exception e)
+    {
+      _logger.LogError(e,"Error occured database while attempting to init database check / upgrade");
+      throw;
+    }
+
     return Task.CompletedTask;
   }
 
