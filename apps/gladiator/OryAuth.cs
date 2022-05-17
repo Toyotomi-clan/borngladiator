@@ -64,6 +64,7 @@ public class OryAuthHandler : AuthenticationHandler<OryAuthOptions>
 
       if (oryCookie == null)
       {
+        _logger.Information("no ory cookie found");
         return AuthenticateResult.NoResult();
       }
 
@@ -77,7 +78,8 @@ public class OryAuthHandler : AuthenticationHandler<OryAuthOptions>
 
       if (user == null)
       {
-        //Todo: log this
+        _logger.Information("user session does not exist but {@cookie} does",oryCookie);
+
         return AuthenticateResult.NoResult();
       }
 
@@ -87,7 +89,8 @@ public class OryAuthHandler : AuthenticationHandler<OryAuthOptions>
 
       if (traits == null)
       {
-        //Todo: log this
+        _logger.Information("user exists but has empty traits user Id {@userId}",user?.Identity?.Id);
+
         return AuthenticateResult.NoResult();
       }
 
@@ -117,7 +120,7 @@ public class OryAuthHandler : AuthenticationHandler<OryAuthOptions>
     }
     catch (Exception e)
     {
-      //Todo Log error
+      _logger.Error(e,"failed to authenticate user");
 
       return AuthenticateResult.Fail(e);
     }
