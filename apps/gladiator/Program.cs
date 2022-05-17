@@ -134,6 +134,7 @@ builder.Host.UseSerilog(((context, configuration) =>
       builder.Configuration["Seq:Url"],
       apiKey:builder.Configuration["Seq:ApiKey"])
     .Enrich.WithExceptionDetails()
+    .Enrich.WithDemystifiedStackTraces()
     .Enrich.FromLogContext();
 }));
 
