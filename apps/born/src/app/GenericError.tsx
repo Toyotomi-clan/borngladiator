@@ -11,9 +11,24 @@ import {
   Text,
   VStack
 } from "@chakra-ui/react";
+import {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {useCurrentUser} from "./Api/Api";
 
 export function GenericError(props: {resetErrorBoundary: () => void, code: number}) {
+  const [move,setNavigate] = useState(false);
+  const navigator = useNavigate();
+  const {error} = useCurrentUser();
 
+  useEffect(()=>{
+    if(move && error){
+      props.resetErrorBoundary();
+      navigator("/login");
+    }
+    if(move && !error){
+      props.resetErrorBoundary();
+    }
+  },[move])
   return (
       <Flex
         align={'center'}
@@ -24,8 +39,10 @@ export function GenericError(props: {resetErrorBoundary: () => void, code: numbe
 
           <Center mt={"20px"}>
             <VStack>
-              <Text>{props.code && "|"} This is a little bit embarrassing..</Text>
-              <Button colorScheme='teal' variant='link'  onClick={props.resetErrorBoundary}>Try again</Button>
+              {!error && <Text>{props.code && "|"} This is a little bit embarrassing..</Text>}
+              {!error && <Button colorScheme='teal' variant='link'  onClick={() => {setNavigate(x => !x)}}>Try again</Button>}
+              {error && <Text>{props.code && "|"} You need to be authorized</Text>}
+              {error && <Button colorScheme='teal' variant='link'  onClick={() => {setNavigate(x => !x)}}>Login</Button>}
             </VStack>
           </Center>
         </Box>

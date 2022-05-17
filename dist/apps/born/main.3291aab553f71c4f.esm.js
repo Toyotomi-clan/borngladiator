@@ -60428,9 +60428,72 @@ function NotAuthorized(props) {
 }
 
 ;// CONCATENATED MODULE: ./src/app/GenericError.tsx
+function GenericError_arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+    for(var i = 0, arr2 = new Array(len); i < len; i++)arr2[i] = arr[i];
+    return arr2;
+}
+function GenericError_arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+}
+function GenericError_iterableToArrayLimit(arr, i) {
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+    if (_i == null) return;
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _s, _e;
+    try {
+        for(_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true){
+            _arr.push(_s.value);
+            if (i && _arr.length === i) break;
+        }
+    } catch (err) {
+        _d = true;
+        _e = err;
+    } finally{
+        try {
+            if (!_n && _i["return"] != null) _i["return"]();
+        } finally{
+            if (_d) throw _e;
+        }
+    }
+    return _arr;
+}
+function GenericError_nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+function GenericError_slicedToArray(arr, i) {
+    return GenericError_arrayWithHoles(arr) || GenericError_iterableToArrayLimit(arr, i) || GenericError_unsupportedIterableToArray(arr, i) || GenericError_nonIterableRest();
+}
+function GenericError_unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return GenericError_arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return GenericError_arrayLikeToArray(o, minLen);
+}
+
+
+
 
 
 function GenericError(props) {
+    var ref = GenericError_slicedToArray((0,react.useState)(false), 2), move = ref[0], setNavigate = ref[1];
+    var navigator = useNavigate();
+    var error = useCurrentUser().error;
+    (0,react.useEffect)(function() {
+        if (move && error) {
+            props.resetErrorBoundary();
+            navigator("/login");
+        }
+        if (move && !error) {
+            props.resetErrorBoundary();
+        }
+    }, [
+        move
+    ]);
     return(/*#__PURE__*/ (0,jsx_runtime.jsx)(Flex, {
         align: 'center',
         justify: 'center',
@@ -60446,17 +60509,37 @@ function GenericError(props) {
                     mt: "20px",
                     children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(VStack, {
                         children: [
-                            /*#__PURE__*/ (0,jsx_runtime.jsxs)(Text, {
+                            !error && /*#__PURE__*/ (0,jsx_runtime.jsxs)(Text, {
                                 children: [
                                     props.code && "|",
                                     " This is a little bit embarrassing.."
                                 ]
                             }),
-                            /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
+                            !error && /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
                                 colorScheme: "teal",
                                 variant: "link",
-                                onClick: props.resetErrorBoundary,
+                                onClick: function() {
+                                    setNavigate(function(x) {
+                                        return !x;
+                                    });
+                                },
                                 children: "Try again"
+                            }),
+                            error && /*#__PURE__*/ (0,jsx_runtime.jsxs)(Text, {
+                                children: [
+                                    props.code && "|",
+                                    " You need to be authorized"
+                                ]
+                            }),
+                            error && /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
+                                colorScheme: "teal",
+                                variant: "link",
+                                onClick: function() {
+                                    setNavigate(function(x) {
+                                        return !x;
+                                    });
+                                },
+                                children: "Login"
                             })
                         ]
                     })
