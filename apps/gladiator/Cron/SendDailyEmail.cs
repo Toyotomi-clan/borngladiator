@@ -105,8 +105,9 @@ public class SendDailyEmail : IJob
       var userParams = new
       {
         days_left = LifeExpectancyHelper.DaysLeft(averageLifeExpectancy,user.DateOfBirth),
-        days_sleep = LifeExpectancyHelper.DaysLeft(averageLifeExpectancy,user.DateOfBirth, 0.3),
-        days_work = LifeExpectancyHelper.DaysLeft(averageLifeExpectancy,user.DateOfBirth, 0.6),
+        birthday_gone = LifeExpectancyHelper.GetAge(user.DateOfBirth),
+        birthday_left =  averageLifeExpectancy - LifeExpectancyHelper.GetAge(user.DateOfBirth),
+        days_gone = LifeExpectancyHelper.DaysSpent(user.DateOfBirth),
         username = user.Username
       };
 
