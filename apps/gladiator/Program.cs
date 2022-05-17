@@ -45,7 +45,7 @@ builder.Services.Configure<AppConfiguration>(builder.Configuration);
 //Todo: enable msbuild to run hosted client then openapi or make open api a hosted service
 if (bool.Parse(builder.Configuration["RunHostedService"]))
 {
-  builder.Services.AddHostedService<databaseMigrationHostedService>();
+  builder.Services.AddHostedService<DatabaseMigrationHostedService>();
 
   builder.Services.AddQuartz(x =>
   {
@@ -82,12 +82,25 @@ builder.Services.AddTransient<User>();
 
 builder.Services.AddCors(options =>
 {
-  options.AddPolicy("AllowLocalHostCORS", policyBuilder => policyBuilder
-    .WithOrigins("http://localhost:4000")
-    .WithOrigins("http://localhost:4200")
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    .AllowCredentials());
+  //Todo: Get list of origins from config
+  if (builder.Configuration["ASPNETCORE_ENVIRONMENT"] == "Production")
+  {
+    options.AddPolicy("AllowLocalHostCORS", policyBuilder => policyBuilder
+      .WithOrigins("https://www.stoictemple.com/")
+      .WithOrigins("https://stoictemple.com/")
+      .AllowAnyHeader()
+      .AllowAnyMethod()
+      .AllowCredentials());
+  }
+  else
+  {
+    options.AddPolicy("AllowLocalHostCORS", policyBuilder => policyBuilder
+      .WithOrigins("http://localhost:4000")
+      .WithOrigins("http://localhost:4200")
+      .AllowAnyHeader()
+      .AllowAnyMethod()
+      .AllowCredentials());
+  }
 });
 
 builder.Services.AddAuthentication(OryAuthenticationDefaults.AuthenticationScheme).AddOry(o =>
@@ -115,7 +128,11 @@ builder.Services.AddSingleton(Log.Logger);
 
 builder.Host.UseSerilog(((context, configuration) =>
 {
-  configuration.WriteTo.Seq("http://localhost:5341/")
+  //Todo: utilise configuration by injecting it to serilog instead of
+  //including it variable by variable
+  configuration.WriteTo.Seq(
+      builder.Configuration["Seq:Url"],
+      apiKey:builder.Configuration["Seq:ApiKey"])
     .Enrich.WithExceptionDetails()
     .Enrich.FromLogContext();
 }));
