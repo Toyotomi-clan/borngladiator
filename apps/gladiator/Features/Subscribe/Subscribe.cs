@@ -31,8 +31,6 @@ public class Subscribe : Endpoint<SubscribeDto>
 
   public override async Task HandleAsync(SubscribeDto req, CancellationToken ct)
   {
-
-
     var hashId = new Hashids(_configuration.HashIdsSalt);
 
     var unsubscribeId = hashId.DecodeHex(req.UnsubscribeId);
