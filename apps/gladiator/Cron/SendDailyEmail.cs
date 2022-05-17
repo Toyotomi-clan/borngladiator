@@ -31,7 +31,7 @@ public class SendDailyEmail : IJob
 
     var client = new SendGridClient(sendgridKey);
 
-    var from = new EmailAddress(_configuration.SendGrid.EmailFrom, "welcome to death clock");
+    var from = new EmailAddress(_configuration.SendGrid.EmailFrom, "welcome to Stoictemple");
 
     var users = await GetUsers();
 
