@@ -86,8 +86,7 @@ builder.Services.AddCors(options =>
   if (builder.Configuration["ASPNETCORE_ENVIRONMENT"] == "Production")
   {
     options.AddPolicy("AllowLocalHostCORS", policyBuilder => policyBuilder
-      .WithOrigins("https://www.stoictemple.com/")
-      .WithOrigins("https://stoictemple.com/")
+      .WithOrigins("stoictemple.com")
       .AllowAnyHeader()
       .AllowAnyMethod()
       .AllowCredentials());
@@ -95,8 +94,8 @@ builder.Services.AddCors(options =>
   else
   {
     options.AddPolicy("AllowLocalHostCORS", policyBuilder => policyBuilder
-      .WithOrigins("http://localhost:4000")
-      .WithOrigins("http://localhost:4200")
+      .WithOrigins("localhost:4000")
+      .WithOrigins("localhost:4200")
       .AllowAnyHeader()
       .AllowAnyMethod()
       .AllowCredentials());
