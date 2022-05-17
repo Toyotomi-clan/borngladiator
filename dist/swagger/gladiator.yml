@@ -85,6 +85,9 @@ components:
           format: date-time
         subscribed:
           type: boolean
+        subscribeId:
+          type: string
+          nullable: true
         gender:
           type: string
           nullable: true

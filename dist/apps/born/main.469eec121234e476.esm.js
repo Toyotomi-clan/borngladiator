@@ -29796,7 +29796,7 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ 38126:
+/***/ 84104:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -39843,1599 +39843,6 @@ var LinkBox = /*#__PURE__*/(/* unused pure expression or super */ null && (forwa
 
 
 
-;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/hooks/dist/use-animation-state-7f768610.esm.js
-
-
-
-
-/**
- * useSafeLayoutEffect enables us to safely call `useLayoutEffect` on the browser
- * (for SSR reasons)
- *
- * React currently throws a warning when using useLayoutEffect on the server.
- * To get around it, we can conditionally useEffect on the server (no-op) and
- * useLayoutEffect in the browser.
- *
- * @see https://gist.github.com/gaearon/e7d97cdf38a2907924ea12e4ebdf3c85
- */
-
-var use_animation_state_7f768610_esm_useSafeLayoutEffect = isBrowser ? react.useLayoutEffect : react.useEffect;
-
-/**
- * React hook to persist any value between renders,
- * but keeps it up-to-date if it changes.
- *
- * @param value the value or function to persist
- */
-
-function use_animation_state_7f768610_esm_useCallbackRef(fn, deps) {
-  if (deps === void 0) {
-    deps = [];
-  }
-
-  var ref = react.useRef(fn);
-  use_animation_state_7f768610_esm_useSafeLayoutEffect(function () {
-    ref.current = fn;
-  }); // eslint-disable-next-line react-hooks/exhaustive-deps
-
-  return react.useCallback(function () {
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return ref.current == null ? void 0 : ref.current.apply(ref, args);
-  }, deps);
-}
-
-/**
- * React hook to manage browser event listeners
- *
- * @param event the event name
- * @param handler the event handler function to execute
- * @param doc the dom environment to execute against (defaults to `document`)
- * @param options the event listener options
- *
- * @internal
- */
-function use_animation_state_7f768610_esm_useEventListener(event, handler, env, options) {
-  var listener = use_animation_state_7f768610_esm_useCallbackRef(handler);
-  react.useEffect(function () {
-    var _runIfFn;
-
-    var node = (_runIfFn = chakra_ui_utils_esm_runIfFn(env)) != null ? _runIfFn : document;
-    node.addEventListener(event, listener, options);
-    return function () {
-      node.removeEventListener(event, listener, options);
-    };
-  }, [event, env, options, listener]);
-  return function () {
-    var _runIfFn2;
-
-    var node = (_runIfFn2 = chakra_ui_utils_esm_runIfFn(env)) != null ? _runIfFn2 : document;
-    node.removeEventListener(event, listener, options);
-  };
-}
-
-function useAnimationState(props) {
-  var isOpen = props.isOpen,
-      ref = props.ref;
-
-  var _useState = (0,react.useState)(isOpen),
-      mounted = _useState[0],
-      setMounted = _useState[1];
-
-  var _useState2 = (0,react.useState)(false),
-      once = _useState2[0],
-      setOnce = _useState2[1];
-
-  (0,react.useEffect)(function () {
-    if (!once) {
-      setMounted(isOpen);
-      setOnce(true);
-    }
-  }, [isOpen, once, mounted]);
-  use_animation_state_7f768610_esm_useEventListener("animationend", function () {
-    setMounted(isOpen);
-  }, function () {
-    return ref.current;
-  });
-  var hidden = isOpen ? false : !mounted && once;
-  return {
-    present: !hidden,
-    onComplete: function onComplete() {
-      var _ref$current;
-
-      var win = getOwnerWindow(ref.current);
-      var evt = new win.CustomEvent("animationend", {
-        bubbles: true
-      });
-      (_ref$current = ref.current) == null ? void 0 : _ref$current.dispatchEvent(evt);
-    }
-  };
-}
-
-
-
-// EXTERNAL MODULE: ../../node_modules/copy-to-clipboard/index.js
-var copy_to_clipboard = __webpack_require__(50381);
-;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/hooks/dist/chakra-ui-hooks.esm.js
-
-
-
-
-
-
-
-/**
- * React hook to manage boolean (on - off) states
- *
- * @param initialState the initial boolean state value
- */
-function useBoolean(initialState) {
-  if (initialState === void 0) {
-    initialState = false;
-  }
-
-  var _useState = (0,react.useState)(initialState),
-      value = _useState[0],
-      setValue = _useState[1];
-
-  var on = (0,react.useCallback)(function () {
-    setValue(true);
-  }, []);
-  var off = (0,react.useCallback)(function () {
-    setValue(false);
-  }, []);
-  var toggle = (0,react.useCallback)(function () {
-    setValue(function (prev) {
-      return !prev;
-    });
-  }, []);
-  return [value, {
-    on: on,
-    off: off,
-    toggle: toggle
-  }];
-}
-
-function chakra_ui_hooks_esm_objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
-}
-
-var chakra_ui_hooks_esm_excluded = (/* unused pure expression or super */ null && (["timeout"]));
-
-/**
- * React hook to copy content to clipboard
- *
- * @param text the text or value to copy
- * @param {Number} [optionsOrTimeout=1500] optionsOrTimeout - delay (in ms) to switch back to initial state once copied.
- * @param {Object} optionsOrTimeout
- * @param {string} optionsOrTimeout.format - set the desired MIME type
- * @param {number} optionsOrTimeout.timeout - delay (in ms) to switch back to initial state once copied.
- */
-function useClipboard(text, optionsOrTimeout) {
-  if (optionsOrTimeout === void 0) {
-    optionsOrTimeout = {};
-  }
-
-  var _useState = useState(false),
-      hasCopied = _useState[0],
-      setHasCopied = _useState[1];
-
-  var _ref = typeof optionsOrTimeout === "number" ? {
-    timeout: optionsOrTimeout
-  } : optionsOrTimeout,
-      _ref$timeout = _ref.timeout,
-      timeout = _ref$timeout === void 0 ? 1500 : _ref$timeout,
-      copyOptions = chakra_ui_hooks_esm_objectWithoutPropertiesLoose(_ref, chakra_ui_hooks_esm_excluded);
-
-  var onCopy = useCallback(function () {
-    var didCopy = copy(text, copyOptions);
-    setHasCopied(didCopy);
-  }, [text, copyOptions]);
-  useEffect(function () {
-    var timeoutId = null;
-
-    if (hasCopied) {
-      timeoutId = window.setTimeout(function () {
-        setHasCopied(false);
-      }, timeout);
-    }
-
-    return function () {
-      if (timeoutId) {
-        window.clearTimeout(timeoutId);
-      }
-    };
-  }, [timeout, hasCopied]);
-  return {
-    value: text,
-    onCopy: onCopy,
-    hasCopied: hasCopied
-  };
-}
-
-/**
- * Creates a constant value over the lifecycle of a component.
- *
- * Even if `useMemo` is provided an empty array as its final argument, it doesn't offer
- * a guarantee that it won't re-run for performance reasons later on. By using `useConst`
- * you can ensure that initializers don't execute twice or more.
- */
-function useConst(init) {
-  // Use useRef to store the value because it's the least expensive built-in
-  // hook that works here. We could also use `useState` but that's more
-  // expensive internally due to reducer handling which we don't need.
-  var ref = useRef(null);
-
-  if (ref.current === null) {
-    ref.current = typeof init === "function" ? init() : init;
-  }
-
-  return ref.current;
-}
-
-function useControllableProp(prop, state) {
-  var isControlled = prop !== undefined;
-  var value = isControlled && typeof prop !== "undefined" ? prop : state;
-  return [isControlled, value];
-}
-
-/**
- * React hook for using controlling component state.
- * @param props
- */
-function useControllableState(props) {
-  var valueProp = props.value,
-      defaultValue = props.defaultValue,
-      onChange = props.onChange,
-      _props$shouldUpdate = props.shouldUpdate,
-      shouldUpdate = _props$shouldUpdate === void 0 ? function (prev, next) {
-    return prev !== next;
-  } : _props$shouldUpdate;
-  var onChangeProp = use_animation_state_7f768610_esm_useCallbackRef(onChange);
-  var shouldUpdateProp = use_animation_state_7f768610_esm_useCallbackRef(shouldUpdate);
-
-  var _React$useState = react.useState(defaultValue),
-      valueState = _React$useState[0],
-      setValue = _React$useState[1];
-
-  var isControlled = valueProp !== undefined;
-  var value = isControlled ? valueProp : valueState;
-  var updateValue = react.useCallback(function (next) {
-    var nextValue = chakra_ui_utils_esm_runIfFn(next, value);
-
-    if (!shouldUpdateProp(value, nextValue)) {
-      return;
-    }
-
-    if (!isControlled) {
-      setValue(nextValue);
-    }
-
-    onChangeProp(nextValue);
-  }, [isControlled, onChangeProp, value, shouldUpdateProp]);
-  return [value, updateValue];
-}
-
-/**
- * Reack hook to measure a component's dimensions
- *
- * @param ref ref of the component to measure
- * @param observe if `true`, resize and scroll observers will be turned on
- */
-
-function useDimensions(ref, observe) {
-  var _React$useState = React.useState(null),
-      dimensions = _React$useState[0],
-      setDimensions = _React$useState[1];
-
-  var rafId = React.useRef();
-  useSafeLayoutEffect(function () {
-    if (!ref.current) return undefined;
-    var node = ref.current;
-
-    function measure() {
-      rafId.current = requestAnimationFrame(function () {
-        var boxModel = getBox(node);
-        setDimensions(boxModel);
-      });
-    }
-
-    measure();
-
-    if (observe) {
-      window.addEventListener("resize", measure);
-      window.addEventListener("scroll", measure);
-    }
-
-    return function () {
-      if (observe) {
-        window.removeEventListener("resize", measure);
-        window.removeEventListener("scroll", measure);
-      }
-
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-      }
-    };
-  }, [observe]);
-  return dimensions;
-}
-
-function chakra_ui_hooks_esm_extends() {
-  chakra_ui_hooks_esm_extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return chakra_ui_hooks_esm_extends.apply(this, arguments);
-}
-
-// This implementation is heavily inspired by react-aria's implementation
-var defaultIdContext = {
-  current: 1
-};
-var IdContext = /*#__PURE__*/react.createContext(defaultIdContext);
-var IdProvider = /*#__PURE__*/react.memo(function (_ref) {
-  var children = _ref.children;
-  return /*#__PURE__*/react.createElement(IdContext.Provider, {
-    value: {
-      current: 1
-    }
-  }, children);
-});
-
-var genId = function genId(context) {
-  return context.current++;
-};
-
-function useId(idProp, prefix) {
-  var context = react.useContext(IdContext);
-  /*
-      We get the current id by context and generate a new id inside useEffect so that the side effects occur during the commit phase,
-      Doing this prevents the side effects from being called twice when used with strict mode (render() in function component is the function body), which ends up making the server with the client not synchronized
-  */
-
-  var _React$useState = react.useState(context.current),
-      id = _React$useState[0],
-      setId = _React$useState[1];
-
-  react.useEffect(function () {
-    setId(genId(context));
-  }, [context]);
-  return react.useMemo(function () {
-    return idProp || [prefix, id].filter(Boolean).join("-");
-  }, [idProp, prefix, id]);
-}
-/**
- * Reack hook to generate ids for use in compound components
- *
- * @param idProp the external id passed from the user
- * @param prefixes array of prefixes to use
- *
- * @example
- *
- * ```js
- * const [buttonId, menuId] = useIds("52", "button", "menu")
- *
- * // buttonId will be `button-52`
- * // menuId will be `menu-52`
- * ```
- */
-
-function useIds(idProp) {
-  for (var _len = arguments.length, prefixes = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    prefixes[_key - 1] = arguments[_key];
-  }
-
-  var id = useId(idProp);
-  return react.useMemo(function () {
-    return prefixes.map(function (prefix) {
-      return prefix + "-" + id;
-    });
-  }, [id, prefixes]);
-}
-/**
- * Used to generate an id, and after render, check if that id is rendered so we know
- * if we can use it in places such as `aria-labelledby`.
- *
- * @param partId - The unique id for the component part
- *
- * @example
- * const { ref, id } = useOptionalPart<HTMLInputElement>(`${id}-label`)
- */
-
-function useOptionalPart(partId) {
-  var _React$useState2 = React.useState(null),
-      id = _React$useState2[0],
-      setId = _React$useState2[1];
-
-  var ref = React.useCallback(function (node) {
-    setId(node ? partId : null);
-  }, [partId]);
-  return {
-    ref: ref,
-    id: id,
-    isRendered: Boolean(id)
-  };
-}
-
-function useDisclosure(props) {
-  if (props === void 0) {
-    props = {};
-  }
-
-  var _props = props,
-      onCloseProp = _props.onClose,
-      onOpenProp = _props.onOpen,
-      isOpenProp = _props.isOpen,
-      idProp = _props.id;
-  var onOpenPropCallbackRef = use_animation_state_7f768610_esm_useCallbackRef(onOpenProp);
-  var onClosePropCallbackRef = use_animation_state_7f768610_esm_useCallbackRef(onCloseProp);
-
-  var _React$useState = react.useState(props.defaultIsOpen || false),
-      isOpenState = _React$useState[0],
-      setIsOpen = _React$useState[1];
-
-  var _useControllableProp = useControllableProp(isOpenProp, isOpenState),
-      isControlled = _useControllableProp[0],
-      isOpen = _useControllableProp[1];
-
-  var id = useId(idProp, "disclosure");
-  var onClose = react.useCallback(function () {
-    if (!isControlled) {
-      setIsOpen(false);
-    }
-
-    onClosePropCallbackRef == null ? void 0 : onClosePropCallbackRef();
-  }, [isControlled, onClosePropCallbackRef]);
-  var onOpen = react.useCallback(function () {
-    if (!isControlled) {
-      setIsOpen(true);
-    }
-
-    onOpenPropCallbackRef == null ? void 0 : onOpenPropCallbackRef();
-  }, [isControlled, onOpenPropCallbackRef]);
-  var onToggle = react.useCallback(function () {
-    var action = isOpen ? onClose : onOpen;
-    action();
-  }, [isOpen, onOpen, onClose]);
-  return {
-    isOpen: !!isOpen,
-    onOpen: onOpen,
-    onClose: onClose,
-    onToggle: onToggle,
-    isControlled: isControlled,
-    getButtonProps: function getButtonProps(props) {
-      if (props === void 0) {
-        props = {};
-      }
-
-      return chakra_ui_hooks_esm_extends({}, props, {
-        "aria-expanded": "true",
-        "aria-controls": id,
-        onClick: callAllHandlers(props.onClick, onToggle)
-      });
-    },
-    getDisclosureProps: function getDisclosureProps(props) {
-      if (props === void 0) {
-        props = {};
-      }
-
-      return chakra_ui_hooks_esm_extends({}, props, {
-        hidden: !isOpen,
-        id: id
-      });
-    }
-  };
-}
-
-/**
- * React hook for performant `useCallbacks`
- *
- * @see https://github.com/facebook/react/issues/14099#issuecomment-440013892
- *
- * @deprecated Use `useCallbackRef` instead. `useEventCallback` will be removed
- * in a future version.
- */
-
-function useEventCallback(callback) {
-  var ref = React.useRef(callback);
-  useSafeLayoutEffect(function () {
-    ref.current = callback;
-  });
-  return React.useCallback(function (event) {
-    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    return ref.current.apply(ref, [event].concat(args));
-  }, []);
-}
-
-function useEventListenerMap() {
-  var listeners = React.useRef(new Map());
-  var currentListeners = listeners.current;
-  var add = React.useCallback(function (el, type, listener, options) {
-    var pointerEventListener = wrapPointerEventHandler(listener, type === "pointerdown");
-    listeners.current.set(listener, {
-      __listener: pointerEventListener,
-      type: getPointerEventName(type),
-      el: el,
-      options: options
-    });
-    el.addEventListener(type, pointerEventListener, options);
-  }, []);
-  var remove = React.useCallback(function (el, type, listener, options) {
-    var _listeners$current$ge = listeners.current.get(listener),
-        pointerEventListener = _listeners$current$ge.__listener;
-
-    el.removeEventListener(type, pointerEventListener, options);
-    listeners.current["delete"](pointerEventListener);
-  }, []);
-  React.useEffect(function () {
-    return function () {
-      currentListeners.forEach(function (value, key) {
-        remove(value.el, value.type, key, value.options);
-      });
-    };
-  }, [remove, currentListeners]);
-  return {
-    add: add,
-    remove: remove
-  };
-}
-
-/**
- * React effect hook that invokes only on update.
- * It doesn't invoke on mount
- */
-
-var useUpdateEffect = function useUpdateEffect(effect, deps) {
-  var mounted = react.useRef(false);
-  react.useEffect(function () {
-    if (mounted.current) {
-      return effect();
-    }
-
-    mounted.current = true;
-    return undefined; // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-  return mounted.current;
-};
-
-/**
- * React hook to focus an element conditionally
- *
- * @param ref the ref of the element to focus
- * @param options focus management options
- */
-function useFocusEffect(ref, options) {
-  var shouldFocus = options.shouldFocus,
-      preventScroll = options.preventScroll;
-  useUpdateEffect(function () {
-    var node = ref.current;
-    if (!node || !shouldFocus) return;
-
-    if (!hasFocusWithin(node)) {
-      focus(node, {
-        preventScroll: preventScroll,
-        nextTick: true
-      });
-    }
-  }, [shouldFocus, ref, preventScroll]);
-}
-
-function preventReturnFocus(containerRef) {
-  var el = containerRef.current;
-  if (!el) return false;
-  var activeElement = getActiveElement(el);
-  if (!activeElement) return false;
-  if (chakra_ui_utils_esm_contains(el, activeElement)) return false;
-  if (isTabbable(activeElement)) return true;
-  return false;
-}
-/**
- * Popover hook to manage the focus when the popover closes or hides.
- *
- * We either want to return focus back to the popover trigger or
- * let focus proceed normally if user moved to another interactive
- * element in the viewport.
- */
-
-
-function useFocusOnHide(containerRef, options) {
-  var shouldFocusProp = options.shouldFocus,
-      visible = options.visible,
-      focusRef = options.focusRef;
-  var shouldFocus = shouldFocusProp && !visible;
-  useUpdateEffect(function () {
-    if (!shouldFocus) return;
-
-    if (preventReturnFocus(containerRef)) {
-      return;
-    }
-
-    var el = (focusRef == null ? void 0 : focusRef.current) || containerRef.current;
-
-    if (el) {
-      chakra_ui_utils_esm_focus(el, {
-        nextTick: true
-      });
-    }
-  }, [shouldFocus, containerRef, focusRef]);
-}
-
-/**
- * Credit goes to `framer-motion` of this useful utilities.
- * License can be found here: https://github.com/framer/motion
- */
-/**
- * @internal
- */
-
-function usePointerEvent(env, eventName, handler, options) {
-  return useEventListener(getPointerEventName(eventName), wrapPointerEventHandler(handler, eventName === "pointerdown"), env, options);
-}
-
-/**
- * Polyfill to get `relatedTarget` working correctly consistently
- * across all browsers.
- *
- * It ensures that elements receives focus on pointer down if
- * it's not the active active element.
- *
- * @internal
- */
-function useFocusOnPointerDown(props) {
-  var ref = props.ref,
-      elements = props.elements,
-      enabled = props.enabled;
-  var isSafari = detectBrowser("Safari");
-
-  var doc = function doc() {
-    return getOwnerDocument(ref.current);
-  };
-
-  usePointerEvent(doc, "pointerdown", function (event) {
-    if (!isSafari || !enabled) return;
-    var target = event.target;
-    var els = elements != null ? elements : [ref];
-    var isValidTarget = els.some(function (elementOrRef) {
-      var el = isRefObject(elementOrRef) ? elementOrRef.current : elementOrRef;
-      return contains(el, target);
-    });
-
-    if (!isActiveElement(target) && isValidTarget) {
-      event.preventDefault();
-      focus(target);
-    }
-  });
-}
-
-var defaultOptions = {
-  preventScroll: true,
-  shouldFocus: false
-};
-function useFocusOnShow(target, options) {
-  if (options === void 0) {
-    options = defaultOptions;
-  }
-
-  var _options = options,
-      focusRef = _options.focusRef,
-      preventScroll = _options.preventScroll,
-      shouldFocus = _options.shouldFocus,
-      visible = _options.visible;
-  var element = isRefObject(target) ? target.current : target;
-  var autoFocus = shouldFocus && visible;
-  var onFocus = useCallback(function () {
-    if (!element || !autoFocus) return;
-    if (contains(element, document.activeElement)) return;
-
-    if (focusRef != null && focusRef.current) {
-      focus(focusRef.current, {
-        preventScroll: preventScroll,
-        nextTick: true
-      });
-    } else {
-      var tabbableEls = getAllFocusable(element);
-
-      if (tabbableEls.length > 0) {
-        focus(tabbableEls[0], {
-          preventScroll: preventScroll,
-          nextTick: true
-        });
-      }
-    }
-  }, [autoFocus, preventScroll, element, focusRef]);
-  useUpdateEffect(function () {
-    onFocus();
-  }, [onFocus]);
-  useEventListener("transitionend", onFocus, element);
-}
-
-function useUnmountEffect(fn, deps) {
-  if (deps === void 0) {
-    deps = [];
-  }
-
-  return react.useEffect(function () {
-    return function () {
-      return fn();
-    };
-  }, // eslint-disable-next-line react-hooks/exhaustive-deps
-  deps);
-}
-
-function useForceUpdate() {
-  var unloadingRef = react.useRef(false);
-
-  var _React$useState = react.useState(0),
-      count = _React$useState[0],
-      setCount = _React$useState[1];
-
-  useUnmountEffect(function () {
-    unloadingRef.current = true;
-  });
-  return react.useCallback(function () {
-    if (!unloadingRef.current) {
-      setCount(count + 1);
-    }
-  }, [count]);
-}
-
-/**
- * React Hook that provides a declarative `setInterval`
- *
- * @param callback the callback to execute at interval
- * @param delay the `setInterval` delay (in ms)
- */
-
-function useInterval(callback, delay) {
-  var fn = useCallbackRef(callback);
-  React.useEffect(function () {
-    var intervalId = null;
-
-    var tick = function tick() {
-      return fn();
-    };
-
-    if (delay !== null) {
-      intervalId = window.setInterval(tick, delay);
-    }
-
-    return function () {
-      if (intervalId) {
-        window.clearInterval(intervalId);
-      }
-    };
-  }, [delay, fn]);
-}
-
-/**
- * React hook to persist any value between renders,
- * but keeps it up-to-date if it changes.
- *
- * @param value the value or function to persist
- */
-
-function useLatestRef(value) {
-  var ref = react.useRef(null);
-  ref.current = value;
-  return ref;
-}
-
-/* eslint-disable react-hooks/exhaustive-deps */
-function chakra_ui_hooks_esm_assignRef(ref, value) {
-  if (ref == null) return;
-
-  if (typeof ref === "function") {
-    ref(value);
-    return;
-  }
-
-  try {
-    // @ts-ignore
-    ref.current = value;
-  } catch (error) {
-    throw new Error("Cannot assign value '" + value + "' to ref '" + ref + "'");
-  }
-}
-/**
- * React hook that merges react refs into a single memoized function
- *
- * @example
- * import React from "react";
- * import { useMergeRefs } from `@chakra-ui/hooks`;
- *
- * const Component = React.forwardRef((props, ref) => {
- *   const internalRef = React.useRef();
- *   return <div {...props} ref={useMergeRefs(internalRef, ref)} />;
- * });
- */
-
-function useMergeRefs() {
-  for (var _len = arguments.length, refs = new Array(_len), _key = 0; _key < _len; _key++) {
-    refs[_key] = arguments[_key];
-  }
-
-  return react.useMemo(function () {
-    if (refs.every(function (ref) {
-      return ref == null;
-    })) {
-      return null;
-    }
-
-    return function (node) {
-      refs.forEach(function (ref) {
-        if (ref) chakra_ui_hooks_esm_assignRef(ref, node);
-      });
-    };
-  }, refs);
-}
-
-/**
- * @deprecated `useMouseDownRef` will be removed in a future version.
- */
-
-function useMouseDownRef(shouldListen) {
-  if (shouldListen === void 0) {
-    shouldListen = true;
-  }
-
-  var mouseDownRef = React__default.useRef();
-  useEventListener("mousedown", function (event) {
-    if (shouldListen) {
-      mouseDownRef.current = event.target;
-    }
-  });
-  return mouseDownRef;
-}
-
-/**
- * Example, used in components like Dialogs and Popovers so they can close
- * when a user clicks outside them.
- */
-function useOutsideClick(props) {
-  var ref = props.ref,
-      handler = props.handler,
-      _props$enabled = props.enabled,
-      enabled = _props$enabled === void 0 ? true : _props$enabled;
-  var savedHandler = use_animation_state_7f768610_esm_useCallbackRef(handler);
-  var stateRef = (0,react.useRef)({
-    isPointerDown: false,
-    ignoreEmulatedMouseEvents: false
-  });
-  var state = stateRef.current;
-  (0,react.useEffect)(function () {
-    if (!enabled) return;
-
-    var onPointerDown = function onPointerDown(e) {
-      if (isValidEvent(e, ref)) {
-        state.isPointerDown = true;
-      }
-    };
-
-    var onMouseUp = function onMouseUp(event) {
-      if (state.ignoreEmulatedMouseEvents) {
-        state.ignoreEmulatedMouseEvents = false;
-        return;
-      }
-
-      if (state.isPointerDown && handler && isValidEvent(event, ref)) {
-        state.isPointerDown = false;
-        savedHandler(event);
-      }
-    };
-
-    var onTouchEnd = function onTouchEnd(event) {
-      state.ignoreEmulatedMouseEvents = true;
-
-      if (handler && state.isPointerDown && isValidEvent(event, ref)) {
-        state.isPointerDown = false;
-        savedHandler(event);
-      }
-    };
-
-    var doc = chakra_ui_utils_esm_getOwnerDocument(ref.current);
-    doc.addEventListener("mousedown", onPointerDown, true);
-    doc.addEventListener("mouseup", onMouseUp, true);
-    doc.addEventListener("touchstart", onPointerDown, true);
-    doc.addEventListener("touchend", onTouchEnd, true);
-    return function () {
-      doc.removeEventListener("mousedown", onPointerDown, true);
-      doc.removeEventListener("mouseup", onMouseUp, true);
-      doc.removeEventListener("touchstart", onPointerDown, true);
-      doc.removeEventListener("touchend", onTouchEnd, true);
-    };
-  }, [handler, ref, savedHandler, state, enabled]);
-}
-
-function isValidEvent(event, ref) {
-  var _ref$current;
-
-  var target = event.target;
-  if (event.button > 0) return false; // if the event target is no longer in the document
-
-  if (target) {
-    var doc = chakra_ui_utils_esm_getOwnerDocument(target);
-    if (!doc.body.contains(target)) return false;
-  }
-
-  return !((_ref$current = ref.current) != null && _ref$current.contains(target));
-}
-
-function usePanGesture(ref, props) {
-  var onPan = props.onPan,
-      onPanStart = props.onPanStart,
-      onPanEnd = props.onPanEnd,
-      onPanSessionStart = props.onPanSessionStart,
-      onPanSessionEnd = props.onPanSessionEnd,
-      threshold = props.threshold;
-  var hasPanEvents = Boolean(onPan || onPanStart || onPanEnd || onPanSessionStart || onPanSessionEnd);
-  var panSession = useRef(null);
-  var handlers = {
-    onSessionStart: onPanSessionStart,
-    onSessionEnd: onPanSessionEnd,
-    onStart: onPanStart,
-    onMove: onPan,
-    onEnd: function onEnd(event, info) {
-      panSession.current = null;
-      onPanEnd == null ? void 0 : onPanEnd(event, info);
-    }
-  };
-  useEffect(function () {
-    var _panSession$current;
-
-    (_panSession$current = panSession.current) == null ? void 0 : _panSession$current.updateHandlers(handlers);
-  });
-
-  function onPointerDown(event) {
-    panSession.current = new PanSession(event, handlers, threshold);
-  }
-
-  usePointerEvent(function () {
-    return ref.current;
-  }, "pointerdown", hasPanEvents ? onPointerDown : noop);
-  useUnmountEffect(function () {
-    var _panSession$current2;
-
-    (_panSession$current2 = panSession.current) == null ? void 0 : _panSession$current2.end();
-    panSession.current = null;
-  });
-}
-
-function usePrevious(value) {
-  var ref = useRef();
-  useEffect(function () {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-}
-
-/**
- * Checks if the key pressed is a printable character
- * and can be used for shortcut navigation
- */
-
-function isPrintableCharacter(event) {
-  var key = event.key;
-  return key.length === 1 || key.length > 1 && /[^a-zA-Z0-9]/.test(key);
-}
-
-/**
- * React hook that provides an enhanced keydown handler,
- * that's used for key navigation within menus, select dropdowns.
- */
-function useShortcut(props) {
-  if (props === void 0) {
-    props = {};
-  }
-
-  var _props = props,
-      _props$timeout = _props.timeout,
-      timeout = _props$timeout === void 0 ? 300 : _props$timeout,
-      _props$preventDefault = _props.preventDefault,
-      preventDefault = _props$preventDefault === void 0 ? function () {
-    return true;
-  } : _props$preventDefault;
-
-  var _React$useState = react.useState([]),
-      keys = _React$useState[0],
-      setKeys = _React$useState[1];
-
-  var timeoutRef = react.useRef();
-
-  var flush = function flush() {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  };
-
-  var clearKeysAfterDelay = function clearKeysAfterDelay() {
-    flush();
-    timeoutRef.current = setTimeout(function () {
-      setKeys([]);
-      timeoutRef.current = null;
-    }, timeout);
-  };
-
-  react.useEffect(function () {
-    return flush;
-  }, []);
-
-  function onKeyDown(fn) {
-    return function (event) {
-      if (event.key === "Backspace") {
-        var keysCopy = [].concat(keys);
-        keysCopy.pop();
-        setKeys(keysCopy);
-        return;
-      }
-
-      if (isPrintableCharacter(event)) {
-        var _keysCopy = keys.concat(event.key);
-
-        if (preventDefault(event)) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-
-        setKeys(_keysCopy);
-        fn(_keysCopy.join(""));
-        clearKeysAfterDelay();
-      }
-    };
-  }
-
-  return onKeyDown;
-}
-
-/**
- * React hook that provides a declarative `setTimeout`
- *
- * @param callback the callback to run after specified delay
- * @param delay the delay (in ms)
- */
-
-function useTimeout(callback, delay) {
-  var fn = use_animation_state_7f768610_esm_useCallbackRef(callback);
-  react.useEffect(function () {
-    if (delay == null) return undefined;
-    var timeoutId = null;
-    timeoutId = window.setTimeout(function () {
-      fn();
-    }, delay);
-    return function () {
-      if (timeoutId) {
-        window.clearTimeout(timeoutId);
-      }
-    };
-  }, [delay, fn]);
-}
-
-function useWhyDidYouUpdate(name, props) {
-  var previousProps = React.useRef();
-  React.useEffect(function () {
-    if (previousProps.current) {
-      var allKeys = Object.keys(chakra_ui_hooks_esm_extends({}, previousProps.current, props));
-      var changesObj = {};
-      allKeys.forEach(function (key) {
-        if (previousProps.current[key] !== props[key]) {
-          changesObj[key] = {
-            from: previousProps.current[key],
-            to: props[key]
-          };
-        }
-      });
-
-      if (Object.keys(changesObj).length) {
-        console.log("[why-did-you-update]", name, changesObj);
-      }
-    }
-
-    previousProps.current = props;
-  });
-}
-
-
-
-;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/visually-hidden/dist/chakra-ui-visually-hidden.esm.js
-
-
-
-/**
- * Styles to visually hide an element
- * but make it accessible to screen-readers
- */
-var visuallyHiddenStyle = {
-  border: "0px",
-  clip: "rect(0px, 0px, 0px, 0px)",
-  height: "1px",
-  width: "1px",
-  margin: "-1px",
-  padding: "0px",
-  overflow: "hidden",
-  whiteSpace: "nowrap",
-  position: "absolute"
-};
-/**
- * Visually hidden component used to hide
- * elements on screen
- */
-
-var VisuallyHidden = chakra_ui_system_esm_chakra("span", {
-  baseStyle: visuallyHiddenStyle
-});
-
-if (__DEV__) {
-  VisuallyHidden.displayName = "VisuallyHidden";
-}
-/**
- * Visually hidden input component for designing
- * custom input components using the html `input`
- * as a proxy
- */
-
-
-var VisuallyHiddenInput = chakra_ui_system_esm_chakra("input", {
-  baseStyle: visuallyHiddenStyle
-});
-
-if (__DEV__) {
-  VisuallyHiddenInput.displayName = "VisuallyHiddenInput";
-}
-
-var VisuallyHidden$1 = (/* unused pure expression or super */ null && (VisuallyHidden));
-
-
-
-;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/spinner/dist/chakra-ui-spinner.esm.js
-
-
-
-
-
-function chakra_ui_spinner_esm_extends() {
-  chakra_ui_spinner_esm_extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return chakra_ui_spinner_esm_extends.apply(this, arguments);
-}
-
-function chakra_ui_spinner_esm_objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
-}
-
-var chakra_ui_spinner_esm_excluded = ["label", "thickness", "speed", "emptyColor", "className"];
-var spin = keyframes({
-  "0%": {
-    transform: "rotate(0deg)"
-  },
-  "100%": {
-    transform: "rotate(360deg)"
-  }
-});
-
-/**
- * Spinner is used to indicate the loading state of a page or a component,
- * It renders a `div` by default.
- *
- * @see Docs https://chakra-ui.com/spinner
- */
-var Spinner = /*#__PURE__*/chakra_ui_system_esm_forwardRef(function (props, ref) {
-  var styles = useStyleConfig("Spinner", props);
-
-  var _omitThemingProps = omitThemingProps(props),
-      _omitThemingProps$lab = _omitThemingProps.label,
-      label = _omitThemingProps$lab === void 0 ? "Loading..." : _omitThemingProps$lab,
-      _omitThemingProps$thi = _omitThemingProps.thickness,
-      thickness = _omitThemingProps$thi === void 0 ? "2px" : _omitThemingProps$thi,
-      _omitThemingProps$spe = _omitThemingProps.speed,
-      speed = _omitThemingProps$spe === void 0 ? "0.45s" : _omitThemingProps$spe,
-      _omitThemingProps$emp = _omitThemingProps.emptyColor,
-      emptyColor = _omitThemingProps$emp === void 0 ? "transparent" : _omitThemingProps$emp,
-      className = _omitThemingProps.className,
-      rest = chakra_ui_spinner_esm_objectWithoutPropertiesLoose(_omitThemingProps, chakra_ui_spinner_esm_excluded);
-
-  var _className = chakra_ui_utils_esm_cx("chakra-spinner", className);
-
-  var spinnerStyles = chakra_ui_spinner_esm_extends({
-    display: "inline-block",
-    borderColor: "currentColor",
-    borderStyle: "solid",
-    borderRadius: "99999px",
-    borderWidth: thickness,
-    borderBottomColor: emptyColor,
-    borderLeftColor: emptyColor,
-    animation: spin + " " + speed + " linear infinite"
-  }, styles);
-
-  return /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.div, chakra_ui_spinner_esm_extends({
-    ref: ref,
-    __css: spinnerStyles,
-    className: _className
-  }, rest), label && /*#__PURE__*/react.createElement(VisuallyHidden, null, label));
-});
-
-if (__DEV__) {
-  Spinner.displayName = "Spinner";
-}
-
-
-
-;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/button/dist/chakra-ui-button.esm.js
-
-
-
-
-
-
-
-function chakra_ui_button_esm_objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
-}
-
-function chakra_ui_button_esm_extends() {
-  chakra_ui_button_esm_extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return chakra_ui_button_esm_extends.apply(this, arguments);
-}
-
-var chakra_ui_button_esm_excluded$4 = ["size", "colorScheme", "variant", "className", "spacing", "isAttached", "isDisabled"];
-
-var chakra_ui_button_esm_createContext = chakra_ui_react_utils_esm_createContext({
-  strict: false,
-  name: "ButtonGroupContext"
-}),
-    ButtonGroupProvider = chakra_ui_button_esm_createContext[0],
-    useButtonGroup = chakra_ui_button_esm_createContext[1];
-var ButtonGroup = /*#__PURE__*/chakra_ui_system_esm_forwardRef(function (props, ref) {
-  var size = props.size,
-      colorScheme = props.colorScheme,
-      variant = props.variant,
-      className = props.className,
-      _props$spacing = props.spacing,
-      spacing = _props$spacing === void 0 ? "0.5rem" : _props$spacing,
-      isAttached = props.isAttached,
-      isDisabled = props.isDisabled,
-      rest = chakra_ui_button_esm_objectWithoutPropertiesLoose(props, chakra_ui_button_esm_excluded$4);
-
-  var _className = chakra_ui_utils_esm_cx("chakra-button__group", className);
-
-  var context = react.useMemo(function () {
-    return {
-      size: size,
-      colorScheme: colorScheme,
-      variant: variant,
-      isDisabled: isDisabled
-    };
-  }, [size, colorScheme, variant, isDisabled]);
-  var groupStyles = {
-    display: "inline-flex"
-  };
-
-  if (isAttached) {
-    groupStyles = chakra_ui_button_esm_extends({}, groupStyles, {
-      "> *:first-of-type:not(:last-of-type)": {
-        borderEndRadius: 0
-      },
-      "> *:not(:first-of-type):not(:last-of-type)": {
-        borderRadius: 0
-      },
-      "> *:not(:first-of-type):last-of-type": {
-        borderStartRadius: 0
-      }
-    });
-  } else {
-    groupStyles = chakra_ui_button_esm_extends({}, groupStyles, {
-      "& > *:not(style) ~ *:not(style)": {
-        marginStart: spacing
-      }
-    });
-  }
-
-  return /*#__PURE__*/react.createElement(ButtonGroupProvider, {
-    value: context
-  }, /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.div, chakra_ui_button_esm_extends({
-    ref: ref,
-    role: "group",
-    __css: groupStyles,
-    className: _className
-  }, rest)));
-});
-
-if (__DEV__) {
-  ButtonGroup.displayName = "ButtonGroup";
-}
-
-var chakra_ui_button_esm_excluded$3 = ["label", "placement", "spacing", "children", "className", "__css"];
-var ButtonSpinner = function ButtonSpinner(props) {
-  var label = props.label,
-      placement = props.placement,
-      _props$spacing = props.spacing,
-      spacing = _props$spacing === void 0 ? "0.5rem" : _props$spacing,
-      _props$children = props.children,
-      children = _props$children === void 0 ? /*#__PURE__*/react.createElement(Spinner, {
-    color: "currentColor",
-    width: "1em",
-    height: "1em"
-  }) : _props$children,
-      className = props.className,
-      __css = props.__css,
-      rest = chakra_ui_button_esm_objectWithoutPropertiesLoose(props, chakra_ui_button_esm_excluded$3);
-
-  var _className = chakra_ui_utils_esm_cx("chakra-button__spinner", className);
-
-  var marginProp = placement === "start" ? "marginEnd" : "marginStart";
-  var spinnerStyles = react.useMemo(function () {
-    var _extends2;
-
-    return chakra_ui_button_esm_extends((_extends2 = {
-      display: "flex",
-      alignItems: "center",
-      position: label ? "relative" : "absolute"
-    }, _extends2[marginProp] = label ? spacing : 0, _extends2.fontSize = "1em", _extends2.lineHeight = "normal", _extends2), __css);
-  }, [__css, label, marginProp, spacing]);
-  return /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.div, chakra_ui_button_esm_extends({
-    className: _className
-  }, rest, {
-    __css: spinnerStyles
-  }), children);
-};
-
-if (__DEV__) {
-  ButtonSpinner.displayName = "ButtonSpinner";
-}
-
-var chakra_ui_button_esm_excluded$2 = ["children", "className"];
-var ButtonIcon = function ButtonIcon(props) {
-  var children = props.children,
-      className = props.className,
-      rest = chakra_ui_button_esm_objectWithoutPropertiesLoose(props, chakra_ui_button_esm_excluded$2);
-
-  var _children = /*#__PURE__*/react.isValidElement(children) ? /*#__PURE__*/react.cloneElement(children, {
-    "aria-hidden": true,
-    focusable: false
-  }) : children;
-
-  var _className = chakra_ui_utils_esm_cx("chakra-button__icon", className);
-
-  return /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.span, chakra_ui_button_esm_extends({
-    display: "inline-flex",
-    alignSelf: "center",
-    flexShrink: 0
-  }, rest, {
-    className: _className
-  }), _children);
-};
-
-if (__DEV__) {
-  ButtonIcon.displayName = "ButtonIcon";
-}
-
-function useButtonType(value) {
-  var _React$useState = react.useState(!value),
-      isButton = _React$useState[0],
-      setIsButton = _React$useState[1];
-
-  var refCallback = react.useCallback(function (node) {
-    if (!node) return;
-    setIsButton(node.tagName === "BUTTON");
-  }, []);
-  var type = isButton ? "button" : undefined;
-  return {
-    ref: refCallback,
-    type: type
-  };
-}
-
-var chakra_ui_button_esm_excluded$1 = ["isDisabled", "isLoading", "isActive", "isFullWidth", "children", "leftIcon", "rightIcon", "loadingText", "iconSpacing", "type", "spinner", "spinnerPlacement", "className", "as"];
-var Button = /*#__PURE__*/chakra_ui_system_esm_forwardRef(function (props, ref) {
-  var group = useButtonGroup();
-  var styles = useStyleConfig("Button", chakra_ui_button_esm_extends({}, group, props));
-
-  var _omitThemingProps = omitThemingProps(props),
-      _omitThemingProps$isD = _omitThemingProps.isDisabled,
-      isDisabled = _omitThemingProps$isD === void 0 ? group == null ? void 0 : group.isDisabled : _omitThemingProps$isD,
-      isLoading = _omitThemingProps.isLoading,
-      isActive = _omitThemingProps.isActive,
-      isFullWidth = _omitThemingProps.isFullWidth,
-      children = _omitThemingProps.children,
-      leftIcon = _omitThemingProps.leftIcon,
-      rightIcon = _omitThemingProps.rightIcon,
-      loadingText = _omitThemingProps.loadingText,
-      _omitThemingProps$ico = _omitThemingProps.iconSpacing,
-      iconSpacing = _omitThemingProps$ico === void 0 ? "0.5rem" : _omitThemingProps$ico,
-      type = _omitThemingProps.type,
-      spinner = _omitThemingProps.spinner,
-      _omitThemingProps$spi = _omitThemingProps.spinnerPlacement,
-      spinnerPlacement = _omitThemingProps$spi === void 0 ? "start" : _omitThemingProps$spi,
-      className = _omitThemingProps.className,
-      as = _omitThemingProps.as,
-      rest = chakra_ui_button_esm_objectWithoutPropertiesLoose(_omitThemingProps, chakra_ui_button_esm_excluded$1);
-  /**
-   * When button is used within ButtonGroup (i.e flushed with sibling buttons),
-   * it is important to add a `zIndex` on focus.
-   *
-   * So let's read the component styles and then add `zIndex` to it.
-   */
-
-
-  var buttonStyles = react.useMemo(function () {
-    var _styles$_focus;
-
-    var _focus = lodash_mergewith_default()({}, (_styles$_focus = styles == null ? void 0 : styles["_focus"]) != null ? _styles$_focus : {}, {
-      zIndex: 1
-    });
-
-    return chakra_ui_button_esm_extends({
-      display: "inline-flex",
-      appearance: "none",
-      alignItems: "center",
-      justifyContent: "center",
-      userSelect: "none",
-      position: "relative",
-      whiteSpace: "nowrap",
-      verticalAlign: "middle",
-      outline: "none",
-      width: isFullWidth ? "100%" : "auto"
-    }, styles, !!group && {
-      _focus: _focus
-    });
-  }, [styles, group, isFullWidth]);
-
-  var _useButtonType = useButtonType(as),
-      _ref = _useButtonType.ref,
-      defaultType = _useButtonType.type;
-
-  var contentProps = {
-    rightIcon: rightIcon,
-    leftIcon: leftIcon,
-    iconSpacing: iconSpacing,
-    children: children
-  };
-  return /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.button, chakra_ui_button_esm_extends({
-    disabled: isDisabled || isLoading,
-    ref: useMergeRefs(ref, _ref),
-    as: as,
-    type: type != null ? type : defaultType,
-    "data-active": dataAttr(isActive),
-    "data-loading": dataAttr(isLoading),
-    __css: buttonStyles,
-    className: chakra_ui_utils_esm_cx("chakra-button", className)
-  }, rest), isLoading && spinnerPlacement === "start" && /*#__PURE__*/react.createElement(ButtonSpinner, {
-    className: "chakra-button__spinner--start",
-    label: loadingText,
-    placement: "start",
-    spacing: iconSpacing
-  }, spinner), isLoading ? loadingText || /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.span, {
-    opacity: 0
-  }, /*#__PURE__*/react.createElement(ButtonContent, contentProps)) : /*#__PURE__*/react.createElement(ButtonContent, contentProps), isLoading && spinnerPlacement === "end" && /*#__PURE__*/react.createElement(ButtonSpinner, {
-    className: "chakra-button__spinner--end",
-    label: loadingText,
-    placement: "end",
-    spacing: iconSpacing
-  }, spinner));
-});
-
-if (__DEV__) {
-  Button.displayName = "Button";
-}
-
-function ButtonContent(props) {
-  var leftIcon = props.leftIcon,
-      rightIcon = props.rightIcon,
-      children = props.children,
-      iconSpacing = props.iconSpacing;
-  return /*#__PURE__*/react.createElement(react.Fragment, null, leftIcon && /*#__PURE__*/react.createElement(ButtonIcon, {
-    marginEnd: iconSpacing
-  }, leftIcon), children, rightIcon && /*#__PURE__*/react.createElement(ButtonIcon, {
-    marginStart: iconSpacing
-  }, rightIcon));
-}
-
-var chakra_ui_button_esm_excluded = ["icon", "children", "isRound", "aria-label"];
-var IconButton = /*#__PURE__*/chakra_ui_system_esm_forwardRef(function (props, ref) {
-  var icon = props.icon,
-      children = props.children,
-      isRound = props.isRound,
-      ariaLabel = props["aria-label"],
-      rest = chakra_ui_button_esm_objectWithoutPropertiesLoose(props, chakra_ui_button_esm_excluded);
-  /**
-   * Passing the icon as prop or children should work
-   */
-
-
-  var element = icon || children;
-
-  var _children = /*#__PURE__*/react.isValidElement(element) ? /*#__PURE__*/react.cloneElement(element, {
-    "aria-hidden": true,
-    focusable: false
-  }) : null;
-
-  return /*#__PURE__*/react.createElement(Button, chakra_ui_button_esm_extends({
-    padding: "0",
-    borderRadius: isRound ? "full" : undefined,
-    ref: ref,
-    "aria-label": ariaLabel
-  }, rest), _children);
-});
-
-if (__DEV__) {
-  IconButton.displayName = "IconButton";
-}
-
-
-
 ;// CONCATENATED MODULE: ../../node_modules/tslib/tslib.es6.js
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -47676,7 +46083,7 @@ function use_pointer_event_getPointerEventName(name) {
 function use_pointer_event_addPointerEvent(target, eventName, handler, options) {
     return use_dom_event_addDomEvent(target, use_pointer_event_getPointerEventName(eventName), wrapHandler(handler, eventName === "pointerdown"), options);
 }
-function use_pointer_event_usePointerEvent(ref, eventName, handler, options) {
+function usePointerEvent(ref, eventName, handler, options) {
     return useDomEvent(ref, use_pointer_event_getPointerEventName(eventName), handler && wrapHandler(handler, eventName === "pointerdown"), options);
 }
 
@@ -47757,10 +46164,10 @@ function createHoverEvent(visualElement, isActive, callback) {
 }
 function useHoverGesture(_a) {
     var onHoverStart = _a.onHoverStart, onHoverEnd = _a.onHoverEnd, whileHover = _a.whileHover, visualElement = _a.visualElement;
-    use_pointer_event_usePointerEvent(visualElement, "pointerenter", onHoverStart || whileHover
+    usePointerEvent(visualElement, "pointerenter", onHoverStart || whileHover
         ? createHoverEvent(visualElement, true, onHoverStart)
         : undefined);
-    use_pointer_event_usePointerEvent(visualElement, "pointerleave", onHoverEnd || whileHover
+    usePointerEvent(visualElement, "pointerleave", onHoverEnd || whileHover
         ? createHoverEvent(visualElement, false, onHoverEnd)
         : undefined);
 }
@@ -47792,7 +46199,7 @@ var isNodeOrChild = function (parent, child) {
 ;// CONCATENATED MODULE: ../../node_modules/framer-motion/dist/es/utils/use-unmount-effect.mjs
 
 
-function use_unmount_effect_useUnmountEffect(callback) {
+function useUnmountEffect(callback) {
     return (0,react.useEffect)(function () { return function () { return callback(); }; }, []);
 }
 
@@ -47857,8 +46264,8 @@ function useTapGesture(_a) {
         (_a = visualElement.animationState) === null || _a === void 0 ? void 0 : _a.setActive(AnimationType.Tap, true);
         onTapStart === null || onTapStart === void 0 ? void 0 : onTapStart(event, info);
     }
-    use_pointer_event_usePointerEvent(visualElement, "pointerdown", hasPressListeners ? onPointerDown : undefined);
-    use_unmount_effect_useUnmountEffect(removePointerEndListener);
+    usePointerEvent(visualElement, "pointerdown", hasPressListeners ? onPointerDown : undefined);
+    useUnmountEffect(removePointerEndListener);
 }
 
 
@@ -48044,7 +46451,7 @@ var gestureAnimations = {
 
 var counter = 0;
 var incrementId = function () { return counter++; };
-var use_id_useId = function () { return useConstant(incrementId); };
+var useId = function () { return useConstant(incrementId); };
 /**
  * Ideally we'd use the following code to support React 18 optionally.
  * But this fairly fails in Webpack (otherwise treeshaking wouldn't work at all).
@@ -48092,7 +46499,7 @@ function usePresence() {
     // It's safe to call the following hooks conditionally (after an early return) because the context will always
     // either be null or non-null for the lifespan of the component.
     // Replace with useId when released in React
-    var id = use_id_useId();
+    var id = useId();
     (0,react.useEffect)(function () { return register(id); }, []);
     var safeToRemove = function () { return onExitComplete === null || onExitComplete === void 0 ? void 0 : onExitComplete(id); };
     return !isPresent && onExitComplete ? [false, safeToRemove] : [true];
@@ -49692,7 +48099,7 @@ function useDrag(props) {
  *
  * @internal
  */
-function use_pan_gesture_usePanGesture(_a) {
+function usePanGesture(_a) {
     var onPan = _a.onPan, onPanStart = _a.onPanStart, onPanEnd = _a.onPanEnd, onPanSessionStart = _a.onPanSessionStart, visualElement = _a.visualElement;
     var hasPanEvents = onPan || onPanStart || onPanEnd || onPanSessionStart;
     var panSession = (0,react.useRef)(null);
@@ -49716,8 +48123,8 @@ function use_pan_gesture_usePanGesture(_a) {
             transformPagePoint: transformPagePoint,
         });
     }
-    use_pointer_event_usePointerEvent(visualElement, "pointerdown", hasPanEvents && onPointerDown);
-    use_unmount_effect_useUnmountEffect(function () { return panSession.current && panSession.current.end(); });
+    usePointerEvent(visualElement, "pointerdown", hasPanEvents && onPointerDown);
+    useUnmountEffect(function () { return panSession.current && panSession.current.end(); });
 }
 
 
@@ -49728,7 +48135,7 @@ function use_pan_gesture_usePanGesture(_a) {
 
 
 var drag = {
-    pan: makeRenderlessComponent(use_pan_gesture_usePanGesture),
+    pan: makeRenderlessComponent(usePanGesture),
     drag: makeRenderlessComponent(useDrag),
 };
 
@@ -51706,6 +50113,1126 @@ function createDescendantContext() {
 
 
 
+;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/hooks/dist/use-animation-state-7f768610.esm.js
+
+
+
+
+/**
+ * useSafeLayoutEffect enables us to safely call `useLayoutEffect` on the browser
+ * (for SSR reasons)
+ *
+ * React currently throws a warning when using useLayoutEffect on the server.
+ * To get around it, we can conditionally useEffect on the server (no-op) and
+ * useLayoutEffect in the browser.
+ *
+ * @see https://gist.github.com/gaearon/e7d97cdf38a2907924ea12e4ebdf3c85
+ */
+
+var use_animation_state_7f768610_esm_useSafeLayoutEffect = isBrowser ? react.useLayoutEffect : react.useEffect;
+
+/**
+ * React hook to persist any value between renders,
+ * but keeps it up-to-date if it changes.
+ *
+ * @param value the value or function to persist
+ */
+
+function use_animation_state_7f768610_esm_useCallbackRef(fn, deps) {
+  if (deps === void 0) {
+    deps = [];
+  }
+
+  var ref = react.useRef(fn);
+  use_animation_state_7f768610_esm_useSafeLayoutEffect(function () {
+    ref.current = fn;
+  }); // eslint-disable-next-line react-hooks/exhaustive-deps
+
+  return react.useCallback(function () {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return ref.current == null ? void 0 : ref.current.apply(ref, args);
+  }, deps);
+}
+
+/**
+ * React hook to manage browser event listeners
+ *
+ * @param event the event name
+ * @param handler the event handler function to execute
+ * @param doc the dom environment to execute against (defaults to `document`)
+ * @param options the event listener options
+ *
+ * @internal
+ */
+function use_animation_state_7f768610_esm_useEventListener(event, handler, env, options) {
+  var listener = use_animation_state_7f768610_esm_useCallbackRef(handler);
+  react.useEffect(function () {
+    var _runIfFn;
+
+    var node = (_runIfFn = chakra_ui_utils_esm_runIfFn(env)) != null ? _runIfFn : document;
+    node.addEventListener(event, listener, options);
+    return function () {
+      node.removeEventListener(event, listener, options);
+    };
+  }, [event, env, options, listener]);
+  return function () {
+    var _runIfFn2;
+
+    var node = (_runIfFn2 = chakra_ui_utils_esm_runIfFn(env)) != null ? _runIfFn2 : document;
+    node.removeEventListener(event, listener, options);
+  };
+}
+
+function useAnimationState(props) {
+  var isOpen = props.isOpen,
+      ref = props.ref;
+
+  var _useState = (0,react.useState)(isOpen),
+      mounted = _useState[0],
+      setMounted = _useState[1];
+
+  var _useState2 = (0,react.useState)(false),
+      once = _useState2[0],
+      setOnce = _useState2[1];
+
+  (0,react.useEffect)(function () {
+    if (!once) {
+      setMounted(isOpen);
+      setOnce(true);
+    }
+  }, [isOpen, once, mounted]);
+  use_animation_state_7f768610_esm_useEventListener("animationend", function () {
+    setMounted(isOpen);
+  }, function () {
+    return ref.current;
+  });
+  var hidden = isOpen ? false : !mounted && once;
+  return {
+    present: !hidden,
+    onComplete: function onComplete() {
+      var _ref$current;
+
+      var win = getOwnerWindow(ref.current);
+      var evt = new win.CustomEvent("animationend", {
+        bubbles: true
+      });
+      (_ref$current = ref.current) == null ? void 0 : _ref$current.dispatchEvent(evt);
+    }
+  };
+}
+
+
+
+// EXTERNAL MODULE: ../../node_modules/copy-to-clipboard/index.js
+var copy_to_clipboard = __webpack_require__(50381);
+;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/hooks/dist/chakra-ui-hooks.esm.js
+
+
+
+
+
+
+
+/**
+ * React hook to manage boolean (on - off) states
+ *
+ * @param initialState the initial boolean state value
+ */
+function useBoolean(initialState) {
+  if (initialState === void 0) {
+    initialState = false;
+  }
+
+  var _useState = (0,react.useState)(initialState),
+      value = _useState[0],
+      setValue = _useState[1];
+
+  var on = (0,react.useCallback)(function () {
+    setValue(true);
+  }, []);
+  var off = (0,react.useCallback)(function () {
+    setValue(false);
+  }, []);
+  var toggle = (0,react.useCallback)(function () {
+    setValue(function (prev) {
+      return !prev;
+    });
+  }, []);
+  return [value, {
+    on: on,
+    off: off,
+    toggle: toggle
+  }];
+}
+
+function chakra_ui_hooks_esm_objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+var chakra_ui_hooks_esm_excluded = (/* unused pure expression or super */ null && (["timeout"]));
+
+/**
+ * React hook to copy content to clipboard
+ *
+ * @param text the text or value to copy
+ * @param {Number} [optionsOrTimeout=1500] optionsOrTimeout - delay (in ms) to switch back to initial state once copied.
+ * @param {Object} optionsOrTimeout
+ * @param {string} optionsOrTimeout.format - set the desired MIME type
+ * @param {number} optionsOrTimeout.timeout - delay (in ms) to switch back to initial state once copied.
+ */
+function useClipboard(text, optionsOrTimeout) {
+  if (optionsOrTimeout === void 0) {
+    optionsOrTimeout = {};
+  }
+
+  var _useState = useState(false),
+      hasCopied = _useState[0],
+      setHasCopied = _useState[1];
+
+  var _ref = typeof optionsOrTimeout === "number" ? {
+    timeout: optionsOrTimeout
+  } : optionsOrTimeout,
+      _ref$timeout = _ref.timeout,
+      timeout = _ref$timeout === void 0 ? 1500 : _ref$timeout,
+      copyOptions = chakra_ui_hooks_esm_objectWithoutPropertiesLoose(_ref, chakra_ui_hooks_esm_excluded);
+
+  var onCopy = useCallback(function () {
+    var didCopy = copy(text, copyOptions);
+    setHasCopied(didCopy);
+  }, [text, copyOptions]);
+  useEffect(function () {
+    var timeoutId = null;
+
+    if (hasCopied) {
+      timeoutId = window.setTimeout(function () {
+        setHasCopied(false);
+      }, timeout);
+    }
+
+    return function () {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [timeout, hasCopied]);
+  return {
+    value: text,
+    onCopy: onCopy,
+    hasCopied: hasCopied
+  };
+}
+
+/**
+ * Creates a constant value over the lifecycle of a component.
+ *
+ * Even if `useMemo` is provided an empty array as its final argument, it doesn't offer
+ * a guarantee that it won't re-run for performance reasons later on. By using `useConst`
+ * you can ensure that initializers don't execute twice or more.
+ */
+function useConst(init) {
+  // Use useRef to store the value because it's the least expensive built-in
+  // hook that works here. We could also use `useState` but that's more
+  // expensive internally due to reducer handling which we don't need.
+  var ref = useRef(null);
+
+  if (ref.current === null) {
+    ref.current = typeof init === "function" ? init() : init;
+  }
+
+  return ref.current;
+}
+
+function useControllableProp(prop, state) {
+  var isControlled = prop !== undefined;
+  var value = isControlled && typeof prop !== "undefined" ? prop : state;
+  return [isControlled, value];
+}
+
+/**
+ * React hook for using controlling component state.
+ * @param props
+ */
+function useControllableState(props) {
+  var valueProp = props.value,
+      defaultValue = props.defaultValue,
+      onChange = props.onChange,
+      _props$shouldUpdate = props.shouldUpdate,
+      shouldUpdate = _props$shouldUpdate === void 0 ? function (prev, next) {
+    return prev !== next;
+  } : _props$shouldUpdate;
+  var onChangeProp = use_animation_state_7f768610_esm_useCallbackRef(onChange);
+  var shouldUpdateProp = use_animation_state_7f768610_esm_useCallbackRef(shouldUpdate);
+
+  var _React$useState = react.useState(defaultValue),
+      valueState = _React$useState[0],
+      setValue = _React$useState[1];
+
+  var isControlled = valueProp !== undefined;
+  var value = isControlled ? valueProp : valueState;
+  var updateValue = react.useCallback(function (next) {
+    var nextValue = chakra_ui_utils_esm_runIfFn(next, value);
+
+    if (!shouldUpdateProp(value, nextValue)) {
+      return;
+    }
+
+    if (!isControlled) {
+      setValue(nextValue);
+    }
+
+    onChangeProp(nextValue);
+  }, [isControlled, onChangeProp, value, shouldUpdateProp]);
+  return [value, updateValue];
+}
+
+/**
+ * Reack hook to measure a component's dimensions
+ *
+ * @param ref ref of the component to measure
+ * @param observe if `true`, resize and scroll observers will be turned on
+ */
+
+function useDimensions(ref, observe) {
+  var _React$useState = React.useState(null),
+      dimensions = _React$useState[0],
+      setDimensions = _React$useState[1];
+
+  var rafId = React.useRef();
+  useSafeLayoutEffect(function () {
+    if (!ref.current) return undefined;
+    var node = ref.current;
+
+    function measure() {
+      rafId.current = requestAnimationFrame(function () {
+        var boxModel = getBox(node);
+        setDimensions(boxModel);
+      });
+    }
+
+    measure();
+
+    if (observe) {
+      window.addEventListener("resize", measure);
+      window.addEventListener("scroll", measure);
+    }
+
+    return function () {
+      if (observe) {
+        window.removeEventListener("resize", measure);
+        window.removeEventListener("scroll", measure);
+      }
+
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+      }
+    };
+  }, [observe]);
+  return dimensions;
+}
+
+function chakra_ui_hooks_esm_extends() {
+  chakra_ui_hooks_esm_extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return chakra_ui_hooks_esm_extends.apply(this, arguments);
+}
+
+// This implementation is heavily inspired by react-aria's implementation
+var defaultIdContext = {
+  current: 1
+};
+var IdContext = /*#__PURE__*/react.createContext(defaultIdContext);
+var IdProvider = /*#__PURE__*/react.memo(function (_ref) {
+  var children = _ref.children;
+  return /*#__PURE__*/react.createElement(IdContext.Provider, {
+    value: {
+      current: 1
+    }
+  }, children);
+});
+
+var genId = function genId(context) {
+  return context.current++;
+};
+
+function chakra_ui_hooks_esm_useId(idProp, prefix) {
+  var context = react.useContext(IdContext);
+  /*
+      We get the current id by context and generate a new id inside useEffect so that the side effects occur during the commit phase,
+      Doing this prevents the side effects from being called twice when used with strict mode (render() in function component is the function body), which ends up making the server with the client not synchronized
+  */
+
+  var _React$useState = react.useState(context.current),
+      id = _React$useState[0],
+      setId = _React$useState[1];
+
+  react.useEffect(function () {
+    setId(genId(context));
+  }, [context]);
+  return react.useMemo(function () {
+    return idProp || [prefix, id].filter(Boolean).join("-");
+  }, [idProp, prefix, id]);
+}
+/**
+ * Reack hook to generate ids for use in compound components
+ *
+ * @param idProp the external id passed from the user
+ * @param prefixes array of prefixes to use
+ *
+ * @example
+ *
+ * ```js
+ * const [buttonId, menuId] = useIds("52", "button", "menu")
+ *
+ * // buttonId will be `button-52`
+ * // menuId will be `menu-52`
+ * ```
+ */
+
+function useIds(idProp) {
+  for (var _len = arguments.length, prefixes = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    prefixes[_key - 1] = arguments[_key];
+  }
+
+  var id = chakra_ui_hooks_esm_useId(idProp);
+  return react.useMemo(function () {
+    return prefixes.map(function (prefix) {
+      return prefix + "-" + id;
+    });
+  }, [id, prefixes]);
+}
+/**
+ * Used to generate an id, and after render, check if that id is rendered so we know
+ * if we can use it in places such as `aria-labelledby`.
+ *
+ * @param partId - The unique id for the component part
+ *
+ * @example
+ * const { ref, id } = useOptionalPart<HTMLInputElement>(`${id}-label`)
+ */
+
+function useOptionalPart(partId) {
+  var _React$useState2 = React.useState(null),
+      id = _React$useState2[0],
+      setId = _React$useState2[1];
+
+  var ref = React.useCallback(function (node) {
+    setId(node ? partId : null);
+  }, [partId]);
+  return {
+    ref: ref,
+    id: id,
+    isRendered: Boolean(id)
+  };
+}
+
+function useDisclosure(props) {
+  if (props === void 0) {
+    props = {};
+  }
+
+  var _props = props,
+      onCloseProp = _props.onClose,
+      onOpenProp = _props.onOpen,
+      isOpenProp = _props.isOpen,
+      idProp = _props.id;
+  var onOpenPropCallbackRef = use_animation_state_7f768610_esm_useCallbackRef(onOpenProp);
+  var onClosePropCallbackRef = use_animation_state_7f768610_esm_useCallbackRef(onCloseProp);
+
+  var _React$useState = react.useState(props.defaultIsOpen || false),
+      isOpenState = _React$useState[0],
+      setIsOpen = _React$useState[1];
+
+  var _useControllableProp = useControllableProp(isOpenProp, isOpenState),
+      isControlled = _useControllableProp[0],
+      isOpen = _useControllableProp[1];
+
+  var id = chakra_ui_hooks_esm_useId(idProp, "disclosure");
+  var onClose = react.useCallback(function () {
+    if (!isControlled) {
+      setIsOpen(false);
+    }
+
+    onClosePropCallbackRef == null ? void 0 : onClosePropCallbackRef();
+  }, [isControlled, onClosePropCallbackRef]);
+  var onOpen = react.useCallback(function () {
+    if (!isControlled) {
+      setIsOpen(true);
+    }
+
+    onOpenPropCallbackRef == null ? void 0 : onOpenPropCallbackRef();
+  }, [isControlled, onOpenPropCallbackRef]);
+  var onToggle = react.useCallback(function () {
+    var action = isOpen ? onClose : onOpen;
+    action();
+  }, [isOpen, onOpen, onClose]);
+  return {
+    isOpen: !!isOpen,
+    onOpen: onOpen,
+    onClose: onClose,
+    onToggle: onToggle,
+    isControlled: isControlled,
+    getButtonProps: function getButtonProps(props) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      return chakra_ui_hooks_esm_extends({}, props, {
+        "aria-expanded": "true",
+        "aria-controls": id,
+        onClick: callAllHandlers(props.onClick, onToggle)
+      });
+    },
+    getDisclosureProps: function getDisclosureProps(props) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      return chakra_ui_hooks_esm_extends({}, props, {
+        hidden: !isOpen,
+        id: id
+      });
+    }
+  };
+}
+
+/**
+ * React hook for performant `useCallbacks`
+ *
+ * @see https://github.com/facebook/react/issues/14099#issuecomment-440013892
+ *
+ * @deprecated Use `useCallbackRef` instead. `useEventCallback` will be removed
+ * in a future version.
+ */
+
+function useEventCallback(callback) {
+  var ref = React.useRef(callback);
+  useSafeLayoutEffect(function () {
+    ref.current = callback;
+  });
+  return React.useCallback(function (event) {
+    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    return ref.current.apply(ref, [event].concat(args));
+  }, []);
+}
+
+function useEventListenerMap() {
+  var listeners = React.useRef(new Map());
+  var currentListeners = listeners.current;
+  var add = React.useCallback(function (el, type, listener, options) {
+    var pointerEventListener = wrapPointerEventHandler(listener, type === "pointerdown");
+    listeners.current.set(listener, {
+      __listener: pointerEventListener,
+      type: getPointerEventName(type),
+      el: el,
+      options: options
+    });
+    el.addEventListener(type, pointerEventListener, options);
+  }, []);
+  var remove = React.useCallback(function (el, type, listener, options) {
+    var _listeners$current$ge = listeners.current.get(listener),
+        pointerEventListener = _listeners$current$ge.__listener;
+
+    el.removeEventListener(type, pointerEventListener, options);
+    listeners.current["delete"](pointerEventListener);
+  }, []);
+  React.useEffect(function () {
+    return function () {
+      currentListeners.forEach(function (value, key) {
+        remove(value.el, value.type, key, value.options);
+      });
+    };
+  }, [remove, currentListeners]);
+  return {
+    add: add,
+    remove: remove
+  };
+}
+
+/**
+ * React effect hook that invokes only on update.
+ * It doesn't invoke on mount
+ */
+
+var useUpdateEffect = function useUpdateEffect(effect, deps) {
+  var mounted = react.useRef(false);
+  react.useEffect(function () {
+    if (mounted.current) {
+      return effect();
+    }
+
+    mounted.current = true;
+    return undefined; // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return mounted.current;
+};
+
+/**
+ * React hook to focus an element conditionally
+ *
+ * @param ref the ref of the element to focus
+ * @param options focus management options
+ */
+function useFocusEffect(ref, options) {
+  var shouldFocus = options.shouldFocus,
+      preventScroll = options.preventScroll;
+  useUpdateEffect(function () {
+    var node = ref.current;
+    if (!node || !shouldFocus) return;
+
+    if (!hasFocusWithin(node)) {
+      focus(node, {
+        preventScroll: preventScroll,
+        nextTick: true
+      });
+    }
+  }, [shouldFocus, ref, preventScroll]);
+}
+
+function preventReturnFocus(containerRef) {
+  var el = containerRef.current;
+  if (!el) return false;
+  var activeElement = getActiveElement(el);
+  if (!activeElement) return false;
+  if (chakra_ui_utils_esm_contains(el, activeElement)) return false;
+  if (isTabbable(activeElement)) return true;
+  return false;
+}
+/**
+ * Popover hook to manage the focus when the popover closes or hides.
+ *
+ * We either want to return focus back to the popover trigger or
+ * let focus proceed normally if user moved to another interactive
+ * element in the viewport.
+ */
+
+
+function useFocusOnHide(containerRef, options) {
+  var shouldFocusProp = options.shouldFocus,
+      visible = options.visible,
+      focusRef = options.focusRef;
+  var shouldFocus = shouldFocusProp && !visible;
+  useUpdateEffect(function () {
+    if (!shouldFocus) return;
+
+    if (preventReturnFocus(containerRef)) {
+      return;
+    }
+
+    var el = (focusRef == null ? void 0 : focusRef.current) || containerRef.current;
+
+    if (el) {
+      chakra_ui_utils_esm_focus(el, {
+        nextTick: true
+      });
+    }
+  }, [shouldFocus, containerRef, focusRef]);
+}
+
+/**
+ * Credit goes to `framer-motion` of this useful utilities.
+ * License can be found here: https://github.com/framer/motion
+ */
+/**
+ * @internal
+ */
+
+function chakra_ui_hooks_esm_usePointerEvent(env, eventName, handler, options) {
+  return useEventListener(getPointerEventName(eventName), wrapPointerEventHandler(handler, eventName === "pointerdown"), env, options);
+}
+
+/**
+ * Polyfill to get `relatedTarget` working correctly consistently
+ * across all browsers.
+ *
+ * It ensures that elements receives focus on pointer down if
+ * it's not the active active element.
+ *
+ * @internal
+ */
+function useFocusOnPointerDown(props) {
+  var ref = props.ref,
+      elements = props.elements,
+      enabled = props.enabled;
+  var isSafari = detectBrowser("Safari");
+
+  var doc = function doc() {
+    return getOwnerDocument(ref.current);
+  };
+
+  chakra_ui_hooks_esm_usePointerEvent(doc, "pointerdown", function (event) {
+    if (!isSafari || !enabled) return;
+    var target = event.target;
+    var els = elements != null ? elements : [ref];
+    var isValidTarget = els.some(function (elementOrRef) {
+      var el = isRefObject(elementOrRef) ? elementOrRef.current : elementOrRef;
+      return contains(el, target);
+    });
+
+    if (!isActiveElement(target) && isValidTarget) {
+      event.preventDefault();
+      focus(target);
+    }
+  });
+}
+
+var defaultOptions = {
+  preventScroll: true,
+  shouldFocus: false
+};
+function useFocusOnShow(target, options) {
+  if (options === void 0) {
+    options = defaultOptions;
+  }
+
+  var _options = options,
+      focusRef = _options.focusRef,
+      preventScroll = _options.preventScroll,
+      shouldFocus = _options.shouldFocus,
+      visible = _options.visible;
+  var element = isRefObject(target) ? target.current : target;
+  var autoFocus = shouldFocus && visible;
+  var onFocus = useCallback(function () {
+    if (!element || !autoFocus) return;
+    if (contains(element, document.activeElement)) return;
+
+    if (focusRef != null && focusRef.current) {
+      focus(focusRef.current, {
+        preventScroll: preventScroll,
+        nextTick: true
+      });
+    } else {
+      var tabbableEls = getAllFocusable(element);
+
+      if (tabbableEls.length > 0) {
+        focus(tabbableEls[0], {
+          preventScroll: preventScroll,
+          nextTick: true
+        });
+      }
+    }
+  }, [autoFocus, preventScroll, element, focusRef]);
+  useUpdateEffect(function () {
+    onFocus();
+  }, [onFocus]);
+  useEventListener("transitionend", onFocus, element);
+}
+
+function chakra_ui_hooks_esm_useUnmountEffect(fn, deps) {
+  if (deps === void 0) {
+    deps = [];
+  }
+
+  return react.useEffect(function () {
+    return function () {
+      return fn();
+    };
+  }, // eslint-disable-next-line react-hooks/exhaustive-deps
+  deps);
+}
+
+function useForceUpdate() {
+  var unloadingRef = react.useRef(false);
+
+  var _React$useState = react.useState(0),
+      count = _React$useState[0],
+      setCount = _React$useState[1];
+
+  chakra_ui_hooks_esm_useUnmountEffect(function () {
+    unloadingRef.current = true;
+  });
+  return react.useCallback(function () {
+    if (!unloadingRef.current) {
+      setCount(count + 1);
+    }
+  }, [count]);
+}
+
+/**
+ * React Hook that provides a declarative `setInterval`
+ *
+ * @param callback the callback to execute at interval
+ * @param delay the `setInterval` delay (in ms)
+ */
+
+function useInterval(callback, delay) {
+  var fn = useCallbackRef(callback);
+  React.useEffect(function () {
+    var intervalId = null;
+
+    var tick = function tick() {
+      return fn();
+    };
+
+    if (delay !== null) {
+      intervalId = window.setInterval(tick, delay);
+    }
+
+    return function () {
+      if (intervalId) {
+        window.clearInterval(intervalId);
+      }
+    };
+  }, [delay, fn]);
+}
+
+/**
+ * React hook to persist any value between renders,
+ * but keeps it up-to-date if it changes.
+ *
+ * @param value the value or function to persist
+ */
+
+function useLatestRef(value) {
+  var ref = react.useRef(null);
+  ref.current = value;
+  return ref;
+}
+
+/* eslint-disable react-hooks/exhaustive-deps */
+function chakra_ui_hooks_esm_assignRef(ref, value) {
+  if (ref == null) return;
+
+  if (typeof ref === "function") {
+    ref(value);
+    return;
+  }
+
+  try {
+    // @ts-ignore
+    ref.current = value;
+  } catch (error) {
+    throw new Error("Cannot assign value '" + value + "' to ref '" + ref + "'");
+  }
+}
+/**
+ * React hook that merges react refs into a single memoized function
+ *
+ * @example
+ * import React from "react";
+ * import { useMergeRefs } from `@chakra-ui/hooks`;
+ *
+ * const Component = React.forwardRef((props, ref) => {
+ *   const internalRef = React.useRef();
+ *   return <div {...props} ref={useMergeRefs(internalRef, ref)} />;
+ * });
+ */
+
+function useMergeRefs() {
+  for (var _len = arguments.length, refs = new Array(_len), _key = 0; _key < _len; _key++) {
+    refs[_key] = arguments[_key];
+  }
+
+  return react.useMemo(function () {
+    if (refs.every(function (ref) {
+      return ref == null;
+    })) {
+      return null;
+    }
+
+    return function (node) {
+      refs.forEach(function (ref) {
+        if (ref) chakra_ui_hooks_esm_assignRef(ref, node);
+      });
+    };
+  }, refs);
+}
+
+/**
+ * @deprecated `useMouseDownRef` will be removed in a future version.
+ */
+
+function useMouseDownRef(shouldListen) {
+  if (shouldListen === void 0) {
+    shouldListen = true;
+  }
+
+  var mouseDownRef = React__default.useRef();
+  useEventListener("mousedown", function (event) {
+    if (shouldListen) {
+      mouseDownRef.current = event.target;
+    }
+  });
+  return mouseDownRef;
+}
+
+/**
+ * Example, used in components like Dialogs and Popovers so they can close
+ * when a user clicks outside them.
+ */
+function useOutsideClick(props) {
+  var ref = props.ref,
+      handler = props.handler,
+      _props$enabled = props.enabled,
+      enabled = _props$enabled === void 0 ? true : _props$enabled;
+  var savedHandler = use_animation_state_7f768610_esm_useCallbackRef(handler);
+  var stateRef = (0,react.useRef)({
+    isPointerDown: false,
+    ignoreEmulatedMouseEvents: false
+  });
+  var state = stateRef.current;
+  (0,react.useEffect)(function () {
+    if (!enabled) return;
+
+    var onPointerDown = function onPointerDown(e) {
+      if (isValidEvent(e, ref)) {
+        state.isPointerDown = true;
+      }
+    };
+
+    var onMouseUp = function onMouseUp(event) {
+      if (state.ignoreEmulatedMouseEvents) {
+        state.ignoreEmulatedMouseEvents = false;
+        return;
+      }
+
+      if (state.isPointerDown && handler && isValidEvent(event, ref)) {
+        state.isPointerDown = false;
+        savedHandler(event);
+      }
+    };
+
+    var onTouchEnd = function onTouchEnd(event) {
+      state.ignoreEmulatedMouseEvents = true;
+
+      if (handler && state.isPointerDown && isValidEvent(event, ref)) {
+        state.isPointerDown = false;
+        savedHandler(event);
+      }
+    };
+
+    var doc = chakra_ui_utils_esm_getOwnerDocument(ref.current);
+    doc.addEventListener("mousedown", onPointerDown, true);
+    doc.addEventListener("mouseup", onMouseUp, true);
+    doc.addEventListener("touchstart", onPointerDown, true);
+    doc.addEventListener("touchend", onTouchEnd, true);
+    return function () {
+      doc.removeEventListener("mousedown", onPointerDown, true);
+      doc.removeEventListener("mouseup", onMouseUp, true);
+      doc.removeEventListener("touchstart", onPointerDown, true);
+      doc.removeEventListener("touchend", onTouchEnd, true);
+    };
+  }, [handler, ref, savedHandler, state, enabled]);
+}
+
+function isValidEvent(event, ref) {
+  var _ref$current;
+
+  var target = event.target;
+  if (event.button > 0) return false; // if the event target is no longer in the document
+
+  if (target) {
+    var doc = chakra_ui_utils_esm_getOwnerDocument(target);
+    if (!doc.body.contains(target)) return false;
+  }
+
+  return !((_ref$current = ref.current) != null && _ref$current.contains(target));
+}
+
+function chakra_ui_hooks_esm_usePanGesture(ref, props) {
+  var onPan = props.onPan,
+      onPanStart = props.onPanStart,
+      onPanEnd = props.onPanEnd,
+      onPanSessionStart = props.onPanSessionStart,
+      onPanSessionEnd = props.onPanSessionEnd,
+      threshold = props.threshold;
+  var hasPanEvents = Boolean(onPan || onPanStart || onPanEnd || onPanSessionStart || onPanSessionEnd);
+  var panSession = useRef(null);
+  var handlers = {
+    onSessionStart: onPanSessionStart,
+    onSessionEnd: onPanSessionEnd,
+    onStart: onPanStart,
+    onMove: onPan,
+    onEnd: function onEnd(event, info) {
+      panSession.current = null;
+      onPanEnd == null ? void 0 : onPanEnd(event, info);
+    }
+  };
+  useEffect(function () {
+    var _panSession$current;
+
+    (_panSession$current = panSession.current) == null ? void 0 : _panSession$current.updateHandlers(handlers);
+  });
+
+  function onPointerDown(event) {
+    panSession.current = new PanSession(event, handlers, threshold);
+  }
+
+  chakra_ui_hooks_esm_usePointerEvent(function () {
+    return ref.current;
+  }, "pointerdown", hasPanEvents ? onPointerDown : noop);
+  chakra_ui_hooks_esm_useUnmountEffect(function () {
+    var _panSession$current2;
+
+    (_panSession$current2 = panSession.current) == null ? void 0 : _panSession$current2.end();
+    panSession.current = null;
+  });
+}
+
+function usePrevious(value) {
+  var ref = useRef();
+  useEffect(function () {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
+
+/**
+ * Checks if the key pressed is a printable character
+ * and can be used for shortcut navigation
+ */
+
+function isPrintableCharacter(event) {
+  var key = event.key;
+  return key.length === 1 || key.length > 1 && /[^a-zA-Z0-9]/.test(key);
+}
+
+/**
+ * React hook that provides an enhanced keydown handler,
+ * that's used for key navigation within menus, select dropdowns.
+ */
+function useShortcut(props) {
+  if (props === void 0) {
+    props = {};
+  }
+
+  var _props = props,
+      _props$timeout = _props.timeout,
+      timeout = _props$timeout === void 0 ? 300 : _props$timeout,
+      _props$preventDefault = _props.preventDefault,
+      preventDefault = _props$preventDefault === void 0 ? function () {
+    return true;
+  } : _props$preventDefault;
+
+  var _React$useState = react.useState([]),
+      keys = _React$useState[0],
+      setKeys = _React$useState[1];
+
+  var timeoutRef = react.useRef();
+
+  var flush = function flush() {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
+
+  var clearKeysAfterDelay = function clearKeysAfterDelay() {
+    flush();
+    timeoutRef.current = setTimeout(function () {
+      setKeys([]);
+      timeoutRef.current = null;
+    }, timeout);
+  };
+
+  react.useEffect(function () {
+    return flush;
+  }, []);
+
+  function onKeyDown(fn) {
+    return function (event) {
+      if (event.key === "Backspace") {
+        var keysCopy = [].concat(keys);
+        keysCopy.pop();
+        setKeys(keysCopy);
+        return;
+      }
+
+      if (isPrintableCharacter(event)) {
+        var _keysCopy = keys.concat(event.key);
+
+        if (preventDefault(event)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        setKeys(_keysCopy);
+        fn(_keysCopy.join(""));
+        clearKeysAfterDelay();
+      }
+    };
+  }
+
+  return onKeyDown;
+}
+
+/**
+ * React hook that provides a declarative `setTimeout`
+ *
+ * @param callback the callback to run after specified delay
+ * @param delay the delay (in ms)
+ */
+
+function useTimeout(callback, delay) {
+  var fn = use_animation_state_7f768610_esm_useCallbackRef(callback);
+  react.useEffect(function () {
+    if (delay == null) return undefined;
+    var timeoutId = null;
+    timeoutId = window.setTimeout(function () {
+      fn();
+    }, delay);
+    return function () {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [delay, fn]);
+}
+
+function useWhyDidYouUpdate(name, props) {
+  var previousProps = React.useRef();
+  React.useEffect(function () {
+    if (previousProps.current) {
+      var allKeys = Object.keys(chakra_ui_hooks_esm_extends({}, previousProps.current, props));
+      var changesObj = {};
+      allKeys.forEach(function (key) {
+        if (previousProps.current[key] !== props[key]) {
+          changesObj[key] = {
+            from: previousProps.current[key],
+            to: props[key]
+          };
+        }
+      });
+
+      if (Object.keys(changesObj).length) {
+        console.log("[why-did-you-update]", name, changesObj);
+      }
+    }
+
+    previousProps.current = props;
+  });
+}
+
+
+
 ;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/hooks/use-animation-state/dist/chakra-ui-hooks-use-animation-state.esm.js
 
 
@@ -52426,7 +51953,7 @@ function useMenu(props) {
     focusMenu();
   }, [onOpen, focusMenu]);
   var timeoutIds = react.useRef(new Set([]));
-  useUnmountEffect(function () {
+  chakra_ui_hooks_esm_useUnmountEffect(function () {
     timeoutIds.current.forEach(function (id) {
       return clearTimeout(id);
     });
@@ -52708,7 +52235,7 @@ function useMenuItem(props, externalRef) {
       isOpen = menu.isOpen,
       menuId = menu.menuId;
   var ref = react.useRef(null);
-  var id = menuId + "-menuitem-" + useId();
+  var id = menuId + "-menuitem-" + chakra_ui_hooks_esm_useId();
   /**
    * Register the menuitem's node into the domContext
    */
@@ -53235,6 +52762,479 @@ var MenuDivider = function MenuDivider(props) {
 
 if (__DEV__) {
   MenuDivider.displayName = "MenuDivider";
+}
+
+
+
+;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/visually-hidden/dist/chakra-ui-visually-hidden.esm.js
+
+
+
+/**
+ * Styles to visually hide an element
+ * but make it accessible to screen-readers
+ */
+var visuallyHiddenStyle = {
+  border: "0px",
+  clip: "rect(0px, 0px, 0px, 0px)",
+  height: "1px",
+  width: "1px",
+  margin: "-1px",
+  padding: "0px",
+  overflow: "hidden",
+  whiteSpace: "nowrap",
+  position: "absolute"
+};
+/**
+ * Visually hidden component used to hide
+ * elements on screen
+ */
+
+var VisuallyHidden = chakra_ui_system_esm_chakra("span", {
+  baseStyle: visuallyHiddenStyle
+});
+
+if (__DEV__) {
+  VisuallyHidden.displayName = "VisuallyHidden";
+}
+/**
+ * Visually hidden input component for designing
+ * custom input components using the html `input`
+ * as a proxy
+ */
+
+
+var VisuallyHiddenInput = chakra_ui_system_esm_chakra("input", {
+  baseStyle: visuallyHiddenStyle
+});
+
+if (__DEV__) {
+  VisuallyHiddenInput.displayName = "VisuallyHiddenInput";
+}
+
+var VisuallyHidden$1 = (/* unused pure expression or super */ null && (VisuallyHidden));
+
+
+
+;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/spinner/dist/chakra-ui-spinner.esm.js
+
+
+
+
+
+function chakra_ui_spinner_esm_extends() {
+  chakra_ui_spinner_esm_extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return chakra_ui_spinner_esm_extends.apply(this, arguments);
+}
+
+function chakra_ui_spinner_esm_objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+var chakra_ui_spinner_esm_excluded = ["label", "thickness", "speed", "emptyColor", "className"];
+var spin = keyframes({
+  "0%": {
+    transform: "rotate(0deg)"
+  },
+  "100%": {
+    transform: "rotate(360deg)"
+  }
+});
+
+/**
+ * Spinner is used to indicate the loading state of a page or a component,
+ * It renders a `div` by default.
+ *
+ * @see Docs https://chakra-ui.com/spinner
+ */
+var Spinner = /*#__PURE__*/chakra_ui_system_esm_forwardRef(function (props, ref) {
+  var styles = useStyleConfig("Spinner", props);
+
+  var _omitThemingProps = omitThemingProps(props),
+      _omitThemingProps$lab = _omitThemingProps.label,
+      label = _omitThemingProps$lab === void 0 ? "Loading..." : _omitThemingProps$lab,
+      _omitThemingProps$thi = _omitThemingProps.thickness,
+      thickness = _omitThemingProps$thi === void 0 ? "2px" : _omitThemingProps$thi,
+      _omitThemingProps$spe = _omitThemingProps.speed,
+      speed = _omitThemingProps$spe === void 0 ? "0.45s" : _omitThemingProps$spe,
+      _omitThemingProps$emp = _omitThemingProps.emptyColor,
+      emptyColor = _omitThemingProps$emp === void 0 ? "transparent" : _omitThemingProps$emp,
+      className = _omitThemingProps.className,
+      rest = chakra_ui_spinner_esm_objectWithoutPropertiesLoose(_omitThemingProps, chakra_ui_spinner_esm_excluded);
+
+  var _className = chakra_ui_utils_esm_cx("chakra-spinner", className);
+
+  var spinnerStyles = chakra_ui_spinner_esm_extends({
+    display: "inline-block",
+    borderColor: "currentColor",
+    borderStyle: "solid",
+    borderRadius: "99999px",
+    borderWidth: thickness,
+    borderBottomColor: emptyColor,
+    borderLeftColor: emptyColor,
+    animation: spin + " " + speed + " linear infinite"
+  }, styles);
+
+  return /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.div, chakra_ui_spinner_esm_extends({
+    ref: ref,
+    __css: spinnerStyles,
+    className: _className
+  }, rest), label && /*#__PURE__*/react.createElement(VisuallyHidden, null, label));
+});
+
+if (__DEV__) {
+  Spinner.displayName = "Spinner";
+}
+
+
+
+;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/button/dist/chakra-ui-button.esm.js
+
+
+
+
+
+
+
+function chakra_ui_button_esm_objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function chakra_ui_button_esm_extends() {
+  chakra_ui_button_esm_extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return chakra_ui_button_esm_extends.apply(this, arguments);
+}
+
+var chakra_ui_button_esm_excluded$4 = ["size", "colorScheme", "variant", "className", "spacing", "isAttached", "isDisabled"];
+
+var chakra_ui_button_esm_createContext = chakra_ui_react_utils_esm_createContext({
+  strict: false,
+  name: "ButtonGroupContext"
+}),
+    ButtonGroupProvider = chakra_ui_button_esm_createContext[0],
+    useButtonGroup = chakra_ui_button_esm_createContext[1];
+var ButtonGroup = /*#__PURE__*/chakra_ui_system_esm_forwardRef(function (props, ref) {
+  var size = props.size,
+      colorScheme = props.colorScheme,
+      variant = props.variant,
+      className = props.className,
+      _props$spacing = props.spacing,
+      spacing = _props$spacing === void 0 ? "0.5rem" : _props$spacing,
+      isAttached = props.isAttached,
+      isDisabled = props.isDisabled,
+      rest = chakra_ui_button_esm_objectWithoutPropertiesLoose(props, chakra_ui_button_esm_excluded$4);
+
+  var _className = chakra_ui_utils_esm_cx("chakra-button__group", className);
+
+  var context = react.useMemo(function () {
+    return {
+      size: size,
+      colorScheme: colorScheme,
+      variant: variant,
+      isDisabled: isDisabled
+    };
+  }, [size, colorScheme, variant, isDisabled]);
+  var groupStyles = {
+    display: "inline-flex"
+  };
+
+  if (isAttached) {
+    groupStyles = chakra_ui_button_esm_extends({}, groupStyles, {
+      "> *:first-of-type:not(:last-of-type)": {
+        borderEndRadius: 0
+      },
+      "> *:not(:first-of-type):not(:last-of-type)": {
+        borderRadius: 0
+      },
+      "> *:not(:first-of-type):last-of-type": {
+        borderStartRadius: 0
+      }
+    });
+  } else {
+    groupStyles = chakra_ui_button_esm_extends({}, groupStyles, {
+      "& > *:not(style) ~ *:not(style)": {
+        marginStart: spacing
+      }
+    });
+  }
+
+  return /*#__PURE__*/react.createElement(ButtonGroupProvider, {
+    value: context
+  }, /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.div, chakra_ui_button_esm_extends({
+    ref: ref,
+    role: "group",
+    __css: groupStyles,
+    className: _className
+  }, rest)));
+});
+
+if (__DEV__) {
+  ButtonGroup.displayName = "ButtonGroup";
+}
+
+var chakra_ui_button_esm_excluded$3 = ["label", "placement", "spacing", "children", "className", "__css"];
+var ButtonSpinner = function ButtonSpinner(props) {
+  var label = props.label,
+      placement = props.placement,
+      _props$spacing = props.spacing,
+      spacing = _props$spacing === void 0 ? "0.5rem" : _props$spacing,
+      _props$children = props.children,
+      children = _props$children === void 0 ? /*#__PURE__*/react.createElement(Spinner, {
+    color: "currentColor",
+    width: "1em",
+    height: "1em"
+  }) : _props$children,
+      className = props.className,
+      __css = props.__css,
+      rest = chakra_ui_button_esm_objectWithoutPropertiesLoose(props, chakra_ui_button_esm_excluded$3);
+
+  var _className = chakra_ui_utils_esm_cx("chakra-button__spinner", className);
+
+  var marginProp = placement === "start" ? "marginEnd" : "marginStart";
+  var spinnerStyles = react.useMemo(function () {
+    var _extends2;
+
+    return chakra_ui_button_esm_extends((_extends2 = {
+      display: "flex",
+      alignItems: "center",
+      position: label ? "relative" : "absolute"
+    }, _extends2[marginProp] = label ? spacing : 0, _extends2.fontSize = "1em", _extends2.lineHeight = "normal", _extends2), __css);
+  }, [__css, label, marginProp, spacing]);
+  return /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.div, chakra_ui_button_esm_extends({
+    className: _className
+  }, rest, {
+    __css: spinnerStyles
+  }), children);
+};
+
+if (__DEV__) {
+  ButtonSpinner.displayName = "ButtonSpinner";
+}
+
+var chakra_ui_button_esm_excluded$2 = ["children", "className"];
+var ButtonIcon = function ButtonIcon(props) {
+  var children = props.children,
+      className = props.className,
+      rest = chakra_ui_button_esm_objectWithoutPropertiesLoose(props, chakra_ui_button_esm_excluded$2);
+
+  var _children = /*#__PURE__*/react.isValidElement(children) ? /*#__PURE__*/react.cloneElement(children, {
+    "aria-hidden": true,
+    focusable: false
+  }) : children;
+
+  var _className = chakra_ui_utils_esm_cx("chakra-button__icon", className);
+
+  return /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.span, chakra_ui_button_esm_extends({
+    display: "inline-flex",
+    alignSelf: "center",
+    flexShrink: 0
+  }, rest, {
+    className: _className
+  }), _children);
+};
+
+if (__DEV__) {
+  ButtonIcon.displayName = "ButtonIcon";
+}
+
+function useButtonType(value) {
+  var _React$useState = react.useState(!value),
+      isButton = _React$useState[0],
+      setIsButton = _React$useState[1];
+
+  var refCallback = react.useCallback(function (node) {
+    if (!node) return;
+    setIsButton(node.tagName === "BUTTON");
+  }, []);
+  var type = isButton ? "button" : undefined;
+  return {
+    ref: refCallback,
+    type: type
+  };
+}
+
+var chakra_ui_button_esm_excluded$1 = ["isDisabled", "isLoading", "isActive", "isFullWidth", "children", "leftIcon", "rightIcon", "loadingText", "iconSpacing", "type", "spinner", "spinnerPlacement", "className", "as"];
+var Button = /*#__PURE__*/chakra_ui_system_esm_forwardRef(function (props, ref) {
+  var group = useButtonGroup();
+  var styles = useStyleConfig("Button", chakra_ui_button_esm_extends({}, group, props));
+
+  var _omitThemingProps = omitThemingProps(props),
+      _omitThemingProps$isD = _omitThemingProps.isDisabled,
+      isDisabled = _omitThemingProps$isD === void 0 ? group == null ? void 0 : group.isDisabled : _omitThemingProps$isD,
+      isLoading = _omitThemingProps.isLoading,
+      isActive = _omitThemingProps.isActive,
+      isFullWidth = _omitThemingProps.isFullWidth,
+      children = _omitThemingProps.children,
+      leftIcon = _omitThemingProps.leftIcon,
+      rightIcon = _omitThemingProps.rightIcon,
+      loadingText = _omitThemingProps.loadingText,
+      _omitThemingProps$ico = _omitThemingProps.iconSpacing,
+      iconSpacing = _omitThemingProps$ico === void 0 ? "0.5rem" : _omitThemingProps$ico,
+      type = _omitThemingProps.type,
+      spinner = _omitThemingProps.spinner,
+      _omitThemingProps$spi = _omitThemingProps.spinnerPlacement,
+      spinnerPlacement = _omitThemingProps$spi === void 0 ? "start" : _omitThemingProps$spi,
+      className = _omitThemingProps.className,
+      as = _omitThemingProps.as,
+      rest = chakra_ui_button_esm_objectWithoutPropertiesLoose(_omitThemingProps, chakra_ui_button_esm_excluded$1);
+  /**
+   * When button is used within ButtonGroup (i.e flushed with sibling buttons),
+   * it is important to add a `zIndex` on focus.
+   *
+   * So let's read the component styles and then add `zIndex` to it.
+   */
+
+
+  var buttonStyles = react.useMemo(function () {
+    var _styles$_focus;
+
+    var _focus = lodash_mergewith_default()({}, (_styles$_focus = styles == null ? void 0 : styles["_focus"]) != null ? _styles$_focus : {}, {
+      zIndex: 1
+    });
+
+    return chakra_ui_button_esm_extends({
+      display: "inline-flex",
+      appearance: "none",
+      alignItems: "center",
+      justifyContent: "center",
+      userSelect: "none",
+      position: "relative",
+      whiteSpace: "nowrap",
+      verticalAlign: "middle",
+      outline: "none",
+      width: isFullWidth ? "100%" : "auto"
+    }, styles, !!group && {
+      _focus: _focus
+    });
+  }, [styles, group, isFullWidth]);
+
+  var _useButtonType = useButtonType(as),
+      _ref = _useButtonType.ref,
+      defaultType = _useButtonType.type;
+
+  var contentProps = {
+    rightIcon: rightIcon,
+    leftIcon: leftIcon,
+    iconSpacing: iconSpacing,
+    children: children
+  };
+  return /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.button, chakra_ui_button_esm_extends({
+    disabled: isDisabled || isLoading,
+    ref: useMergeRefs(ref, _ref),
+    as: as,
+    type: type != null ? type : defaultType,
+    "data-active": dataAttr(isActive),
+    "data-loading": dataAttr(isLoading),
+    __css: buttonStyles,
+    className: chakra_ui_utils_esm_cx("chakra-button", className)
+  }, rest), isLoading && spinnerPlacement === "start" && /*#__PURE__*/react.createElement(ButtonSpinner, {
+    className: "chakra-button__spinner--start",
+    label: loadingText,
+    placement: "start",
+    spacing: iconSpacing
+  }, spinner), isLoading ? loadingText || /*#__PURE__*/react.createElement(chakra_ui_system_esm_chakra.span, {
+    opacity: 0
+  }, /*#__PURE__*/react.createElement(ButtonContent, contentProps)) : /*#__PURE__*/react.createElement(ButtonContent, contentProps), isLoading && spinnerPlacement === "end" && /*#__PURE__*/react.createElement(ButtonSpinner, {
+    className: "chakra-button__spinner--end",
+    label: loadingText,
+    placement: "end",
+    spacing: iconSpacing
+  }, spinner));
+});
+
+if (__DEV__) {
+  Button.displayName = "Button";
+}
+
+function ButtonContent(props) {
+  var leftIcon = props.leftIcon,
+      rightIcon = props.rightIcon,
+      children = props.children,
+      iconSpacing = props.iconSpacing;
+  return /*#__PURE__*/react.createElement(react.Fragment, null, leftIcon && /*#__PURE__*/react.createElement(ButtonIcon, {
+    marginEnd: iconSpacing
+  }, leftIcon), children, rightIcon && /*#__PURE__*/react.createElement(ButtonIcon, {
+    marginStart: iconSpacing
+  }, rightIcon));
+}
+
+var chakra_ui_button_esm_excluded = ["icon", "children", "isRound", "aria-label"];
+var IconButton = /*#__PURE__*/chakra_ui_system_esm_forwardRef(function (props, ref) {
+  var icon = props.icon,
+      children = props.children,
+      isRound = props.isRound,
+      ariaLabel = props["aria-label"],
+      rest = chakra_ui_button_esm_objectWithoutPropertiesLoose(props, chakra_ui_button_esm_excluded);
+  /**
+   * Passing the icon as prop or children should work
+   */
+
+
+  var element = icon || children;
+
+  var _children = /*#__PURE__*/react.isValidElement(element) ? /*#__PURE__*/react.cloneElement(element, {
+    "aria-hidden": true,
+    focusable: false
+  }) : null;
+
+  return /*#__PURE__*/react.createElement(Button, chakra_ui_button_esm_extends({
+    padding: "0",
+    borderRadius: isRound ? "full" : undefined,
+    ref: ref,
+    "aria-label": ariaLabel
+  }, rest), _children);
+});
+
+if (__DEV__) {
+  IconButton.displayName = "IconButton";
 }
 
 
@@ -53790,525 +53790,6 @@ var AvatarGroup = /*#__PURE__*/chakra_ui_system_esm_forwardRef(function (props, 
 if (__DEV__) {
   AvatarGroup.displayName = "AvatarGroup";
 }
-
-
-
-;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/icons/dist/chakra-ui-icons.esm.js
-
-
-
-
-var CopyIcon = createIcon({
-  d: "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z",
-  displayName: "CopyIcon"
-});
-
-var SearchIcon = createIcon({
-  d: "M23.384,21.619,16.855,15.09a9.284,9.284,0,1,0-1.768,1.768l6.529,6.529a1.266,1.266,0,0,0,1.768,0A1.251,1.251,0,0,0,23.384,21.619ZM2.75,9.5a6.75,6.75,0,1,1,6.75,6.75A6.758,6.758,0,0,1,2.75,9.5Z",
-  displayName: "SearchIcon"
-});
-
-var Search2Icon = createIcon({
-  d: "M23.414,20.591l-4.645-4.645a10.256,10.256,0,1,0-2.828,2.829l4.645,4.644a2.025,2.025,0,0,0,2.828,0A2,2,0,0,0,23.414,20.591ZM10.25,3.005A7.25,7.25,0,1,1,3,10.255,7.258,7.258,0,0,1,10.25,3.005Z",
-  displayName: "Search2Icon"
-});
-
-var MoonIcon = createIcon({
-  d: "M21.4,13.7C20.6,13.9,19.8,14,19,14c-5,0-9-4-9-9c0-0.8,0.1-1.6,0.3-2.4c0.1-0.3,0-0.7-0.3-1 c-0.3-0.3-0.6-0.4-1-0.3C4.3,2.7,1,7.1,1,12c0,6.1,4.9,11,11,11c4.9,0,9.3-3.3,10.6-8.1c0.1-0.3,0-0.7-0.3-1 C22.1,13.7,21.7,13.6,21.4,13.7z",
-  displayName: "MoonIcon"
-});
-
-var SunIcon = createIcon({
-  displayName: "SunIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    strokeLinejoin: "round",
-    strokeLinecap: "round",
-    strokeWidth: "2",
-    fill: "none",
-    stroke: "currentColor"
-  }, /*#__PURE__*/react.createElement("circle", {
-    cx: "12",
-    cy: "12",
-    r: "5"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M12 1v2"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M12 21v2"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M4.22 4.22l1.42 1.42"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M18.36 18.36l1.42 1.42"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M1 12h2"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M21 12h2"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M4.22 19.78l1.42-1.42"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M18.36 5.64l1.42-1.42"
-  }))
-});
-
-var AddIcon = createIcon({
-  d: "M0,12a1.5,1.5,0,0,0,1.5,1.5h8.75a.25.25,0,0,1,.25.25V22.5a1.5,1.5,0,0,0,3,0V13.75a.25.25,0,0,1,.25-.25H22.5a1.5,1.5,0,0,0,0-3H13.75a.25.25,0,0,1-.25-.25V1.5a1.5,1.5,0,0,0-3,0v8.75a.25.25,0,0,1-.25.25H1.5A1.5,1.5,0,0,0,0,12Z",
-  displayName: "AddIcon"
-});
-
-var SmallAddIcon = createIcon({
-  displayName: "SmallAddIcon",
-  viewBox: "0 0 20 20",
-  path: /*#__PURE__*/react.createElement("path", {
-    fill: "currentColor",
-    d: "M14 9h-3V6c0-.55-.45-1-1-1s-1 .45-1 1v3H6c-.55 0-1 .45-1 1s.45 1 1 1h3v3c0 .55.45 1 1 1s1-.45 1-1v-3h3c.55 0 1-.45 1-1s-.45-1-1-1z",
-    fillRule: "evenodd"
-  })
-});
-
-var SettingsIcon = createIcon({
-  viewBox: "0 0 14 14",
-  d: "M14,7.77 L14,6.17 L12.06,5.53 L11.61,4.44 L12.49,2.6 L11.36,1.47 L9.55,2.38 L8.46,1.93 L7.77,0.01 L6.17,0.01 L5.54,1.95 L4.43,2.4 L2.59,1.52 L1.46,2.65 L2.37,4.46 L1.92,5.55 L0,6.23 L0,7.82 L1.94,8.46 L2.39,9.55 L1.51,11.39 L2.64,12.52 L4.45,11.61 L5.54,12.06 L6.23,13.98 L7.82,13.98 L8.45,12.04 L9.56,11.59 L11.4,12.47 L12.53,11.34 L11.61,9.53 L12.08,8.44 L14,7.75 L14,7.77 Z M7,10 C5.34,10 4,8.66 4,7 C4,5.34 5.34,4 7,4 C8.66,4 10,5.34 10,7 C10,8.66 8.66,10 7,10 Z",
-  displayName: "SettingsIcon"
-});
-
-var CheckCircleIcon = createIcon({
-  displayName: "CheckCircleIcon",
-  d: "M12,0A12,12,0,1,0,24,12,12.014,12.014,0,0,0,12,0Zm6.927,8.2-6.845,9.289a1.011,1.011,0,0,1-1.43.188L5.764,13.769a1,1,0,1,1,1.25-1.562l4.076,3.261,6.227-8.451A1,1,0,1,1,18.927,8.2Z"
-});
-
-var LockIcon = createIcon({
-  d: "M19.5,9.5h-.75V6.75a6.75,6.75,0,0,0-13.5,0V9.5H4.5a2,2,0,0,0-2,2V22a2,2,0,0,0,2,2h15a2,2,0,0,0,2-2V11.5A2,2,0,0,0,19.5,9.5Zm-9.5,6a2,2,0,1,1,3,1.723V19.5a1,1,0,0,1-2,0V17.223A1.994,1.994,0,0,1,10,15.5ZM7.75,6.75a4.25,4.25,0,0,1,8.5,0V9a.5.5,0,0,1-.5.5H8.25a.5.5,0,0,1-.5-.5Z",
-  displayName: "LockIcon"
-});
-
-var UnlockIcon = createIcon({
-  d: "M19.5,9.5h-.75V6.75A6.751,6.751,0,0,0,5.533,4.811a1.25,1.25,0,1,0,2.395.717A4.251,4.251,0,0,1,16.25,6.75V9a.5.5,0,0,1-.5.5H4.5a2,2,0,0,0-2,2V22a2,2,0,0,0,2,2h15a2,2,0,0,0,2-2V11.5A2,2,0,0,0,19.5,9.5Zm-9.5,6a2,2,0,1,1,3,1.723V19.5a1,1,0,0,1-2,0V17.223A1.994,1.994,0,0,1,10,15.5Z",
-  displayName: "UnlockIcon"
-});
-
-var ViewIcon = createIcon({
-  displayName: "ViewIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M23.432,10.524C20.787,7.614,16.4,4.538,12,4.6,7.6,4.537,3.213,7.615.568,10.524a2.211,2.211,0,0,0,0,2.948C3.182,16.351,7.507,19.4,11.839,19.4h.308c4.347,0,8.671-3.049,11.288-5.929A2.21,2.21,0,0,0,23.432,10.524ZM7.4,12A4.6,4.6,0,1,1,12,16.6,4.6,4.6,0,0,1,7.4,12Z"
-  }), /*#__PURE__*/react.createElement("circle", {
-    cx: "12",
-    cy: "12",
-    r: "2"
-  }))
-});
-
-var ViewOffIcon = createIcon({
-  displayName: "ViewOffIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M23.2,10.549a20.954,20.954,0,0,0-4.3-3.6l4-3.995a1,1,0,1,0-1.414-1.414l-.018.018a.737.737,0,0,1-.173.291l-19.5,19.5c-.008.007-.018.009-.026.017a1,1,0,0,0,1.631,1.088l4.146-4.146a11.26,11.26,0,0,0,4.31.939h.3c4.256,0,8.489-2.984,11.051-5.8A2.171,2.171,0,0,0,23.2,10.549ZM16.313,13.27a4.581,4.581,0,0,1-3,3.028,4.3,4.3,0,0,1-3.1-.19.253.253,0,0,1-.068-.407l5.56-5.559a.252.252,0,0,1,.407.067A4.3,4.3,0,0,1,16.313,13.27Z"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M7.615,13.4a.244.244,0,0,0,.061-.24A4.315,4.315,0,0,1,7.5,12,4.5,4.5,0,0,1,12,7.5a4.276,4.276,0,0,1,1.16.173.244.244,0,0,0,.24-.062l1.941-1.942a.254.254,0,0,0-.1-.421A10.413,10.413,0,0,0,12,4.75C7.7,4.692,3.4,7.7.813,10.549a2.15,2.15,0,0,0-.007,2.9,21.209,21.209,0,0,0,3.438,3.03.256.256,0,0,0,.326-.029Z"
-  }))
-});
-
-var DownloadIcon = createIcon({
-  d: "M11.2857,6.05714 L10.08571,4.85714 L7.85714,7.14786 L7.85714,1 L6.14286,1 L6.14286,7.14786 L3.91429,4.85714 L2.71429,6.05714 L7,10.42857 L11.2857,6.05714 Z M1,11.2857 L1,13 L13,13 L13,11.2857 L1,11.2857 Z",
-  displayName: "DownloadIcon",
-  viewBox: "0 0 14 14"
-});
-
-var DeleteIcon = createIcon({
-  displayName: "DeleteIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M19.452 7.5H4.547a.5.5 0 00-.5.545l1.287 14.136A2 2 0 007.326 24h9.347a2 2 0 001.992-1.819L19.95 8.045a.5.5 0 00-.129-.382.5.5 0 00-.369-.163zm-9.2 13a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zm5 0a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zM22 4h-4.75a.25.25 0 01-.25-.25V2.5A2.5 2.5 0 0014.5 0h-5A2.5 2.5 0 007 2.5v1.25a.25.25 0 01-.25.25H2a1 1 0 000 2h20a1 1 0 000-2zM9 3.75V2.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5v1.25a.25.25 0 01-.25.25h-5.5A.25.25 0 019 3.75z"
-  }))
-});
-
-var RepeatIcon = createIcon({
-  displayName: "RepeatIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M10.319,4.936a7.239,7.239,0,0,1,7.1,2.252,1.25,1.25,0,1,0,1.872-1.657A9.737,9.737,0,0,0,9.743,2.5,10.269,10.269,0,0,0,2.378,9.61a.249.249,0,0,1-.271.178l-1.033-.13A.491.491,0,0,0,.6,9.877a.5.5,0,0,0-.019.526l2.476,4.342a.5.5,0,0,0,.373.248.43.43,0,0,0,.062,0,.5.5,0,0,0,.359-.152l3.477-3.593a.5.5,0,0,0-.3-.844L5.15,10.172a.25.25,0,0,1-.2-.333A7.7,7.7,0,0,1,10.319,4.936Z"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M23.406,14.1a.5.5,0,0,0,.015-.526l-2.5-4.329A.5.5,0,0,0,20.546,9a.489.489,0,0,0-.421.151l-3.456,3.614a.5.5,0,0,0,.3.842l1.848.221a.249.249,0,0,1,.183.117.253.253,0,0,1,.023.216,7.688,7.688,0,0,1-5.369,4.9,7.243,7.243,0,0,1-7.1-2.253,1.25,1.25,0,1,0-1.872,1.656,9.74,9.74,0,0,0,9.549,3.03,10.261,10.261,0,0,0,7.369-7.12.251.251,0,0,1,.27-.179l1.058.127a.422.422,0,0,0,.06,0A.5.5,0,0,0,23.406,14.1Z"
-  }))
-});
-
-var RepeatClockIcon = createIcon({
-  displayName: "RepeatClockIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M12.965,6a1,1,0,0,0-1,1v5.5a1,1,0,0,0,1,1h5a1,1,0,0,0,0-2h-3.75a.25.25,0,0,1-.25-.25V7A1,1,0,0,0,12.965,6Z"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M12.567,1.258A10.822,10.822,0,0,0,2.818,8.4a.25.25,0,0,1-.271.163L.858,8.309a.514.514,0,0,0-.485.213.5.5,0,0,0-.021.53l2.679,4.7a.5.5,0,0,0,.786.107l3.77-3.746a.5.5,0,0,0-.279-.85L5.593,9.007a.25.25,0,0,1-.192-.35,8.259,8.259,0,1,1,7.866,11.59,1.25,1.25,0,0,0,.045,2.5h.047a10.751,10.751,0,1,0-.792-21.487Z"
-  }))
-});
-
-var EditIcon = createIcon({
-  displayName: "EditIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "none",
-    stroke: "currentColor",
-    strokeLinecap: "round",
-    strokeWidth: "2"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-  }))
-});
-
-var ChevronLeftIcon = createIcon({
-  d: "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z",
-  displayName: "ChevronLeftIcon"
-});
-
-var ChevronRightIcon = createIcon({
-  d: "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z",
-  displayName: "ChevronRightIcon"
-});
-
-var ChevronDownIcon = createIcon({
-  displayName: "ChevronDownIcon",
-  d: "M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
-});
-
-var ChevronUpIcon = createIcon({
-  d: "M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z",
-  displayName: "ChevronUpIcon"
-});
-
-var ArrowBackIcon = createIcon({
-  d: "M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z",
-  displayName: "ArrowBackIcon"
-});
-
-var ArrowForwardIcon = createIcon({
-  d: "M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z",
-  displayName: "ArrowForwardIcon"
-});
-
-var ArrowUpIcon = createIcon({
-  d: "M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z",
-  displayName: "ArrowUpIcon"
-});
-
-var ArrowUpDownIcon = createIcon({
-  viewBox: "0 0 16 16",
-  d: "M11.891 9.992a1 1 0 1 1 1.416 1.415l-4.3 4.3a1 1 0 0 1-1.414 0l-4.3-4.3A1 1 0 0 1 4.71 9.992l3.59 3.591 3.591-3.591zm0-3.984L8.3 2.417 4.709 6.008a1 1 0 0 1-1.416-1.415l4.3-4.3a1 1 0 0 1 1.414 0l4.3 4.3a1 1 0 1 1-1.416 1.415z",
-  displayName: "ArrowUpDownIcon"
-});
-
-var ArrowDownIcon = createIcon({
-  d: "M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z",
-  displayName: "ArrowDownIcon"
-});
-
-var ExternalLinkIcon = createIcon({
-  displayName: "ExternalLinkIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "none",
-    stroke: "currentColor",
-    strokeLinecap: "round",
-    strokeWidth: "2"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M15 3h6v6"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M10 14L21 3"
-  }))
-});
-
-var LinkIcon = createIcon({
-  displayName: "LinkIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M10.458,18.374,7.721,21.11a2.853,2.853,0,0,1-3.942,0l-.892-.891a2.787,2.787,0,0,1,0-3.941l5.8-5.8a2.789,2.789,0,0,1,3.942,0l.893.892A1,1,0,0,0,14.94,9.952l-.893-.892a4.791,4.791,0,0,0-6.771,0l-5.8,5.8a4.787,4.787,0,0,0,0,6.77l.892.891a4.785,4.785,0,0,0,6.771,0l2.736-2.735a1,1,0,1,0-1.414-1.415Z"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M22.526,2.363l-.892-.892a4.8,4.8,0,0,0-6.77,0l-2.905,2.9a1,1,0,0,0,1.414,1.414l2.9-2.9a2.79,2.79,0,0,1,3.941,0l.893.893a2.786,2.786,0,0,1,0,3.942l-5.8,5.8a2.769,2.769,0,0,1-1.971.817h0a2.766,2.766,0,0,1-1.969-.816,1,1,0,1,0-1.415,1.412,4.751,4.751,0,0,0,3.384,1.4h0a4.752,4.752,0,0,0,3.385-1.4l5.8-5.8a4.786,4.786,0,0,0,0-6.771Z"
-  }))
-});
-
-var PlusSquareIcon = createIcon({
-  displayName: "PlusSquareIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "none",
-    stroke: "currentColor",
-    strokeLinecap: "round",
-    strokeWidth: "2"
-  }, /*#__PURE__*/react.createElement("rect", {
-    height: "18",
-    width: "18",
-    rx: "2",
-    ry: "2",
-    x: "3",
-    y: "3"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M12 8v8"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M8 12h8"
-  }))
-});
-
-var CalendarIcon = createIcon({
-  displayName: "CalendarIcon",
-  viewBox: "0 0 14 14",
-  d: "M10.8889,5.5 L3.11111,5.5 L3.11111,7.05556 L10.8889,7.05556 L10.8889,5.5 Z M12.4444,1.05556 L11.6667,1.05556 L11.6667,0 L10.1111,0 L10.1111,1.05556 L3.88889,1.05556 L3.88889,0 L2.33333,0 L2.33333,1.05556 L1.55556,1.05556 C0.692222,1.05556 0.00777777,1.75556 0.00777777,2.61111 L0,12.5 C0,13.3556 0.692222,14 1.55556,14 L12.4444,14 C13.3,14 14,13.3556 14,12.5 L14,2.61111 C14,1.75556 13.3,1.05556 12.4444,1.05556 Z M12.4444,12.5 L1.55556,12.5 L1.55556,3.94444 L12.4444,3.94444 L12.4444,12.5 Z M8.55556,8.61111 L3.11111,8.61111 L3.11111,10.1667 L8.55556,10.1667 L8.55556,8.61111 Z"
-});
-
-var ChatIcon = createIcon({
-  d: "M0.913134,0.920639 C1.49851,0.331726 2.29348,0 3.12342,0 L10.8766,0 C11.7065,0 12.5015,0.331725 13.0869,0.920639 C13.6721,1.50939 14,2.30689 14,3.13746 L14,8.12943 C13.9962,8.51443 13.9059,8.97125 13.7629,9.32852 C13.6128,9.683 13.3552,10.0709 13.0869,10.3462 C12.813,10.6163 12.4265,10.8761 12.0734,11.0274 C11.7172,11.1716 11.2607,11.263 10.8766,11.2669 L10.1234,11.2669 L10.1234,12.5676 L10.1209,12.5676 C10.1204,12.793 10.0633,13.0791 9.97807,13.262 C9.8627,13.466 9.61158,13.7198 9.40818,13.8382 L9.40824,13.8383 C9.4077,13.8386 9.40716,13.8388 9.40661,13.8391 C9.40621,13.8393 9.4058,13.8396 9.40539,13.8398 L9.40535,13.8397 C9.22958,13.9254 8.94505,13.9951 8.75059,14 L8.74789,14 C8.35724,13.9963 7.98473,13.8383 7.71035,13.5617 L5.39553,11.2669 L3.12342,11.2669 C2.29348,11.2669 1.49851,10.9352 0.913134,10.3462 C0.644826,10.0709 0.387187,9.683 0.23711,9.32852 C0.0941235,8.97125 0.00379528,8.51443 0,8.12943 L0,3.13746 C0,2.30689 0.327915,1.50939 0.913134,0.920639 Z M3.12342,1.59494 C2.71959,1.59494 2.33133,1.75628 2.04431,2.04503 C1.75713,2.33395 1.59494,2.72681 1.59494,3.13746 L1.59494,8.12943 C1.59114,8.35901 1.62114,8.51076 1.71193,8.72129 C1.79563,8.9346 1.88065,9.06264 2.04431,9.22185 C2.33133,9.5106 2.71959,9.67195 3.12342,9.67195 L5.72383,9.67195 C5.93413,9.67195 6.13592,9.75502 6.28527,9.90308 L8.52848,12.1269 L8.52848,10.4694 C8.52848,10.029 8.88552,9.67195 9.32595,9.67195 L10.8766,9.67195 C11.1034,9.67583 11.2517,9.64614 11.4599,9.55518 C11.6712,9.47132 11.7976,9.38635 11.9557,9.22185 C12.1193,9.06264 12.2044,8.9346 12.2881,8.72129 C12.3789,8.51076 12.4089,8.35901 12.4051,8.12943 L12.4051,3.13746 C12.4051,2.72681 12.2429,2.33394 11.9557,2.04503 C11.6687,1.75628 11.2804,1.59494 10.8766,1.59494 L3.12342,1.59494 Z",
-  displayName: "ChatIcon",
-  viewBox: "0 0 14 14"
-});
-
-var TimeIcon = createIcon({
-  displayName: "TimeIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M12,0A12,12,0,1,0,24,12,12.014,12.014,0,0,0,12,0Zm0,22A10,10,0,1,1,22,12,10.011,10.011,0,0,1,12,22Z"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M17.134,15.81,12.5,11.561V6.5a1,1,0,0,0-2,0V12a1,1,0,0,0,.324.738l4.959,4.545a1.01,1.01,0,0,0,1.413-.061A1,1,0,0,0,17.134,15.81Z"
-  }))
-});
-
-var ArrowRightIcon = createIcon({
-  displayName: "ArrowRightIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M13.584,12a2.643,2.643,0,0,1-.775,1.875L3.268,23.416a1.768,1.768,0,0,1-2.5-2.5l8.739-8.739a.25.25,0,0,0,0-.354L.768,3.084a1.768,1.768,0,0,1,2.5-2.5l9.541,9.541A2.643,2.643,0,0,1,13.584,12Z"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M23.75,12a2.643,2.643,0,0,1-.775,1.875l-9.541,9.541a1.768,1.768,0,0,1-2.5-2.5l8.739-8.739a.25.25,0,0,0,0-.354L10.934,3.084a1.768,1.768,0,0,1,2.5-2.5l9.541,9.541A2.643,2.643,0,0,1,23.75,12Z"
-  }))
-});
-
-var ArrowLeftIcon = createIcon({
-  displayName: "ArrowLeftIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M10.416,12a2.643,2.643,0,0,1,.775-1.875L20.732.584a1.768,1.768,0,0,1,2.5,2.5l-8.739,8.739a.25.25,0,0,0,0,.354l8.739,8.739a1.768,1.768,0,0,1-2.5,2.5l-9.541-9.541A2.643,2.643,0,0,1,10.416,12Z"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M.25,12a2.643,2.643,0,0,1,.775-1.875L10.566.584a1.768,1.768,0,0,1,2.5,2.5L4.327,11.823a.25.25,0,0,0,0,.354l8.739,8.739a1.768,1.768,0,0,1-2.5,2.5L1.025,13.875A2.643,2.643,0,0,1,.25,12Z"
-  }))
-});
-
-var AtSignIcon = createIcon({
-  displayName: "AtSignIcon",
-  d: "M12,.5A11.634,11.634,0,0,0,.262,12,11.634,11.634,0,0,0,12,23.5a11.836,11.836,0,0,0,6.624-2,1.25,1.25,0,1,0-1.393-2.076A9.34,9.34,0,0,1,12,21a9.132,9.132,0,0,1-9.238-9A9.132,9.132,0,0,1,12,3a9.132,9.132,0,0,1,9.238,9v.891a1.943,1.943,0,0,1-3.884,0V12A5.355,5.355,0,1,0,12,17.261a5.376,5.376,0,0,0,3.861-1.634,4.438,4.438,0,0,0,7.877-2.736V12A11.634,11.634,0,0,0,12,.5Zm0,14.261A2.763,2.763,0,1,1,14.854,12,2.812,2.812,0,0,1,12,14.761Z"
-});
-
-var AttachmentIcon = createIcon({
-  displayName: "AttachmentIcon",
-  d: "M21.843,3.455a6.961,6.961,0,0,0-9.846,0L1.619,13.832a5.128,5.128,0,0,0,7.252,7.252L17.3,12.653A3.293,3.293,0,1,0,12.646,8L7.457,13.184A1,1,0,1,0,8.871,14.6L14.06,9.409a1.294,1.294,0,0,1,1.829,1.83L7.457,19.67a3.128,3.128,0,0,1-4.424-4.424L13.411,4.869a4.962,4.962,0,1,1,7.018,7.018L12.646,19.67a1,1,0,1,0,1.414,1.414L21.843,13.3a6.96,6.96,0,0,0,0-9.846Z"
-});
-
-var UpDownIcon = createIcon({
-  displayName: "UpDownIcon",
-  viewBox: "-1 -1 9 11",
-  d: "M 3.5 0L 3.98809 -0.569442L 3.5 -0.987808L 3.01191 -0.569442L 3.5 0ZM 3.5 9L 3.01191 9.56944L 3.5 9.98781L 3.98809 9.56944L 3.5 9ZM 0.488094 3.56944L 3.98809 0.569442L 3.01191 -0.569442L -0.488094 2.43056L 0.488094 3.56944ZM 3.01191 0.569442L 6.51191 3.56944L 7.48809 2.43056L 3.98809 -0.569442L 3.01191 0.569442ZM -0.488094 6.56944L 3.01191 9.56944L 3.98809 8.43056L 0.488094 5.43056L -0.488094 6.56944ZM 3.98809 9.56944L 7.48809 6.56944L 6.51191 5.43056L 3.01191 8.43056L 3.98809 9.56944Z"
-});
-
-var StarIcon = createIcon({
-  d: "M23.555,8.729a1.505,1.505,0,0,0-1.406-.98H16.062a.5.5,0,0,1-.472-.334L13.405,1.222a1.5,1.5,0,0,0-2.81,0l-.005.016L8.41,7.415a.5.5,0,0,1-.471.334H1.85A1.5,1.5,0,0,0,.887,10.4l5.184,4.3a.5.5,0,0,1,.155.543L4.048,21.774a1.5,1.5,0,0,0,2.31,1.684l5.346-3.92a.5.5,0,0,1,.591,0l5.344,3.919a1.5,1.5,0,0,0,2.312-1.683l-2.178-6.535a.5.5,0,0,1,.155-.543l5.194-4.306A1.5,1.5,0,0,0,23.555,8.729Z",
-  displayName: "StarIcon"
-});
-
-var EmailIcon = createIcon({
-  displayName: "EmailIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("path", {
-    d: "M11.114,14.556a1.252,1.252,0,0,0,1.768,0L22.568,4.87a.5.5,0,0,0-.281-.849A1.966,1.966,0,0,0,22,4H2a1.966,1.966,0,0,0-.289.021.5.5,0,0,0-.281.849Z"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M23.888,5.832a.182.182,0,0,0-.2.039l-6.2,6.2a.251.251,0,0,0,0,.354l5.043,5.043a.75.75,0,1,1-1.06,1.061l-5.043-5.043a.25.25,0,0,0-.354,0l-2.129,2.129a2.75,2.75,0,0,1-3.888,0L7.926,13.488a.251.251,0,0,0-.354,0L2.529,18.531a.75.75,0,0,1-1.06-1.061l5.043-5.043a.251.251,0,0,0,0-.354l-6.2-6.2a.18.18,0,0,0-.2-.039A.182.182,0,0,0,0,6V18a2,2,0,0,0,2,2H22a2,2,0,0,0,2-2V6A.181.181,0,0,0,23.888,5.832Z"
-  }))
-});
-
-var PhoneIcon = createIcon({
-  d: "M2.20731,0.0127209 C2.1105,-0.0066419 1.99432,-0.00664663 1.91687,0.032079 C0.871279,0.438698 0.212942,1.92964 0.0580392,2.95587 C-0.426031,6.28627 2.20731,9.17133 4.62766,11.0689 C6.77694,12.7534 10.9012,15.5223 13.3409,12.8503 C13.6507,12.5211 14.0186,12.037 13.9993,11.553 C13.9412,10.7397 13.186,10.1588 12.6051,9.71349 C12.1598,9.38432 11.2304,8.47427 10.6495,8.49363 C10.1267,8.51299 9.79754,9.05515 9.46837,9.38432 L8.88748,9.96521 C8.79067,10.062 7.55145,9.24878 7.41591,9.15197 C6.91248,8.8228 6.4284,8.45491 6.00242,8.04829 C5.57644,7.64167 5.18919,7.19632 4.86002,6.73161 C4.7632,6.59607 3.96933,5.41495 4.04678,5.31813 C4.04678,5.31813 4.72448,4.58234 4.91811,4.2919 C5.32473,3.67229 5.63453,3.18822 5.16982,2.45243 C4.99556,2.18135 4.78257,1.96836 4.55021,1.73601 C4.14359,1.34875 3.73698,0.942131 3.27227,0.612963 C3.02055,0.419335 2.59457,0.0708094 2.20731,0.0127209 Z",
-  displayName: "PhoneIcon",
-  viewBox: "0 0 14 14"
-});
-
-var DragHandleIcon = createIcon({
-  viewBox: "0 0 10 10",
-  d: "M3,2 C2.44771525,2 2,1.55228475 2,1 C2,0.44771525 2.44771525,0 3,0 C3.55228475,0 4,0.44771525 4,1 C4,1.55228475 3.55228475,2 3,2 Z M3,6 C2.44771525,6 2,5.55228475 2,5 C2,4.44771525 2.44771525,4 3,4 C3.55228475,4 4,4.44771525 4,5 C4,5.55228475 3.55228475,6 3,6 Z M3,10 C2.44771525,10 2,9.55228475 2,9 C2,8.44771525 2.44771525,8 3,8 C3.55228475,8 4,8.44771525 4,9 C4,9.55228475 3.55228475,10 3,10 Z M7,2 C6.44771525,2 6,1.55228475 6,1 C6,0.44771525 6.44771525,0 7,0 C7.55228475,0 8,0.44771525 8,1 C8,1.55228475 7.55228475,2 7,2 Z M7,6 C6.44771525,6 6,5.55228475 6,5 C6,4.44771525 6.44771525,4 7,4 C7.55228475,4 8,4.44771525 8,5 C8,5.55228475 7.55228475,6 7,6 Z M7,10 C6.44771525,10 6,9.55228475 6,9 C6,8.44771525 6.44771525,8 7,8 C7.55228475,8 8,8.44771525 8,9 C8,9.55228475 7.55228475,10 7,10 Z",
-  displayName: "DragHandleIcon"
-});
-
-var SpinnerIcon = createIcon({
-  displayName: "SpinnerIcon",
-  path: /*#__PURE__*/react.createElement(react.Fragment, null, /*#__PURE__*/react.createElement("defs", null, /*#__PURE__*/react.createElement("linearGradient", {
-    x1: "28.154%",
-    y1: "63.74%",
-    x2: "74.629%",
-    y2: "17.783%",
-    id: "a"
-  }, /*#__PURE__*/react.createElement("stop", {
-    stopColor: "currentColor",
-    offset: "0%"
-  }), /*#__PURE__*/react.createElement("stop", {
-    stopColor: "#fff",
-    stopOpacity: "0",
-    offset: "100%"
-  }))), /*#__PURE__*/react.createElement("g", {
-    transform: "translate(2)",
-    fill: "none"
-  }, /*#__PURE__*/react.createElement("circle", {
-    stroke: "url(#a)",
-    strokeWidth: "4",
-    cx: "10",
-    cy: "12",
-    r: "10"
-  }), /*#__PURE__*/react.createElement("path", {
-    d: "M10 2C4.477 2 0 6.477 0 12",
-    stroke: "currentColor",
-    strokeWidth: "4"
-  }), /*#__PURE__*/react.createElement("rect", {
-    fill: "currentColor",
-    x: "8",
-    width: "4",
-    height: "4",
-    rx: "8"
-  })))
-});
-
-var CloseIcon = createIcon({
-  displayName: "CloseIcon",
-  d: "M.439,21.44a1.5,1.5,0,0,0,2.122,2.121L11.823,14.3a.25.25,0,0,1,.354,0l9.262,9.263a1.5,1.5,0,1,0,2.122-2.121L14.3,12.177a.25.25,0,0,1,0-.354l9.263-9.262A1.5,1.5,0,0,0,21.439.44L12.177,9.7a.25.25,0,0,1-.354,0L2.561.44A1.5,1.5,0,0,0,.439,2.561L9.7,11.823a.25.25,0,0,1,0,.354Z"
-});
-
-var SmallCloseIcon = createIcon({
-  displayName: "SmallCloseIcon",
-  viewBox: "0 0 16 16",
-  path: /*#__PURE__*/react.createElement("path", {
-    d: "M9.41 8l2.29-2.29c.19-.18.3-.43.3-.71a1.003 1.003 0 0 0-1.71-.71L8 6.59l-2.29-2.3a1.003 1.003 0 0 0-1.42 1.42L6.59 8 4.3 10.29c-.19.18-.3.43-.3.71a1.003 1.003 0 0 0 1.71.71L8 9.41l2.29 2.29c.18.19.43.3.71.3a1.003 1.003 0 0 0 .71-1.71L9.41 8z",
-    fillRule: "evenodd",
-    fill: "currentColor"
-  })
-});
-
-var NotAllowedIcon = createIcon({
-  d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z",
-  displayName: "NotAllowedIcon"
-});
-
-var TriangleDownIcon = createIcon({
-  d: "M21,5H3C2.621,5,2.275,5.214,2.105,5.553C1.937,5.892,1.973,6.297,2.2,6.6l9,12 c0.188,0.252,0.485,0.4,0.8,0.4s0.611-0.148,0.8-0.4l9-12c0.228-0.303,0.264-0.708,0.095-1.047C21.725,5.214,21.379,5,21,5z",
-  displayName: "TriangleDownIcon"
-});
-
-var TriangleUpIcon = createIcon({
-  d: "M12.8,5.4c-0.377-0.504-1.223-0.504-1.6,0l-9,12c-0.228,0.303-0.264,0.708-0.095,1.047 C2.275,18.786,2.621,19,3,19h18c0.379,0,0.725-0.214,0.895-0.553c0.169-0.339,0.133-0.744-0.095-1.047L12.8,5.4z",
-  displayName: "TriangleUpIcon"
-});
-
-var InfoOutlineIcon = createIcon({
-  displayName: "InfoOutlineIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor",
-    stroke: "currentColor",
-    strokeLinecap: "square",
-    strokeWidth: "2"
-  }, /*#__PURE__*/react.createElement("circle", {
-    cx: "12",
-    cy: "12",
-    fill: "none",
-    r: "11",
-    stroke: "currentColor"
-  }), /*#__PURE__*/react.createElement("line", {
-    fill: "none",
-    x1: "11.959",
-    x2: "11.959",
-    y1: "11",
-    y2: "17"
-  }), /*#__PURE__*/react.createElement("circle", {
-    cx: "11.959",
-    cy: "7",
-    r: "1",
-    stroke: "none"
-  }))
-});
-
-var BellIcon = createIcon({
-  displayName: "BellIcon",
-  d: "M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
-});
-
-var InfoIcon = createIcon({
-  d: "M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm.25,5a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,12.25,5ZM14.5,18.5h-4a1,1,0,0,1,0-2h.75a.25.25,0,0,0,.25-.25v-4.5a.25.25,0,0,0-.25-.25H10.5a1,1,0,0,1,0-2h1a2,2,0,0,1,2,2v4.75a.25.25,0,0,0,.25.25h.75a1,1,0,1,1,0,2Z"
-});
-
-var QuestionIcon = createIcon({
-  d: "M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm0,19a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,19Zm1.6-6.08a1,1,0,0,0-.6.917,1,1,0,1,1-2,0,3,3,0,0,1,1.8-2.75A2,2,0,1,0,10,9.255a1,1,0,1,1-2,0,4,4,0,1,1,5.6,3.666Z",
-  displayName: "QuestionIcon"
-});
-
-var QuestionOutlineIcon = createIcon({
-  displayName: "QuestionOutlineIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    stroke: "currentColor",
-    strokeWidth: "1.5"
-  }, /*#__PURE__*/react.createElement("path", {
-    strokeLinecap: "round",
-    fill: "none",
-    d: "M9,9a3,3,0,1,1,4,2.829,1.5,1.5,0,0,0-1,1.415V14.25"
-  }), /*#__PURE__*/react.createElement("path", {
-    fill: "none",
-    strokeLinecap: "round",
-    d: "M12,17.25a.375.375,0,1,0,.375.375A.375.375,0,0,0,12,17.25h0"
-  }), /*#__PURE__*/react.createElement("circle", {
-    fill: "none",
-    strokeMiterlimit: "10",
-    cx: "12",
-    cy: "12",
-    r: "11.25"
-  }))
-});
-
-var WarningIcon = createIcon({
-  d: "M11.983,0a12.206,12.206,0,0,0-8.51,3.653A11.8,11.8,0,0,0,0,12.207,11.779,11.779,0,0,0,11.8,24h.214A12.111,12.111,0,0,0,24,11.791h0A11.766,11.766,0,0,0,11.983,0ZM10.5,16.542a1.476,1.476,0,0,1,1.449-1.53h.027a1.527,1.527,0,0,1,1.523,1.47,1.475,1.475,0,0,1-1.449,1.53h-.027A1.529,1.529,0,0,1,10.5,16.542ZM11,12.5v-6a1,1,0,0,1,2,0v6a1,1,0,1,1-2,0Z",
-  displayName: "WarningIcon"
-});
-
-var WarningTwoIcon = createIcon({
-  displayName: "WarningTwoIcon",
-  d: "M23.119,20,13.772,2.15h0a2,2,0,0,0-3.543,0L.881,20a2,2,0,0,0,1.772,2.928H21.347A2,2,0,0,0,23.119,20ZM11,8.423a1,1,0,0,1,2,0v6a1,1,0,1,1-2,0Zm1.05,11.51h-.028a1.528,1.528,0,0,1-1.522-1.47,1.476,1.476,0,0,1,1.448-1.53h.028A1.527,1.527,0,0,1,13.5,18.4,1.475,1.475,0,0,1,12.05,19.933Z"
-});
-
-var chakra_ui_icons_esm_CheckIcon = createIcon({
-  viewBox: "0 0 14 14",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("polygon", {
-    points: "5.5 11.9993304 14 3.49933039 12.5 2 5.5 8.99933039 1.5 4.9968652 0 6.49933039"
-  }))
-});
-
-var MinusIcon = createIcon({
-  displayName: "MinusIcon",
-  path: /*#__PURE__*/react.createElement("g", {
-    fill: "currentColor"
-  }, /*#__PURE__*/react.createElement("rect", {
-    height: "4",
-    width: "20",
-    x: "2",
-    y: "10"
-  }))
-});
-
-var HamburgerIcon = createIcon({
-  displayName: "HamburgerIcon",
-  viewBox: "0 0 24 24",
-  d: "M 3 5 A 1.0001 1.0001 0 1 0 3 7 L 21 7 A 1.0001 1.0001 0 1 0 21 5 L 3 5 z M 3 11 A 1.0001 1.0001 0 1 0 3 13 L 21 13 A 1.0001 1.0001 0 1 0 21 11 L 3 11 z M 3 17 A 1.0001 1.0001 0 1 0 3 19 L 21 19 A 1.0001 1.0001 0 1 0 21 17 L 3 17 z"
-});
 
 
 
@@ -56948,7 +56429,7 @@ var environment = {
     Ory: "https://auth.stoictemple.com",
     userSessionStaleTime: 259200000,
     defaultStaleTime: 3600000,
-    deathClockServer: "",
+    deathClockServer: "https://api.stoictemple.com",
     defaultRetryRate: 2,
     seqLogServer: "https://seq.stoictemple.com",
     seqApiKey: "MkIBzYwFHO07jKXZ1rUK"
@@ -57499,6 +56980,21 @@ function OnErrorFormUserFeedback(error, setFormError, defaultFields) {
     }
 }
 
+;// CONCATENATED MODULE: ./src/app/logoComponent.tsx
+
+
+
+var logoComponent = function(props) {
+    /*#__PURE__*/ return (0,jsx_runtime.jsx)(Box, {
+        width: "30px",
+        children: /*#__PURE__*/ (0,jsx_runtime.jsx)(Image$1, {
+            src: "../assets/Images/logo.svg",
+            alt: "logo"
+        })
+    });
+};
+/* harmony default export */ const app_logoComponent = (logoComponent);
+
 ;// CONCATENATED MODULE: ./src/app/navbar.tsx
 
 
@@ -57509,8 +57005,7 @@ function OnErrorFormUserFeedback(error, setFormError, defaultFields) {
 
 function Nav() {
     var ref, ref1, ref2, ref3;
-    var ref4 = useColorMode(), colorMode = ref4.colorMode, toggleColorMode = ref4.toggleColorMode;
-    var ref5 = useCurrentUser(), data = ref5.data, error = ref5.error;
+    var ref4 = useCurrentUser(), data = ref4.data, error = ref4.error;
     var isLoggedIn = (data === null || data === void 0 ? void 0 : (ref = data.data) === null || ref === void 0 ? void 0 : ref.active) || false;
     var logout = useLogoutFlow(isLoggedIn);
     var setLogoutFlow = createstore(function(state) {
@@ -57520,7 +57015,7 @@ function Nav() {
         return state.logoutClicked;
     }));
     var navigator = useNavigate();
-    var ref6 = useLogoutUser(logoutClickedRef.current, (logout === null || logout === void 0 ? void 0 : (ref1 = logout.data) === null || ref1 === void 0 ? void 0 : (ref2 = ref1.data) === null || ref2 === void 0 ? void 0 : ref2.logout_url) || "", navigator), gotUserLoggedOut = ref6.data;
+    var ref5 = useLogoutUser(logoutClickedRef.current, (logout === null || logout === void 0 ? void 0 : (ref1 = logout.data) === null || ref1 === void 0 ? void 0 : (ref2 = ref1.data) === null || ref2 === void 0 ? void 0 : ref2.logout_url) || "", navigator), gotUserLoggedOut = ref5.data;
     (0,react.useEffect)(function() {
         return createstore.subscribe(function(state) {
             return logoutClickedRef.current = state.logoutClicked;
@@ -57531,74 +57026,60 @@ function Nav() {
             px: 2,
             children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(Flex, {
                 h: 16,
+                paddingRight: "50px",
+                paddingLeft: "50px",
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 children: [
-                    /*#__PURE__*/ (0,jsx_runtime.jsxs)(HStack, {
-                        children: [
-                            /*#__PURE__*/ (0,jsx_runtime.jsx)(Box, {
-                                children: "Death"
-                            }),
-                            /*#__PURE__*/ (0,jsx_runtime.jsx)(Box, {
-                                children: /*#__PURE__*/ (0,jsx_runtime.jsx)("span", {
-                                    className: "material-icons",
-                                    children: "watch_later"
-                                })
-                            })
-                        ]
+                    /*#__PURE__*/ (0,jsx_runtime.jsx)(HStack, {
+                        children: /*#__PURE__*/ (0,jsx_runtime.jsx)(app_logoComponent, {})
                     }),
                     /*#__PURE__*/ (0,jsx_runtime.jsx)(Flex, {
                         alignItems: 'center',
-                        children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(Stack, {
+                        children: /*#__PURE__*/ (0,jsx_runtime.jsx)(Stack, {
                             direction: 'row',
                             spacing: 7,
-                            children: [
-                                /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
-                                    onClick: toggleColorMode,
-                                    children: colorMode === 'light' ? /*#__PURE__*/ (0,jsx_runtime.jsx)(MoonIcon, {}) : /*#__PURE__*/ (0,jsx_runtime.jsx)(SunIcon, {})
-                                }),
-                                !error && (data === null || data === void 0 ? void 0 : (ref3 = data.data) === null || ref3 === void 0 ? void 0 : ref3.active) && /*#__PURE__*/ (0,jsx_runtime.jsxs)(Menu, {
-                                    children: [
-                                        /*#__PURE__*/ (0,jsx_runtime.jsx)(MenuButton, {
-                                            as: Button,
-                                            rounded: 'full',
-                                            variant: 'link',
-                                            cursor: 'pointer',
-                                            minW: 0,
-                                            children: /*#__PURE__*/ (0,jsx_runtime.jsx)(Avatar, {
-                                                size: 'sm',
-                                                src: 'https://avatars.dicebear.com/api/male/username.svg'
-                                            })
-                                        }),
-                                        /*#__PURE__*/ (0,jsx_runtime.jsxs)(MenuList, {
-                                            alignItems: 'center',
-                                            children: [
-                                                /*#__PURE__*/ (0,jsx_runtime.jsx)("br", {}),
-                                                /*#__PURE__*/ (0,jsx_runtime.jsx)(Center, {
-                                                    children: /*#__PURE__*/ (0,jsx_runtime.jsx)(Avatar, {
-                                                        size: '2xl',
-                                                        src: 'https://avatars.dicebear.com/api/male/username.svg'
-                                                    })
-                                                }),
-                                                /*#__PURE__*/ (0,jsx_runtime.jsx)("br", {}),
-                                                /*#__PURE__*/ (0,jsx_runtime.jsx)(Center, {
-                                                    children: /*#__PURE__*/ (0,jsx_runtime.jsx)("p", {
-                                                        children: data.data.identity.traits.username
-                                                    })
-                                                }),
-                                                /*#__PURE__*/ (0,jsx_runtime.jsx)("br", {}),
-                                                /*#__PURE__*/ (0,jsx_runtime.jsx)(MenuDivider, {}),
-                                                /*#__PURE__*/ (0,jsx_runtime.jsx)(MenuItem, {
-                                                    onClick: function() {
-                                                        setLogoutFlow();
-                                                    },
-                                                    children: " Logout"
-                                                })
-                                            ]
+                            children: !error && (data === null || data === void 0 ? void 0 : (ref3 = data.data) === null || ref3 === void 0 ? void 0 : ref3.active) && /*#__PURE__*/ (0,jsx_runtime.jsxs)(Menu, {
+                                children: [
+                                    /*#__PURE__*/ (0,jsx_runtime.jsx)(MenuButton, {
+                                        as: Button,
+                                        rounded: 'full',
+                                        variant: 'link',
+                                        cursor: 'pointer',
+                                        minW: 0,
+                                        children: /*#__PURE__*/ (0,jsx_runtime.jsx)(Avatar, {
+                                            size: 'sm',
+                                            src: 'https://avatars.dicebear.com/api/male/username.svg'
                                         })
-                                    ]
-                                })
-                            ]
+                                    }),
+                                    /*#__PURE__*/ (0,jsx_runtime.jsxs)(MenuList, {
+                                        alignItems: 'center',
+                                        children: [
+                                            /*#__PURE__*/ (0,jsx_runtime.jsx)("br", {}),
+                                            /*#__PURE__*/ (0,jsx_runtime.jsx)(Center, {
+                                                children: /*#__PURE__*/ (0,jsx_runtime.jsx)(Avatar, {
+                                                    size: '2xl',
+                                                    src: 'https://avatars.dicebear.com/api/male/username.svg'
+                                                })
+                                            }),
+                                            /*#__PURE__*/ (0,jsx_runtime.jsx)("br", {}),
+                                            /*#__PURE__*/ (0,jsx_runtime.jsx)(Center, {
+                                                children: /*#__PURE__*/ (0,jsx_runtime.jsx)("p", {
+                                                    children: data.data.identity.traits.username
+                                                })
+                                            }),
+                                            /*#__PURE__*/ (0,jsx_runtime.jsx)("br", {}),
+                                            /*#__PURE__*/ (0,jsx_runtime.jsx)(MenuDivider, {}),
+                                            /*#__PURE__*/ (0,jsx_runtime.jsx)(MenuItem, {
+                                                onClick: function() {
+                                                    setLogoutFlow();
+                                                },
+                                                children: " Logout"
+                                            })
+                                        ]
+                                    })
+                                ]
+                            })
                         })
                     })
                 ]
@@ -60330,6 +59811,525 @@ function _getAuthenticatedUser() {
     return _getAuthenticatedUser.apply(this, arguments);
 }
 
+;// CONCATENATED MODULE: ../../node_modules/@chakra-ui/icons/dist/chakra-ui-icons.esm.js
+
+
+
+
+var CopyIcon = createIcon({
+  d: "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z",
+  displayName: "CopyIcon"
+});
+
+var SearchIcon = createIcon({
+  d: "M23.384,21.619,16.855,15.09a9.284,9.284,0,1,0-1.768,1.768l6.529,6.529a1.266,1.266,0,0,0,1.768,0A1.251,1.251,0,0,0,23.384,21.619ZM2.75,9.5a6.75,6.75,0,1,1,6.75,6.75A6.758,6.758,0,0,1,2.75,9.5Z",
+  displayName: "SearchIcon"
+});
+
+var Search2Icon = createIcon({
+  d: "M23.414,20.591l-4.645-4.645a10.256,10.256,0,1,0-2.828,2.829l4.645,4.644a2.025,2.025,0,0,0,2.828,0A2,2,0,0,0,23.414,20.591ZM10.25,3.005A7.25,7.25,0,1,1,3,10.255,7.258,7.258,0,0,1,10.25,3.005Z",
+  displayName: "Search2Icon"
+});
+
+var MoonIcon = createIcon({
+  d: "M21.4,13.7C20.6,13.9,19.8,14,19,14c-5,0-9-4-9-9c0-0.8,0.1-1.6,0.3-2.4c0.1-0.3,0-0.7-0.3-1 c-0.3-0.3-0.6-0.4-1-0.3C4.3,2.7,1,7.1,1,12c0,6.1,4.9,11,11,11c4.9,0,9.3-3.3,10.6-8.1c0.1-0.3,0-0.7-0.3-1 C22.1,13.7,21.7,13.6,21.4,13.7z",
+  displayName: "MoonIcon"
+});
+
+var SunIcon = createIcon({
+  displayName: "SunIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    strokeLinejoin: "round",
+    strokeLinecap: "round",
+    strokeWidth: "2",
+    fill: "none",
+    stroke: "currentColor"
+  }, /*#__PURE__*/react.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "5"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M12 1v2"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M12 21v2"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M4.22 4.22l1.42 1.42"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M18.36 18.36l1.42 1.42"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M1 12h2"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M21 12h2"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M4.22 19.78l1.42-1.42"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M18.36 5.64l1.42-1.42"
+  }))
+});
+
+var AddIcon = createIcon({
+  d: "M0,12a1.5,1.5,0,0,0,1.5,1.5h8.75a.25.25,0,0,1,.25.25V22.5a1.5,1.5,0,0,0,3,0V13.75a.25.25,0,0,1,.25-.25H22.5a1.5,1.5,0,0,0,0-3H13.75a.25.25,0,0,1-.25-.25V1.5a1.5,1.5,0,0,0-3,0v8.75a.25.25,0,0,1-.25.25H1.5A1.5,1.5,0,0,0,0,12Z",
+  displayName: "AddIcon"
+});
+
+var SmallAddIcon = createIcon({
+  displayName: "SmallAddIcon",
+  viewBox: "0 0 20 20",
+  path: /*#__PURE__*/react.createElement("path", {
+    fill: "currentColor",
+    d: "M14 9h-3V6c0-.55-.45-1-1-1s-1 .45-1 1v3H6c-.55 0-1 .45-1 1s.45 1 1 1h3v3c0 .55.45 1 1 1s1-.45 1-1v-3h3c.55 0 1-.45 1-1s-.45-1-1-1z",
+    fillRule: "evenodd"
+  })
+});
+
+var SettingsIcon = createIcon({
+  viewBox: "0 0 14 14",
+  d: "M14,7.77 L14,6.17 L12.06,5.53 L11.61,4.44 L12.49,2.6 L11.36,1.47 L9.55,2.38 L8.46,1.93 L7.77,0.01 L6.17,0.01 L5.54,1.95 L4.43,2.4 L2.59,1.52 L1.46,2.65 L2.37,4.46 L1.92,5.55 L0,6.23 L0,7.82 L1.94,8.46 L2.39,9.55 L1.51,11.39 L2.64,12.52 L4.45,11.61 L5.54,12.06 L6.23,13.98 L7.82,13.98 L8.45,12.04 L9.56,11.59 L11.4,12.47 L12.53,11.34 L11.61,9.53 L12.08,8.44 L14,7.75 L14,7.77 Z M7,10 C5.34,10 4,8.66 4,7 C4,5.34 5.34,4 7,4 C8.66,4 10,5.34 10,7 C10,8.66 8.66,10 7,10 Z",
+  displayName: "SettingsIcon"
+});
+
+var CheckCircleIcon = createIcon({
+  displayName: "CheckCircleIcon",
+  d: "M12,0A12,12,0,1,0,24,12,12.014,12.014,0,0,0,12,0Zm6.927,8.2-6.845,9.289a1.011,1.011,0,0,1-1.43.188L5.764,13.769a1,1,0,1,1,1.25-1.562l4.076,3.261,6.227-8.451A1,1,0,1,1,18.927,8.2Z"
+});
+
+var LockIcon = createIcon({
+  d: "M19.5,9.5h-.75V6.75a6.75,6.75,0,0,0-13.5,0V9.5H4.5a2,2,0,0,0-2,2V22a2,2,0,0,0,2,2h15a2,2,0,0,0,2-2V11.5A2,2,0,0,0,19.5,9.5Zm-9.5,6a2,2,0,1,1,3,1.723V19.5a1,1,0,0,1-2,0V17.223A1.994,1.994,0,0,1,10,15.5ZM7.75,6.75a4.25,4.25,0,0,1,8.5,0V9a.5.5,0,0,1-.5.5H8.25a.5.5,0,0,1-.5-.5Z",
+  displayName: "LockIcon"
+});
+
+var UnlockIcon = createIcon({
+  d: "M19.5,9.5h-.75V6.75A6.751,6.751,0,0,0,5.533,4.811a1.25,1.25,0,1,0,2.395.717A4.251,4.251,0,0,1,16.25,6.75V9a.5.5,0,0,1-.5.5H4.5a2,2,0,0,0-2,2V22a2,2,0,0,0,2,2h15a2,2,0,0,0,2-2V11.5A2,2,0,0,0,19.5,9.5Zm-9.5,6a2,2,0,1,1,3,1.723V19.5a1,1,0,0,1-2,0V17.223A1.994,1.994,0,0,1,10,15.5Z",
+  displayName: "UnlockIcon"
+});
+
+var ViewIcon = createIcon({
+  displayName: "ViewIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M23.432,10.524C20.787,7.614,16.4,4.538,12,4.6,7.6,4.537,3.213,7.615.568,10.524a2.211,2.211,0,0,0,0,2.948C3.182,16.351,7.507,19.4,11.839,19.4h.308c4.347,0,8.671-3.049,11.288-5.929A2.21,2.21,0,0,0,23.432,10.524ZM7.4,12A4.6,4.6,0,1,1,12,16.6,4.6,4.6,0,0,1,7.4,12Z"
+  }), /*#__PURE__*/react.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "2"
+  }))
+});
+
+var ViewOffIcon = createIcon({
+  displayName: "ViewOffIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M23.2,10.549a20.954,20.954,0,0,0-4.3-3.6l4-3.995a1,1,0,1,0-1.414-1.414l-.018.018a.737.737,0,0,1-.173.291l-19.5,19.5c-.008.007-.018.009-.026.017a1,1,0,0,0,1.631,1.088l4.146-4.146a11.26,11.26,0,0,0,4.31.939h.3c4.256,0,8.489-2.984,11.051-5.8A2.171,2.171,0,0,0,23.2,10.549ZM16.313,13.27a4.581,4.581,0,0,1-3,3.028,4.3,4.3,0,0,1-3.1-.19.253.253,0,0,1-.068-.407l5.56-5.559a.252.252,0,0,1,.407.067A4.3,4.3,0,0,1,16.313,13.27Z"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M7.615,13.4a.244.244,0,0,0,.061-.24A4.315,4.315,0,0,1,7.5,12,4.5,4.5,0,0,1,12,7.5a4.276,4.276,0,0,1,1.16.173.244.244,0,0,0,.24-.062l1.941-1.942a.254.254,0,0,0-.1-.421A10.413,10.413,0,0,0,12,4.75C7.7,4.692,3.4,7.7.813,10.549a2.15,2.15,0,0,0-.007,2.9,21.209,21.209,0,0,0,3.438,3.03.256.256,0,0,0,.326-.029Z"
+  }))
+});
+
+var DownloadIcon = createIcon({
+  d: "M11.2857,6.05714 L10.08571,4.85714 L7.85714,7.14786 L7.85714,1 L6.14286,1 L6.14286,7.14786 L3.91429,4.85714 L2.71429,6.05714 L7,10.42857 L11.2857,6.05714 Z M1,11.2857 L1,13 L13,13 L13,11.2857 L1,11.2857 Z",
+  displayName: "DownloadIcon",
+  viewBox: "0 0 14 14"
+});
+
+var DeleteIcon = createIcon({
+  displayName: "DeleteIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M19.452 7.5H4.547a.5.5 0 00-.5.545l1.287 14.136A2 2 0 007.326 24h9.347a2 2 0 001.992-1.819L19.95 8.045a.5.5 0 00-.129-.382.5.5 0 00-.369-.163zm-9.2 13a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zm5 0a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zM22 4h-4.75a.25.25 0 01-.25-.25V2.5A2.5 2.5 0 0014.5 0h-5A2.5 2.5 0 007 2.5v1.25a.25.25 0 01-.25.25H2a1 1 0 000 2h20a1 1 0 000-2zM9 3.75V2.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5v1.25a.25.25 0 01-.25.25h-5.5A.25.25 0 019 3.75z"
+  }))
+});
+
+var RepeatIcon = createIcon({
+  displayName: "RepeatIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M10.319,4.936a7.239,7.239,0,0,1,7.1,2.252,1.25,1.25,0,1,0,1.872-1.657A9.737,9.737,0,0,0,9.743,2.5,10.269,10.269,0,0,0,2.378,9.61a.249.249,0,0,1-.271.178l-1.033-.13A.491.491,0,0,0,.6,9.877a.5.5,0,0,0-.019.526l2.476,4.342a.5.5,0,0,0,.373.248.43.43,0,0,0,.062,0,.5.5,0,0,0,.359-.152l3.477-3.593a.5.5,0,0,0-.3-.844L5.15,10.172a.25.25,0,0,1-.2-.333A7.7,7.7,0,0,1,10.319,4.936Z"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M23.406,14.1a.5.5,0,0,0,.015-.526l-2.5-4.329A.5.5,0,0,0,20.546,9a.489.489,0,0,0-.421.151l-3.456,3.614a.5.5,0,0,0,.3.842l1.848.221a.249.249,0,0,1,.183.117.253.253,0,0,1,.023.216,7.688,7.688,0,0,1-5.369,4.9,7.243,7.243,0,0,1-7.1-2.253,1.25,1.25,0,1,0-1.872,1.656,9.74,9.74,0,0,0,9.549,3.03,10.261,10.261,0,0,0,7.369-7.12.251.251,0,0,1,.27-.179l1.058.127a.422.422,0,0,0,.06,0A.5.5,0,0,0,23.406,14.1Z"
+  }))
+});
+
+var RepeatClockIcon = createIcon({
+  displayName: "RepeatClockIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M12.965,6a1,1,0,0,0-1,1v5.5a1,1,0,0,0,1,1h5a1,1,0,0,0,0-2h-3.75a.25.25,0,0,1-.25-.25V7A1,1,0,0,0,12.965,6Z"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M12.567,1.258A10.822,10.822,0,0,0,2.818,8.4a.25.25,0,0,1-.271.163L.858,8.309a.514.514,0,0,0-.485.213.5.5,0,0,0-.021.53l2.679,4.7a.5.5,0,0,0,.786.107l3.77-3.746a.5.5,0,0,0-.279-.85L5.593,9.007a.25.25,0,0,1-.192-.35,8.259,8.259,0,1,1,7.866,11.59,1.25,1.25,0,0,0,.045,2.5h.047a10.751,10.751,0,1,0-.792-21.487Z"
+  }))
+});
+
+var EditIcon = createIcon({
+  displayName: "EditIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "none",
+    stroke: "currentColor",
+    strokeLinecap: "round",
+    strokeWidth: "2"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+  }))
+});
+
+var ChevronLeftIcon = createIcon({
+  d: "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z",
+  displayName: "ChevronLeftIcon"
+});
+
+var ChevronRightIcon = createIcon({
+  d: "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z",
+  displayName: "ChevronRightIcon"
+});
+
+var ChevronDownIcon = createIcon({
+  displayName: "ChevronDownIcon",
+  d: "M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+});
+
+var ChevronUpIcon = createIcon({
+  d: "M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z",
+  displayName: "ChevronUpIcon"
+});
+
+var ArrowBackIcon = createIcon({
+  d: "M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z",
+  displayName: "ArrowBackIcon"
+});
+
+var ArrowForwardIcon = createIcon({
+  d: "M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z",
+  displayName: "ArrowForwardIcon"
+});
+
+var ArrowUpIcon = createIcon({
+  d: "M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z",
+  displayName: "ArrowUpIcon"
+});
+
+var ArrowUpDownIcon = createIcon({
+  viewBox: "0 0 16 16",
+  d: "M11.891 9.992a1 1 0 1 1 1.416 1.415l-4.3 4.3a1 1 0 0 1-1.414 0l-4.3-4.3A1 1 0 0 1 4.71 9.992l3.59 3.591 3.591-3.591zm0-3.984L8.3 2.417 4.709 6.008a1 1 0 0 1-1.416-1.415l4.3-4.3a1 1 0 0 1 1.414 0l4.3 4.3a1 1 0 1 1-1.416 1.415z",
+  displayName: "ArrowUpDownIcon"
+});
+
+var ArrowDownIcon = createIcon({
+  d: "M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z",
+  displayName: "ArrowDownIcon"
+});
+
+var ExternalLinkIcon = createIcon({
+  displayName: "ExternalLinkIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "none",
+    stroke: "currentColor",
+    strokeLinecap: "round",
+    strokeWidth: "2"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M15 3h6v6"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M10 14L21 3"
+  }))
+});
+
+var LinkIcon = createIcon({
+  displayName: "LinkIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M10.458,18.374,7.721,21.11a2.853,2.853,0,0,1-3.942,0l-.892-.891a2.787,2.787,0,0,1,0-3.941l5.8-5.8a2.789,2.789,0,0,1,3.942,0l.893.892A1,1,0,0,0,14.94,9.952l-.893-.892a4.791,4.791,0,0,0-6.771,0l-5.8,5.8a4.787,4.787,0,0,0,0,6.77l.892.891a4.785,4.785,0,0,0,6.771,0l2.736-2.735a1,1,0,1,0-1.414-1.415Z"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M22.526,2.363l-.892-.892a4.8,4.8,0,0,0-6.77,0l-2.905,2.9a1,1,0,0,0,1.414,1.414l2.9-2.9a2.79,2.79,0,0,1,3.941,0l.893.893a2.786,2.786,0,0,1,0,3.942l-5.8,5.8a2.769,2.769,0,0,1-1.971.817h0a2.766,2.766,0,0,1-1.969-.816,1,1,0,1,0-1.415,1.412,4.751,4.751,0,0,0,3.384,1.4h0a4.752,4.752,0,0,0,3.385-1.4l5.8-5.8a4.786,4.786,0,0,0,0-6.771Z"
+  }))
+});
+
+var PlusSquareIcon = createIcon({
+  displayName: "PlusSquareIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "none",
+    stroke: "currentColor",
+    strokeLinecap: "round",
+    strokeWidth: "2"
+  }, /*#__PURE__*/react.createElement("rect", {
+    height: "18",
+    width: "18",
+    rx: "2",
+    ry: "2",
+    x: "3",
+    y: "3"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M12 8v8"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M8 12h8"
+  }))
+});
+
+var CalendarIcon = createIcon({
+  displayName: "CalendarIcon",
+  viewBox: "0 0 14 14",
+  d: "M10.8889,5.5 L3.11111,5.5 L3.11111,7.05556 L10.8889,7.05556 L10.8889,5.5 Z M12.4444,1.05556 L11.6667,1.05556 L11.6667,0 L10.1111,0 L10.1111,1.05556 L3.88889,1.05556 L3.88889,0 L2.33333,0 L2.33333,1.05556 L1.55556,1.05556 C0.692222,1.05556 0.00777777,1.75556 0.00777777,2.61111 L0,12.5 C0,13.3556 0.692222,14 1.55556,14 L12.4444,14 C13.3,14 14,13.3556 14,12.5 L14,2.61111 C14,1.75556 13.3,1.05556 12.4444,1.05556 Z M12.4444,12.5 L1.55556,12.5 L1.55556,3.94444 L12.4444,3.94444 L12.4444,12.5 Z M8.55556,8.61111 L3.11111,8.61111 L3.11111,10.1667 L8.55556,10.1667 L8.55556,8.61111 Z"
+});
+
+var ChatIcon = createIcon({
+  d: "M0.913134,0.920639 C1.49851,0.331726 2.29348,0 3.12342,0 L10.8766,0 C11.7065,0 12.5015,0.331725 13.0869,0.920639 C13.6721,1.50939 14,2.30689 14,3.13746 L14,8.12943 C13.9962,8.51443 13.9059,8.97125 13.7629,9.32852 C13.6128,9.683 13.3552,10.0709 13.0869,10.3462 C12.813,10.6163 12.4265,10.8761 12.0734,11.0274 C11.7172,11.1716 11.2607,11.263 10.8766,11.2669 L10.1234,11.2669 L10.1234,12.5676 L10.1209,12.5676 C10.1204,12.793 10.0633,13.0791 9.97807,13.262 C9.8627,13.466 9.61158,13.7198 9.40818,13.8382 L9.40824,13.8383 C9.4077,13.8386 9.40716,13.8388 9.40661,13.8391 C9.40621,13.8393 9.4058,13.8396 9.40539,13.8398 L9.40535,13.8397 C9.22958,13.9254 8.94505,13.9951 8.75059,14 L8.74789,14 C8.35724,13.9963 7.98473,13.8383 7.71035,13.5617 L5.39553,11.2669 L3.12342,11.2669 C2.29348,11.2669 1.49851,10.9352 0.913134,10.3462 C0.644826,10.0709 0.387187,9.683 0.23711,9.32852 C0.0941235,8.97125 0.00379528,8.51443 0,8.12943 L0,3.13746 C0,2.30689 0.327915,1.50939 0.913134,0.920639 Z M3.12342,1.59494 C2.71959,1.59494 2.33133,1.75628 2.04431,2.04503 C1.75713,2.33395 1.59494,2.72681 1.59494,3.13746 L1.59494,8.12943 C1.59114,8.35901 1.62114,8.51076 1.71193,8.72129 C1.79563,8.9346 1.88065,9.06264 2.04431,9.22185 C2.33133,9.5106 2.71959,9.67195 3.12342,9.67195 L5.72383,9.67195 C5.93413,9.67195 6.13592,9.75502 6.28527,9.90308 L8.52848,12.1269 L8.52848,10.4694 C8.52848,10.029 8.88552,9.67195 9.32595,9.67195 L10.8766,9.67195 C11.1034,9.67583 11.2517,9.64614 11.4599,9.55518 C11.6712,9.47132 11.7976,9.38635 11.9557,9.22185 C12.1193,9.06264 12.2044,8.9346 12.2881,8.72129 C12.3789,8.51076 12.4089,8.35901 12.4051,8.12943 L12.4051,3.13746 C12.4051,2.72681 12.2429,2.33394 11.9557,2.04503 C11.6687,1.75628 11.2804,1.59494 10.8766,1.59494 L3.12342,1.59494 Z",
+  displayName: "ChatIcon",
+  viewBox: "0 0 14 14"
+});
+
+var TimeIcon = createIcon({
+  displayName: "TimeIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M12,0A12,12,0,1,0,24,12,12.014,12.014,0,0,0,12,0Zm0,22A10,10,0,1,1,22,12,10.011,10.011,0,0,1,12,22Z"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M17.134,15.81,12.5,11.561V6.5a1,1,0,0,0-2,0V12a1,1,0,0,0,.324.738l4.959,4.545a1.01,1.01,0,0,0,1.413-.061A1,1,0,0,0,17.134,15.81Z"
+  }))
+});
+
+var ArrowRightIcon = createIcon({
+  displayName: "ArrowRightIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M13.584,12a2.643,2.643,0,0,1-.775,1.875L3.268,23.416a1.768,1.768,0,0,1-2.5-2.5l8.739-8.739a.25.25,0,0,0,0-.354L.768,3.084a1.768,1.768,0,0,1,2.5-2.5l9.541,9.541A2.643,2.643,0,0,1,13.584,12Z"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M23.75,12a2.643,2.643,0,0,1-.775,1.875l-9.541,9.541a1.768,1.768,0,0,1-2.5-2.5l8.739-8.739a.25.25,0,0,0,0-.354L10.934,3.084a1.768,1.768,0,0,1,2.5-2.5l9.541,9.541A2.643,2.643,0,0,1,23.75,12Z"
+  }))
+});
+
+var ArrowLeftIcon = createIcon({
+  displayName: "ArrowLeftIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M10.416,12a2.643,2.643,0,0,1,.775-1.875L20.732.584a1.768,1.768,0,0,1,2.5,2.5l-8.739,8.739a.25.25,0,0,0,0,.354l8.739,8.739a1.768,1.768,0,0,1-2.5,2.5l-9.541-9.541A2.643,2.643,0,0,1,10.416,12Z"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M.25,12a2.643,2.643,0,0,1,.775-1.875L10.566.584a1.768,1.768,0,0,1,2.5,2.5L4.327,11.823a.25.25,0,0,0,0,.354l8.739,8.739a1.768,1.768,0,0,1-2.5,2.5L1.025,13.875A2.643,2.643,0,0,1,.25,12Z"
+  }))
+});
+
+var AtSignIcon = createIcon({
+  displayName: "AtSignIcon",
+  d: "M12,.5A11.634,11.634,0,0,0,.262,12,11.634,11.634,0,0,0,12,23.5a11.836,11.836,0,0,0,6.624-2,1.25,1.25,0,1,0-1.393-2.076A9.34,9.34,0,0,1,12,21a9.132,9.132,0,0,1-9.238-9A9.132,9.132,0,0,1,12,3a9.132,9.132,0,0,1,9.238,9v.891a1.943,1.943,0,0,1-3.884,0V12A5.355,5.355,0,1,0,12,17.261a5.376,5.376,0,0,0,3.861-1.634,4.438,4.438,0,0,0,7.877-2.736V12A11.634,11.634,0,0,0,12,.5Zm0,14.261A2.763,2.763,0,1,1,14.854,12,2.812,2.812,0,0,1,12,14.761Z"
+});
+
+var AttachmentIcon = createIcon({
+  displayName: "AttachmentIcon",
+  d: "M21.843,3.455a6.961,6.961,0,0,0-9.846,0L1.619,13.832a5.128,5.128,0,0,0,7.252,7.252L17.3,12.653A3.293,3.293,0,1,0,12.646,8L7.457,13.184A1,1,0,1,0,8.871,14.6L14.06,9.409a1.294,1.294,0,0,1,1.829,1.83L7.457,19.67a3.128,3.128,0,0,1-4.424-4.424L13.411,4.869a4.962,4.962,0,1,1,7.018,7.018L12.646,19.67a1,1,0,1,0,1.414,1.414L21.843,13.3a6.96,6.96,0,0,0,0-9.846Z"
+});
+
+var UpDownIcon = createIcon({
+  displayName: "UpDownIcon",
+  viewBox: "-1 -1 9 11",
+  d: "M 3.5 0L 3.98809 -0.569442L 3.5 -0.987808L 3.01191 -0.569442L 3.5 0ZM 3.5 9L 3.01191 9.56944L 3.5 9.98781L 3.98809 9.56944L 3.5 9ZM 0.488094 3.56944L 3.98809 0.569442L 3.01191 -0.569442L -0.488094 2.43056L 0.488094 3.56944ZM 3.01191 0.569442L 6.51191 3.56944L 7.48809 2.43056L 3.98809 -0.569442L 3.01191 0.569442ZM -0.488094 6.56944L 3.01191 9.56944L 3.98809 8.43056L 0.488094 5.43056L -0.488094 6.56944ZM 3.98809 9.56944L 7.48809 6.56944L 6.51191 5.43056L 3.01191 8.43056L 3.98809 9.56944Z"
+});
+
+var StarIcon = createIcon({
+  d: "M23.555,8.729a1.505,1.505,0,0,0-1.406-.98H16.062a.5.5,0,0,1-.472-.334L13.405,1.222a1.5,1.5,0,0,0-2.81,0l-.005.016L8.41,7.415a.5.5,0,0,1-.471.334H1.85A1.5,1.5,0,0,0,.887,10.4l5.184,4.3a.5.5,0,0,1,.155.543L4.048,21.774a1.5,1.5,0,0,0,2.31,1.684l5.346-3.92a.5.5,0,0,1,.591,0l5.344,3.919a1.5,1.5,0,0,0,2.312-1.683l-2.178-6.535a.5.5,0,0,1,.155-.543l5.194-4.306A1.5,1.5,0,0,0,23.555,8.729Z",
+  displayName: "StarIcon"
+});
+
+var EmailIcon = createIcon({
+  displayName: "EmailIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("path", {
+    d: "M11.114,14.556a1.252,1.252,0,0,0,1.768,0L22.568,4.87a.5.5,0,0,0-.281-.849A1.966,1.966,0,0,0,22,4H2a1.966,1.966,0,0,0-.289.021.5.5,0,0,0-.281.849Z"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M23.888,5.832a.182.182,0,0,0-.2.039l-6.2,6.2a.251.251,0,0,0,0,.354l5.043,5.043a.75.75,0,1,1-1.06,1.061l-5.043-5.043a.25.25,0,0,0-.354,0l-2.129,2.129a2.75,2.75,0,0,1-3.888,0L7.926,13.488a.251.251,0,0,0-.354,0L2.529,18.531a.75.75,0,0,1-1.06-1.061l5.043-5.043a.251.251,0,0,0,0-.354l-6.2-6.2a.18.18,0,0,0-.2-.039A.182.182,0,0,0,0,6V18a2,2,0,0,0,2,2H22a2,2,0,0,0,2-2V6A.181.181,0,0,0,23.888,5.832Z"
+  }))
+});
+
+var PhoneIcon = createIcon({
+  d: "M2.20731,0.0127209 C2.1105,-0.0066419 1.99432,-0.00664663 1.91687,0.032079 C0.871279,0.438698 0.212942,1.92964 0.0580392,2.95587 C-0.426031,6.28627 2.20731,9.17133 4.62766,11.0689 C6.77694,12.7534 10.9012,15.5223 13.3409,12.8503 C13.6507,12.5211 14.0186,12.037 13.9993,11.553 C13.9412,10.7397 13.186,10.1588 12.6051,9.71349 C12.1598,9.38432 11.2304,8.47427 10.6495,8.49363 C10.1267,8.51299 9.79754,9.05515 9.46837,9.38432 L8.88748,9.96521 C8.79067,10.062 7.55145,9.24878 7.41591,9.15197 C6.91248,8.8228 6.4284,8.45491 6.00242,8.04829 C5.57644,7.64167 5.18919,7.19632 4.86002,6.73161 C4.7632,6.59607 3.96933,5.41495 4.04678,5.31813 C4.04678,5.31813 4.72448,4.58234 4.91811,4.2919 C5.32473,3.67229 5.63453,3.18822 5.16982,2.45243 C4.99556,2.18135 4.78257,1.96836 4.55021,1.73601 C4.14359,1.34875 3.73698,0.942131 3.27227,0.612963 C3.02055,0.419335 2.59457,0.0708094 2.20731,0.0127209 Z",
+  displayName: "PhoneIcon",
+  viewBox: "0 0 14 14"
+});
+
+var DragHandleIcon = createIcon({
+  viewBox: "0 0 10 10",
+  d: "M3,2 C2.44771525,2 2,1.55228475 2,1 C2,0.44771525 2.44771525,0 3,0 C3.55228475,0 4,0.44771525 4,1 C4,1.55228475 3.55228475,2 3,2 Z M3,6 C2.44771525,6 2,5.55228475 2,5 C2,4.44771525 2.44771525,4 3,4 C3.55228475,4 4,4.44771525 4,5 C4,5.55228475 3.55228475,6 3,6 Z M3,10 C2.44771525,10 2,9.55228475 2,9 C2,8.44771525 2.44771525,8 3,8 C3.55228475,8 4,8.44771525 4,9 C4,9.55228475 3.55228475,10 3,10 Z M7,2 C6.44771525,2 6,1.55228475 6,1 C6,0.44771525 6.44771525,0 7,0 C7.55228475,0 8,0.44771525 8,1 C8,1.55228475 7.55228475,2 7,2 Z M7,6 C6.44771525,6 6,5.55228475 6,5 C6,4.44771525 6.44771525,4 7,4 C7.55228475,4 8,4.44771525 8,5 C8,5.55228475 7.55228475,6 7,6 Z M7,10 C6.44771525,10 6,9.55228475 6,9 C6,8.44771525 6.44771525,8 7,8 C7.55228475,8 8,8.44771525 8,9 C8,9.55228475 7.55228475,10 7,10 Z",
+  displayName: "DragHandleIcon"
+});
+
+var SpinnerIcon = createIcon({
+  displayName: "SpinnerIcon",
+  path: /*#__PURE__*/react.createElement(react.Fragment, null, /*#__PURE__*/react.createElement("defs", null, /*#__PURE__*/react.createElement("linearGradient", {
+    x1: "28.154%",
+    y1: "63.74%",
+    x2: "74.629%",
+    y2: "17.783%",
+    id: "a"
+  }, /*#__PURE__*/react.createElement("stop", {
+    stopColor: "currentColor",
+    offset: "0%"
+  }), /*#__PURE__*/react.createElement("stop", {
+    stopColor: "#fff",
+    stopOpacity: "0",
+    offset: "100%"
+  }))), /*#__PURE__*/react.createElement("g", {
+    transform: "translate(2)",
+    fill: "none"
+  }, /*#__PURE__*/react.createElement("circle", {
+    stroke: "url(#a)",
+    strokeWidth: "4",
+    cx: "10",
+    cy: "12",
+    r: "10"
+  }), /*#__PURE__*/react.createElement("path", {
+    d: "M10 2C4.477 2 0 6.477 0 12",
+    stroke: "currentColor",
+    strokeWidth: "4"
+  }), /*#__PURE__*/react.createElement("rect", {
+    fill: "currentColor",
+    x: "8",
+    width: "4",
+    height: "4",
+    rx: "8"
+  })))
+});
+
+var CloseIcon = createIcon({
+  displayName: "CloseIcon",
+  d: "M.439,21.44a1.5,1.5,0,0,0,2.122,2.121L11.823,14.3a.25.25,0,0,1,.354,0l9.262,9.263a1.5,1.5,0,1,0,2.122-2.121L14.3,12.177a.25.25,0,0,1,0-.354l9.263-9.262A1.5,1.5,0,0,0,21.439.44L12.177,9.7a.25.25,0,0,1-.354,0L2.561.44A1.5,1.5,0,0,0,.439,2.561L9.7,11.823a.25.25,0,0,1,0,.354Z"
+});
+
+var SmallCloseIcon = createIcon({
+  displayName: "SmallCloseIcon",
+  viewBox: "0 0 16 16",
+  path: /*#__PURE__*/react.createElement("path", {
+    d: "M9.41 8l2.29-2.29c.19-.18.3-.43.3-.71a1.003 1.003 0 0 0-1.71-.71L8 6.59l-2.29-2.3a1.003 1.003 0 0 0-1.42 1.42L6.59 8 4.3 10.29c-.19.18-.3.43-.3.71a1.003 1.003 0 0 0 1.71.71L8 9.41l2.29 2.29c.18.19.43.3.71.3a1.003 1.003 0 0 0 .71-1.71L9.41 8z",
+    fillRule: "evenodd",
+    fill: "currentColor"
+  })
+});
+
+var NotAllowedIcon = createIcon({
+  d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z",
+  displayName: "NotAllowedIcon"
+});
+
+var TriangleDownIcon = createIcon({
+  d: "M21,5H3C2.621,5,2.275,5.214,2.105,5.553C1.937,5.892,1.973,6.297,2.2,6.6l9,12 c0.188,0.252,0.485,0.4,0.8,0.4s0.611-0.148,0.8-0.4l9-12c0.228-0.303,0.264-0.708,0.095-1.047C21.725,5.214,21.379,5,21,5z",
+  displayName: "TriangleDownIcon"
+});
+
+var TriangleUpIcon = createIcon({
+  d: "M12.8,5.4c-0.377-0.504-1.223-0.504-1.6,0l-9,12c-0.228,0.303-0.264,0.708-0.095,1.047 C2.275,18.786,2.621,19,3,19h18c0.379,0,0.725-0.214,0.895-0.553c0.169-0.339,0.133-0.744-0.095-1.047L12.8,5.4z",
+  displayName: "TriangleUpIcon"
+});
+
+var InfoOutlineIcon = createIcon({
+  displayName: "InfoOutlineIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor",
+    stroke: "currentColor",
+    strokeLinecap: "square",
+    strokeWidth: "2"
+  }, /*#__PURE__*/react.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    fill: "none",
+    r: "11",
+    stroke: "currentColor"
+  }), /*#__PURE__*/react.createElement("line", {
+    fill: "none",
+    x1: "11.959",
+    x2: "11.959",
+    y1: "11",
+    y2: "17"
+  }), /*#__PURE__*/react.createElement("circle", {
+    cx: "11.959",
+    cy: "7",
+    r: "1",
+    stroke: "none"
+  }))
+});
+
+var BellIcon = createIcon({
+  displayName: "BellIcon",
+  d: "M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+});
+
+var InfoIcon = createIcon({
+  d: "M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm.25,5a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,12.25,5ZM14.5,18.5h-4a1,1,0,0,1,0-2h.75a.25.25,0,0,0,.25-.25v-4.5a.25.25,0,0,0-.25-.25H10.5a1,1,0,0,1,0-2h1a2,2,0,0,1,2,2v4.75a.25.25,0,0,0,.25.25h.75a1,1,0,1,1,0,2Z"
+});
+
+var QuestionIcon = createIcon({
+  d: "M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm0,19a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,19Zm1.6-6.08a1,1,0,0,0-.6.917,1,1,0,1,1-2,0,3,3,0,0,1,1.8-2.75A2,2,0,1,0,10,9.255a1,1,0,1,1-2,0,4,4,0,1,1,5.6,3.666Z",
+  displayName: "QuestionIcon"
+});
+
+var QuestionOutlineIcon = createIcon({
+  displayName: "QuestionOutlineIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    stroke: "currentColor",
+    strokeWidth: "1.5"
+  }, /*#__PURE__*/react.createElement("path", {
+    strokeLinecap: "round",
+    fill: "none",
+    d: "M9,9a3,3,0,1,1,4,2.829,1.5,1.5,0,0,0-1,1.415V14.25"
+  }), /*#__PURE__*/react.createElement("path", {
+    fill: "none",
+    strokeLinecap: "round",
+    d: "M12,17.25a.375.375,0,1,0,.375.375A.375.375,0,0,0,12,17.25h0"
+  }), /*#__PURE__*/react.createElement("circle", {
+    fill: "none",
+    strokeMiterlimit: "10",
+    cx: "12",
+    cy: "12",
+    r: "11.25"
+  }))
+});
+
+var WarningIcon = createIcon({
+  d: "M11.983,0a12.206,12.206,0,0,0-8.51,3.653A11.8,11.8,0,0,0,0,12.207,11.779,11.779,0,0,0,11.8,24h.214A12.111,12.111,0,0,0,24,11.791h0A11.766,11.766,0,0,0,11.983,0ZM10.5,16.542a1.476,1.476,0,0,1,1.449-1.53h.027a1.527,1.527,0,0,1,1.523,1.47,1.475,1.475,0,0,1-1.449,1.53h-.027A1.529,1.529,0,0,1,10.5,16.542ZM11,12.5v-6a1,1,0,0,1,2,0v6a1,1,0,1,1-2,0Z",
+  displayName: "WarningIcon"
+});
+
+var WarningTwoIcon = createIcon({
+  displayName: "WarningTwoIcon",
+  d: "M23.119,20,13.772,2.15h0a2,2,0,0,0-3.543,0L.881,20a2,2,0,0,0,1.772,2.928H21.347A2,2,0,0,0,23.119,20ZM11,8.423a1,1,0,0,1,2,0v6a1,1,0,1,1-2,0Zm1.05,11.51h-.028a1.528,1.528,0,0,1-1.522-1.47,1.476,1.476,0,0,1,1.448-1.53h.028A1.527,1.527,0,0,1,13.5,18.4,1.475,1.475,0,0,1,12.05,19.933Z"
+});
+
+var chakra_ui_icons_esm_CheckIcon = createIcon({
+  viewBox: "0 0 14 14",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("polygon", {
+    points: "5.5 11.9993304 14 3.49933039 12.5 2 5.5 8.99933039 1.5 4.9968652 0 6.49933039"
+  }))
+});
+
+var MinusIcon = createIcon({
+  displayName: "MinusIcon",
+  path: /*#__PURE__*/react.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/react.createElement("rect", {
+    height: "4",
+    width: "20",
+    x: "2",
+    y: "10"
+  }))
+});
+
+var HamburgerIcon = createIcon({
+  displayName: "HamburgerIcon",
+  viewBox: "0 0 24 24",
+  d: "M 3 5 A 1.0001 1.0001 0 1 0 3 7 L 21 7 A 1.0001 1.0001 0 1 0 21 5 L 3 5 z M 3 11 A 1.0001 1.0001 0 1 0 3 13 L 21 13 A 1.0001 1.0001 0 1 0 21 11 L 3 11 z M 3 17 A 1.0001 1.0001 0 1 0 3 19 L 21 19 A 1.0001 1.0001 0 1 0 21 17 L 3 17 z"
+});
+
+
+
 ;// CONCATENATED MODULE: ./src/app/NotAuthorizedPage.tsx
 function NotAuthorizedPage_arrayLikeToArray(arr, len) {
     if (len == null || len > arr.length) len = arr.length;
@@ -60394,37 +60394,33 @@ function NotAuthorized(props) {
         move
     ]);
     return(/*#__PURE__*/ (0,jsx_runtime.jsx)(Flex, {
-        minH: '100vh',
         align: 'center',
         justify: 'center',
         children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(Box, {
             role: "alert",
-            boxSize: "lg",
+            boxSize: "xs",
             children: [
                 /*#__PURE__*/ (0,jsx_runtime.jsx)(Image$1, {
                     src: "../assets/Images/server_down.svg",
                     alt: "error"
                 }),
-                /*#__PURE__*/ (0,jsx_runtime.jsx)(Center, {
-                    mt: "20px",
-                    children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(VStack, {
-                        children: [
-                            /*#__PURE__*/ (0,jsx_runtime.jsx)(Text, {
-                                children: props.message
-                            }),
-                            /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
-                                rightIcon: /*#__PURE__*/ (0,jsx_runtime.jsx)(ArrowForwardIcon, {}),
-                                colorScheme: "teal",
-                                variant: "link",
-                                onClick: function() {
-                                    setNavigate(function(x) {
-                                        return !x;
-                                    });
-                                },
-                                children: "Login"
-                            })
-                        ]
-                    })
+                /*#__PURE__*/ (0,jsx_runtime.jsxs)(VStack, {
+                    children: [
+                        /*#__PURE__*/ (0,jsx_runtime.jsx)(Text, {
+                            children: props.message
+                        }),
+                        /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
+                            rightIcon: /*#__PURE__*/ (0,jsx_runtime.jsx)(ArrowForwardIcon, {}),
+                            colorScheme: "teal",
+                            variant: "link",
+                            onClick: function() {
+                                setNavigate(function(x) {
+                                    return !x;
+                                });
+                            },
+                            children: "Login"
+                        })
+                    ]
                 })
             ]
         })
@@ -60438,40 +60434,32 @@ function GenericError(props) {
     return(/*#__PURE__*/ (0,jsx_runtime.jsx)(Flex, {
         align: 'center',
         justify: 'center',
-        flexDirection: "column",
         children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(Box, {
             role: "alert",
-            boxSize: "lg",
+            boxSize: "xs",
             children: [
                 /*#__PURE__*/ (0,jsx_runtime.jsx)(Image$1, {
                     src: "../assets/Images/server_down.svg",
                     alt: "error"
                 }),
                 /*#__PURE__*/ (0,jsx_runtime.jsx)(Center, {
-                    children: /*#__PURE__*/ (0,jsx_runtime.jsx)(HStack, {
-                        children: /*#__PURE__*/ (0,jsx_runtime.jsx)(Heading, {
-                            as: "h2",
-                            size: "xl",
-                            children: props.code || "sorry"
-                        })
+                    mt: "20px",
+                    children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(VStack, {
+                        children: [
+                            /*#__PURE__*/ (0,jsx_runtime.jsxs)(Text, {
+                                children: [
+                                    props.code && "|",
+                                    " This is a little bit embarrassing.."
+                                ]
+                            }),
+                            /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
+                                colorScheme: "teal",
+                                variant: "link",
+                                onClick: props.resetErrorBoundary,
+                                children: "Try again"
+                            })
+                        ]
                     })
-                }),
-                /*#__PURE__*/ (0,jsx_runtime.jsx)(Divider, {
-                    width: "lg",
-                    border: "2px"
-                }),
-                /*#__PURE__*/ (0,jsx_runtime.jsxs)(VStack, {
-                    children: [
-                        /*#__PURE__*/ (0,jsx_runtime.jsx)(Text, {
-                            children: "This is a little bit embarrassing.. "
-                        }),
-                        /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
-                            color: "green",
-                            borderBottom: "green",
-                            onClick: props.resetErrorBoundary,
-                            children: "Try again"
-                        })
-                    ]
                 })
             ]
         })
@@ -60546,7 +60534,7 @@ function AlreadyLoggedInPage(props) {
         justify: 'center',
         children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(Box, {
             role: "alert",
-            boxSize: "lg",
+            boxSize: "xs",
             children: [
                 /*#__PURE__*/ (0,jsx_runtime.jsx)(Image$1, {
                     src: "../assets/Images/server_down.svg",
@@ -60557,7 +60545,7 @@ function AlreadyLoggedInPage(props) {
                     children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(VStack, {
                         children: [
                             /*#__PURE__*/ (0,jsx_runtime.jsx)(Text, {
-                                children: props.message
+                                children: "You are already logged in"
                             }),
                             /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
                                 rightIcon: /*#__PURE__*/ (0,jsx_runtime.jsx)(ArrowForwardIcon, {}),
@@ -60626,10 +60614,7 @@ var Footer = function() {
     /*#__PURE__*/ return (0,jsx_runtime.jsx)(Container, {
         as: "footer",
         role: "contentinfo",
-        py: {
-            base: '12',
-            md: '16'
-        },
+        paddingBottom: "20px",
         textAlign: "center",
         w: "full",
         h: "full",
@@ -60649,7 +60634,7 @@ var Footer = function() {
                 children: [
                     "\xa9 ",
                     new Date().getFullYear(),
-                    " Death clock, Inc. All rights reserved."
+                    " Stoictemple, Inc. All rights reserved."
                 ]
             })
         })
@@ -60679,6 +60664,8 @@ function Layout(param) {
 function App(props) {
     var reset = (0,react_query_es.useQueryErrorResetBoundary)().reset;
     return(/*#__PURE__*/ (0,jsx_runtime.jsx)(Grid, {
+        width: "100vw",
+        height: "100vh",
         children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(react_error_boundary_umd.ErrorBoundary, {
             onError: errorHandler,
             fallbackRender: GlobalErrorPageHandler,
@@ -66417,7 +66404,7 @@ function use_force_update_useForceUpdate() {
 var PresenceChild = function (_a) {
     var children = _a.children, initial = _a.initial, isPresent = _a.isPresent, onExitComplete = _a.onExitComplete, custom = _a.custom, presenceAffectsLayout = _a.presenceAffectsLayout;
     var presenceChildren = useConstant(newChildrenMap);
-    var id = use_id_useId();
+    var id = useId();
     var context = (0,react.useMemo)(function () { return ({
         id: id,
         initial: initial,
@@ -66563,7 +66550,7 @@ var AnimatePresence = function (_a) {
         updateChildLookup(filteredChildren, allChildren);
         presentChildren.current = childrenToRender;
     });
-    use_unmount_effect_useUnmountEffect(function () {
+    useUnmountEffect(function () {
         isInitialRender.current = true;
         allChildren.clear();
         exiting.clear();
@@ -68225,7 +68212,7 @@ function useFormControlProvider(props) {
       htmlProps = chakra_ui_form_control_esm_objectWithoutPropertiesLoose(props, chakra_ui_form_control_esm_excluded$2); // Generate all the required ids
 
 
-  var uuid = useId();
+  var uuid = chakra_ui_hooks_esm_useId();
   var id = idProp || "field-" + uuid;
   var labelId = id + "-label";
   var feedbackId = id + "-feedback";
@@ -73344,20 +73331,19 @@ function DeathTimer(props) {
 
 
 
+
 function Home() {
     var ref = useCurrentUser(), data = ref.data, error = ref.error, isFetching = ref.isFetching;
     var ref1 = useDeathClockUser(), deathClockUser = ref1.data, deathClockUserError = ref1.error, deathClockUserFetching = ref1.isFetching;
     var toast = useToast();
+    var navigate = useNavigate();
     (0,react.useEffect)(function() {
-        if (!data && !isFetching) {
-            throw error;
-        }
-        if (!deathClockUserError && !deathClockUserFetching) {
-            throw error;
+        if (!deathClockUserFetching && !deathClockUser.data) {
+            navigate("/new");
         }
     }, [
-        error,
-        deathClockUserError
+        deathClockUserFetching,
+        deathClockUser
     ]);
     return(/*#__PURE__*/ (0,jsx_runtime.jsxs)(Flex, {
         align: 'center',
@@ -73402,7 +73388,7 @@ function Home() {
                             children: Array.from(Array(deathClockUser.data.lifeExpectancy - deathClockUser.data.age).keys()).map(function(x) {
                                 /*#__PURE__*/ return (0,jsx_runtime.jsx)(Box, {
                                     children: "🎂"
-                                });
+                                }, x);
                             })
                         }),
                         /*#__PURE__*/ (0,jsx_runtime.jsxs)(Text, {
@@ -73424,10 +73410,10 @@ function Home() {
                             children: Array.from(Array(deathClockUser.data.age).keys()).map(function(x) {
                                 /*#__PURE__*/ return (0,jsx_runtime.jsx)(Box, {
                                     children: "☠️"
-                                });
+                                }, x);
                             })
                         }),
-                        /*#__PURE__*/ (0,jsx_runtime.jsxs)(Text, {
+                        /*#__PURE__*/ (0,jsx_runtime.jsxs)(Box, {
                             fontWeight: "bold",
                             children: [
                                 " ",
@@ -73442,6 +73428,24 @@ function Home() {
                                 }),
                                 " days of your life are gone forever"
                             ]
+                        }),
+                        deathClockUser.data.subscribed && /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
+                            onClick: function() {
+                                navigate({
+                                    pathname: "/subscribe",
+                                    search: "?subscribeId=".concat(deathClockUser.data.subscribeId, "&subscribe=false")
+                                });
+                            },
+                            children: "Unsubscribe"
+                        }),
+                        !deathClockUser.data.subscribed && /*#__PURE__*/ (0,jsx_runtime.jsx)(Button, {
+                            onClick: function() {
+                                navigate({
+                                    pathname: "/subscribe",
+                                    search: "?subscribeId=".concat(deathClockUser.data.subscribeId, "&subscribe=true")
+                                });
+                            },
+                            children: "Subscribe"
                         })
                     ]
                 })
@@ -73766,6 +73770,7 @@ function NewUser() {
     var ref2 = useCurrentUser(), data = ref2.data, error = ref2.error, isFetching = ref2.isFetching;
     var ref3 = useForm(), control = ref3.control, handleSubmit = ref3.handleSubmit, setError = ref3.setError, register = ref3.register, errors = ref3.formState.errors, setValue = ref3.setValue;
     var mutation = useMutationNewUser(setError);
+    var colorMode = useColorModeValue('white', 'gray.800');
     var navigate = useNavigate();
     var toast = useToast();
     (0,react.useEffect)(function() {
@@ -73791,7 +73796,11 @@ function NewUser() {
                         mb: "40px",
                         children: [
                             /*#__PURE__*/ (0,jsx_runtime.jsx)(Heading, {
-                                fontSize: '4xl',
+                                fontSize: {
+                                    base: "sm",
+                                    md: "lg",
+                                    lg: "4xl"
+                                },
                                 children: "Just one more step left!"
                             }),
                             /*#__PURE__*/ (0,jsx_runtime.jsx)(Text, {
@@ -74091,6 +74100,35 @@ function Subscribe_arrayLikeToArray(arr, len) {
 function Subscribe_arrayWithHoles(arr) {
     if (Array.isArray(arr)) return arr;
 }
+function Subscribe_asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+    try {
+        var info = gen[key](arg);
+        var value = info.value;
+    } catch (error) {
+        reject(error);
+        return;
+    }
+    if (info.done) {
+        resolve(value);
+    } else {
+        Promise.resolve(value).then(_next, _throw);
+    }
+}
+function Subscribe_asyncToGenerator(fn) {
+    return function() {
+        var self = this, args = arguments;
+        return new Promise(function(resolve, reject) {
+            var gen = fn.apply(self, args);
+            function _next(value) {
+                Subscribe_asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+            }
+            function _throw(err) {
+                Subscribe_asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+            }
+            _next(undefined);
+        });
+    };
+}
 function Subscribe_iterableToArrayLimit(arr, i) {
     var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
     if (_i == null) return;
@@ -74136,15 +74174,16 @@ function Subscribe_unsupportedIterableToArray(o, minLen) {
 
 
 
+
 function Subscribe_Subscribe() {
-    var ref, ref1, ref2;
-    var ref3 = Subscribe_slicedToArray(useSearchParams(), 2), searchParams = ref3[0], setSearchParams = ref3[1];
-    var ref4 = Subscribe_slicedToArray((0,react.useState)(String), 2), subscribeId = ref4[0], setSubscribeId = ref4[1];
-    var ref5 = Subscribe_slicedToArray((0,react.useState)(Boolean), 2), subscribe = ref5[0], setSubscribe = ref5[1];
-    var ref6 = useForm(), control = ref6.control, handleSubmit = ref6.handleSubmit, setError = ref6.setError, register = ref6.register, errors = ref6.formState.errors, setValue = ref6.setValue;
+    var ref = Subscribe_slicedToArray(useSearchParams(), 2), searchParams = ref[0], setSearchParams = ref[1];
+    var ref1 = Subscribe_slicedToArray((0,react.useState)(String), 2), subscribeId = ref1[0], setSubscribeId = ref1[1];
+    var ref2 = Subscribe_slicedToArray((0,react.useState)(Boolean), 2), subscribe = ref2[0], setSubscribe = ref2[1];
+    var ref3 = useForm(), control = ref3.control, handleSubmit = ref3.handleSubmit, setError = ref3.setError, register = ref3.register, errors = ref3.formState.errors, setValue = ref3.setValue;
     var mutation = SubscribeEndpoint_useMutationNewUser(setError);
     var toast = useToast();
     var navigate = useNavigate();
+    var ref4 = Subscribe_slicedToArray((0,react.useState)(false), 2), isError = ref4[0], setIsError = ref4[1];
     (0,react.useEffect)(function() {
         var searchParamSubscribeId = searchParams.get("subscribeId");
         var searchParamSubscribe = JSON.parse(searchParams.get("subscribe"));
@@ -74162,15 +74201,28 @@ function Subscribe_Subscribe() {
                 subscribe: subscribe,
                 unsubscribeId: subscribeId
             }, {
-                onSuccess: function() {
-                    toast({
-                        status: "success",
-                        title: "You have been ".concat(title),
-                        description: "We have updated your subscribe status"
-                    });
-                    navigate("/");
-                },
+                onSuccess: Subscribe_asyncToGenerator(runtime_default().mark(function _callee() {
+                    return runtime_default().wrap(function _callee$(_ctx) {
+                        while(1)switch(_ctx.prev = _ctx.next){
+                            case 0:
+                                _ctx.next = 2;
+                                return queryClient.invalidateQueries('deathClockUser');
+                            case 2:
+                                setIsError(false);
+                                toast({
+                                    status: "success",
+                                    title: "You have been ".concat(title),
+                                    description: "We have updated your subscribe status"
+                                });
+                                navigate("/");
+                            case 5:
+                            case "end":
+                                return _ctx.stop();
+                        }
+                    }, _callee);
+                })),
                 onError: function() {
+                    setIsError(true);
                     toast({
                         status: "error",
                         title: "sorry about this",
@@ -74213,23 +74265,14 @@ function Subscribe_Subscribe() {
                         children: /*#__PURE__*/ (0,jsx_runtime.jsxs)(VStack, {
                             spacing: 8,
                             children: [
-                                /*#__PURE__*/ (0,jsx_runtime.jsx)(FormControl, {
-                                    isInvalid: errorIsValid(errors, errors.unsubscribeId),
-                                    children: /*#__PURE__*/ (0,jsx_runtime.jsx)(FormErrorMessage, {
-                                        children: (ref = errors["unsubscribeId"]) === null || ref === void 0 ? void 0 : ref.message
-                                    })
+                                isError && /*#__PURE__*/ (0,jsx_runtime.jsx)(Text, {
+                                    fontWeight: "bold",
+                                    color: "red.600",
+                                    children: "Invalid unsubscribe url"
                                 }),
-                                /*#__PURE__*/ (0,jsx_runtime.jsx)(FormControl, {
-                                    isInvalid: errorIsValid(errors, errors.subscribe),
-                                    children: /*#__PURE__*/ (0,jsx_runtime.jsx)(FormErrorMessage, {
-                                        children: (ref1 = errors["subscribe"]) === null || ref1 === void 0 ? void 0 : ref1.message
-                                    })
-                                }),
-                                /*#__PURE__*/ (0,jsx_runtime.jsx)(FormControl, {
-                                    isInvalid: errorIsValid(errors, errors.generalError),
-                                    children: /*#__PURE__*/ (0,jsx_runtime.jsx)(FormErrorMessage, {
-                                        children: (ref2 = errors["generalError"]) === null || ref2 === void 0 ? void 0 : ref2.message
-                                    })
+                                !isError && /*#__PURE__*/ (0,jsx_runtime.jsx)(Text, {
+                                    fontWeight: "bold",
+                                    children: "Thank you, you are now unsubscribed"
                                 })
                             ]
                         })
@@ -74599,6 +74642,6 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 },
 /******/ __webpack_require__ => { // webpackRuntimeModules
 /******/ var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
-/******/ var __webpack_exports__ = (__webpack_exec__(38126));
+/******/ var __webpack_exports__ = (__webpack_exec__(84104));
 /******/ }
 ]);
