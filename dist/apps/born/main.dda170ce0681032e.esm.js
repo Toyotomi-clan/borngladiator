@@ -71272,12 +71272,15 @@ function SignupCard() {
                                     _ctx.next = 3;
                                     return queryClient.invalidateQueries("deathClockUser");
                                 case 3:
+                                    _ctx.next = 5;
+                                    return queryClient.invalidateQueries("user");
+                                case 5:
                                     toast({
                                         status: "success",
                                         title: "Welcome to Stoictemple",
                                         description: "remember you will die."
                                     });
-                                case 4:
+                                case 6:
                                 case "end":
                                     return _ctx.stop();
                             }
@@ -72075,10 +72078,13 @@ function Login() {
                                     _ctx.next = 3;
                                     return queryClient.invalidateQueries("deathClockUser");
                                 case 3:
+                                    _ctx.next = 5;
+                                    return queryClient.invalidateQueries("user");
+                                case 5:
                                     setUserLoggedIn(function(x) {
                                         return !x;
                                     });
-                                case 4:
+                                case 6:
                                 case "end":
                                     return _ctx.stop();
                             }

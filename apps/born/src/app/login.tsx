@@ -68,6 +68,8 @@ export default function Login() {
                 description: "remember you will die."
               })
               await queryClient.invalidateQueries("deathClockUser")
+              await queryClient.invalidateQueries("user")
+
               setUserLoggedIn(x => !x)
 
             },
