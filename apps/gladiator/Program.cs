@@ -86,7 +86,8 @@ builder.Services.AddCors(options =>
   if (builder.Configuration["ASPNETCORE_ENVIRONMENT"] == "Production")
   {
     options.AddPolicy("AllowLocalHostCORS", policyBuilder => policyBuilder
-      .WithOrigins("stoictemple.com")
+      .WithOrigins("https://www.stoictemple.com")
+      .WithOrigins("https://stoictemple.com")
       .AllowAnyHeader()
       .AllowAnyMethod()
       .AllowCredentials());
