@@ -3,6 +3,7 @@ using Borngladiator.Gladiator.Features.Shared;
 using Borngladiator.Gladiator.Helper;
 using Dapper;
 using FastEndpoints;
+using HashidsNet;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using ILogger = Serilog.ILogger;
@@ -40,7 +41,7 @@ public class GetUser : EndpointWithoutRequest<GetUserDto>
     var getUserSql = "select date_of_birth as DateOfBirth,subscribed, (select gender from gender where id = users.gender) as gender  from users where user_id = @user";
     var getUserParams = new
     {
-      user = userPrinciple.Principal.GetUserId()
+      user = userPrinciple?.Principal.GetUserId()
     };
 
     await using var connection = new NpgsqlConnection(_configuration.Database.Connection);
@@ -69,6 +70,18 @@ public class GetUser : EndpointWithoutRequest<GetUserDto>
     dto.Age = LifeExpectancyHelper.GetAge(dto.DateOfBirth);
 
     dto.DaysSpent = LifeExpectancyHelper.DaysSpent(dto.DateOfBirth);
+
+
+    var hashId = new Hashids(_configuration.HashIdsSalt);
+
+    var userHashedId = hashId.EncodeHex(_user.GetUser(HttpContext.Request)?.Principal.GetUserId().ToString("N"));
+
+    if (string.IsNullOrWhiteSpace(userHashedId))
+    {
+      _logger.Error("Unable to create valid user hash for unsubscribe link");
+    }
+
+    dto.SubscribeId = userHashedId ?? string.Empty;
 
     await SendOkAsync(dto,ct);
 

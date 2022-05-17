@@ -62,11 +62,11 @@ public class SendDailyEmail : IJob
     //check for response success or failure
     if (!response.IsSuccessStatusCode)
     {
-      //Todo: log it
+      //Todo: implement cors fail over policy
       //Todo: retry sending it later
+      _logger.LogError("Unable to send email {@numberOfUsers} duo to sendGrid with {@response}",users.Item1.Count,response);
     }
     _logger.LogInformation("finished email cron job at {@time} sent to {@totalUsers} {@sendGridResponse}",DateTime.UtcNow,users.Item1.Count,response);
-
   }
 
   private async Task<Tuple<List<EmailAddress>,List<object>>> GetUsers()

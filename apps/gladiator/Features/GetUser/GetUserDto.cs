@@ -14,6 +14,8 @@ public class GetUserDto
 
   public bool Subscribed { get; set; }
 
+  public string SubscribeId { get; set; }
+
   public string Gender { get; set; }
 
 

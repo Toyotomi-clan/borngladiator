@@ -101,6 +101,7 @@ public class CreateUser : Endpoint<CreateUserDto>
       _logger.Error("Sendgrid failed to send {@welcomeEmail}",response);
 
       //Todo: Send email at a later date.
+      //Todo: Also can be placed in the cron job or a queue to call a later date
     }
   }
 
