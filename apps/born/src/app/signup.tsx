@@ -22,6 +22,7 @@ import {errorIsValid} from "./helper/EmptyObjectHelper";
 import {Link as ReactRouterLink, useNavigate} from "react-router-dom";
 import {useMutationSignUp, useStartSignUpFlow} from "./Api/Api";
 import {SubmitSelfServiceRegistrationFlowBody} from "@ory/client";
+import {queryClient} from "./QueryClient";
 
 
 export default function SignupCard() {
@@ -58,11 +59,13 @@ export default function SignupCard() {
           flow: data.data,
           model: submitRegistration
         }, {
-          onSuccess: () => {
+          onSuccess: async () => {
             navigate("/new")
+            await queryClient.invalidateQueries("deathClockUser")
+
             toast({
               status: "success",
-              title: "Welcome to death clock",
+              title: "Welcome to Stoictemple",
               description: "remember you will die."
             })
           },

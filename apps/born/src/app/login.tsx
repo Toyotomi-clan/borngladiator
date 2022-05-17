@@ -22,6 +22,7 @@ import {findCsrfToken} from "./helper/oryHelper";
 import {errorIsValid} from "./helper/EmptyObjectHelper";
 import {LoginFormModel} from "./models/loginModels";
 import {useEffect, useState} from "react";
+import {queryClient} from "./QueryClient";
 
 export default function Login() {
 
@@ -60,12 +61,13 @@ export default function Login() {
           flow: data.data,
           model:submitLogin
         },{
-            onSuccess: () => {
+            onSuccess: async () => {
               toast({
                 status: "success",
-                title: "Welcome back death clock",
+                title: "Welcome back Stoictemple",
                 description: "remember you will die."
               })
+              await queryClient.invalidateQueries("deathClockUser")
               setUserLoggedIn(x => !x)
 
             },
