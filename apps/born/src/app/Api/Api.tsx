@@ -148,7 +148,7 @@ export function useLogoutUser(userClickedLogout: boolean,logoutUrl: string, reac
 
       await queryClient.invalidateQueries("user")
       toggleLogoutFlow()
-      reactRouterRedirect("/login")
+      reactRouterRedirect("/")
       //Todo: we are doing this because the http-cookie still lives on after we asked the server to logout user
       //Todo: implement a middleware that clears https-cookies (in node) on this request
       window.location.reload();
