@@ -61,8 +61,9 @@ export default function SignupCard() {
         }, {
           onSuccess: async () => {
             navigate("/new")
-            await queryClient.invalidateQueries("deathClockUser")
-            await queryClient.invalidateQueries("user")
+
+            await queryClient.resetQueries("deathClockUser", { exact: true })
+            await queryClient.resetQueries("user", { exact: true })
 
             toast({
               status: "success",

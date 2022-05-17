@@ -67,8 +67,8 @@ export default function Login() {
                 title: "Welcome back Stoictemple",
                 description: "remember you will die."
               })
-              await queryClient.invalidateQueries("deathClockUser")
-              await queryClient.invalidateQueries("user")
+              await queryClient.resetQueries("deathClockUser", { exact: true })
+              await queryClient.resetQueries("user", { exact: true })
 
               setUserLoggedIn(x => !x)
 

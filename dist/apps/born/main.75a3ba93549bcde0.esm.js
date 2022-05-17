@@ -71270,10 +71270,14 @@ function SignupCard() {
                                 case 0:
                                     navigate("/new");
                                     _ctx.next = 3;
-                                    return queryClient.invalidateQueries("deathClockUser");
+                                    return queryClient.resetQueries("deathClockUser", {
+                                        exact: true
+                                    });
                                 case 3:
                                     _ctx.next = 5;
-                                    return queryClient.invalidateQueries("user");
+                                    return queryClient.resetQueries("user", {
+                                        exact: true
+                                    });
                                 case 5:
                                     toast({
                                         status: "success",
@@ -72076,10 +72080,14 @@ function Login() {
                                         description: "remember you will die."
                                     });
                                     _ctx.next = 3;
-                                    return queryClient.invalidateQueries("deathClockUser");
+                                    return queryClient.resetQueries("deathClockUser", {
+                                        exact: true
+                                    });
                                 case 3:
                                     _ctx.next = 5;
-                                    return queryClient.invalidateQueries("user");
+                                    return queryClient.resetQueries("user", {
+                                        exact: true
+                                    });
                                 case 5:
                                     setUserLoggedIn(function(x) {
                                         return !x;
