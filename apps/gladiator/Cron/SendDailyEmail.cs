@@ -31,7 +31,7 @@ public class SendDailyEmail : IJob
 
     var client = new SendGridClient(sendgridKey);
 
-    var from = new EmailAddress(_configuration.SendGrid.EmailFrom, "welcome to Stoictemple");
+    var from = new EmailAddress(_configuration.SendGrid.EmailFrom, "Memento Mori");
 
     var users = await GetUsers();
 
@@ -104,10 +104,10 @@ public class SendDailyEmail : IJob
 
       var userParams = new
       {
-        days_left = LifeExpectancyHelper.DaysLeft(averageLifeExpectancy,user.DateOfBirth),
-        birthday_gone = LifeExpectancyHelper.GetAge(user.DateOfBirth),
-        birthday_left =  averageLifeExpectancy - LifeExpectancyHelper.GetAge(user.DateOfBirth),
-        days_gone = LifeExpectancyHelper.DaysSpent(user.DateOfBirth),
+        daysLeft = LifeExpectancyHelper.DaysLeft(averageLifeExpectancy,user.DateOfBirth),
+        birthdaysGone = LifeExpectancyHelper.GetAge(user.DateOfBirth),
+        birthdaysLeft =  averageLifeExpectancy - LifeExpectancyHelper.GetAge(user.DateOfBirth),
+        daysGone = LifeExpectancyHelper.DaysSpent(user.DateOfBirth),
         username = user.Username
       };
 
